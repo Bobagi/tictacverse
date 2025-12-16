@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/player_marker.dart';
 import '../../services/visual_assets.dart';
+import 'modern_background.dart';
 
 class GameBoard extends StatelessWidget {
   const GameBoard({
@@ -19,36 +20,78 @@ class GameBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1,
-      child: GridView.count(
-        crossAxisCount: 3,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-        shrinkWrap: true,
-        children: List<Widget>.generate(board.length, (int index) => _buildCell(context, index)),
+    final VisualAssetConfig assetConfig = visualAssetConfig ?? VisualAssetConfig();
+    return GlassPanel(
+      padding: const EdgeInsets.all(12),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final double cellExtent = constraints.biggest.shortestSide / 3;
+            return Stack(
+              children: <Widget>[
+                Positioned.fill(
+                  child: Center(
+                    child: Image.asset(
+                      assetConfig.boardAssetPath,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                  itemCount: board.length,
+                  itemBuilder: (BuildContext context, int index) => _buildCell(
+                    context,
+                    index,
+                    cellExtent,
+                    assetConfig,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildCell(BuildContext context, int index) {
+  Widget _buildCell(BuildContext context, int index, double cellExtent, VisualAssetConfig assetConfig) {
     final PlayerMarker? marker = board[index];
     final bool isBlocked = blockedCells.contains(index);
     return GestureDetector(
       onTap: () => onCellSelected(index),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          color: Colors.transparent,
         ),
-        child: Center(
-          child: isBlocked
-              ? Icon(Icons.block, color: Colors.red.shade400)
-              : Text(
-                  marker?.symbol ?? '',
-                  style: Theme.of(context).textTheme.headlineMedium,
+        child: Stack(
+          children: <Widget>[
+            if (marker != null)
+              Center(
+                child: Image.asset(
+                  marker == PlayerMarker.cross ? assetConfig.crossAssetPath : assetConfig.noughtAssetPath,
+                  width: cellExtent * 0.7,
+                  height: cellExtent * 0.7,
+                  fit: BoxFit.contain,
                 ),
+              ),
+            if (isBlocked)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.35),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Icon(Icons.block, color: Colors.redAccent.shade200),
+                ),
+              ),
+          ],
         ),
       ),
     );

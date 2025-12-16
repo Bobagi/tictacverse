@@ -10,6 +10,7 @@ import '../../services/ad_service.dart';
 import '../../services/metrics_service.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_over_modal.dart';
+import '../widgets/modern_background.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({
@@ -31,25 +32,33 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localization = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.controller.modeDefinition.title(localization))),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildStatusRow(localization),
-            const SizedBox(height: 12),
-            GameBoard(
-              board: widget.controller.state.board,
-              blockedCells: widget.controller.state.blockedCells,
-              onCellSelected: _handleCellTap,
+    return ModernGradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(title: Text(widget.controller.modeDefinition.title(localization))),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                GlassPanel(child: _buildStatusRow(localization)),
+                const SizedBox(height: 16),
+                GameBoard(
+                  board: widget.controller.state.board,
+                  blockedCells: widget.controller.state.blockedCells,
+                  onCellSelected: _handleCellTap,
+                ),
+                const SizedBox(height: 16),
+                if (_hasModeInfo)
+                  GlassPanel(
+                    child: _buildModeInfo(localization),
+                  ),
+                const Spacer(),
+                if (widget.adService.shouldShowBannerOnGameScreen()) _buildBannerPlaceholder(localization),
+              ],
             ),
-            const SizedBox(height: 12),
-            _buildModeInfo(localization),
-            const Spacer(),
-            if (widget.adService.shouldShowBannerOnGameScreen()) _buildBannerPlaceholder(localization),
-          ],
+          ),
         ),
       ),
     );
@@ -81,12 +90,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildBannerPlaceholder(AppLocalizations localization) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(8),
-      ),
+    return GlassPanel(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -128,6 +132,7 @@ class _GameScreenState extends State<GameScreen> {
     }
     showModalBottomSheet<void>(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) => GameOverModal(
         title: title,
         subtitle: subtitle,
@@ -153,5 +158,9 @@ class _GameScreenState extends State<GameScreen> {
       case ChaosEffectType.swapSymbols:
         return localization.chaosSwapSymbols;
     }
+  }
+
+  bool get _hasModeInfo {
+    return widget.controller.state.activeChaosEvent != null || widget.controller.state.activeUltimateCondition != null;
   }
 }

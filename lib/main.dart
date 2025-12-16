@@ -38,7 +38,16 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyanAccent, brightness: Brightness.dark),
+        scaffoldBackgroundColor: Colors.transparent,
+        useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white.withOpacity(0.08),
+          elevation: 0,
+          foregroundColor: Colors.white,
+          centerTitle: false,
+        ),
+        textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Roboto'),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: HomeScreen(metricsService: metricsService),

@@ -1,8 +1,8 @@
 class VisualAssetConfig {
   VisualAssetConfig({
-    this.boardAssetPath = 'assets/board/default_board.png',
-    this.crossAssetPath = 'assets/symbols/x/default_x.png',
-    this.noughtAssetPath = 'assets/symbols/o/default_o.png',
+    this.boardAssetPath = 'assets/symbols/board/board.png',
+    this.crossAssetPath = 'assets/symbols/x/x.png',
+    this.noughtAssetPath = 'assets/symbols/o/o.png',
   });
 
   final String boardAssetPath;
