@@ -227,12 +227,6 @@ abstract class AppLocalizations {
   /// **'Win within a limited number of moves.'**
   String get ultimateLimitedMoves;
 
-  /// No description provided for @ultimateCornersOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Win using only corner cells.'**
-  String get ultimateCornersOnly;
-
   /// No description provided for @movesRemaining.
   ///
   /// In en, this message translates to:

@@ -21,7 +21,6 @@
   "chaosSwapSymbols": "Chaos: Symbols swapped for one turn!",
   "ultimateNoCenter": "Win without using the center cell.",
   "ultimateLimitedMoves": "Win within a limited number of moves.",
-  "ultimateCornersOnly": "Win using only corner cells.",
   "movesRemaining": "Moves remaining",
   "adsBannerPlacement": "Banner ads appear on the game screen only.",
   "adInterstitialHint": "Interstitial ads show after some matches.",

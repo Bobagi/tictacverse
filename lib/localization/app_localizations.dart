@@ -81,7 +81,6 @@ class AppLocalizations {
   String get chaosSwapSymbols => _messages['chaosSwapSymbols'] ?? '';
   String get ultimateNoCenter => _messages['ultimateNoCenter'] ?? '';
   String get ultimateLimitedMoves => _messages['ultimateLimitedMoves'] ?? '';
-  String get ultimateCornersOnly => _messages['ultimateCornersOnly'] ?? '';
   String get movesRemaining => _messages['movesRemaining'] ?? '';
   String get adsBannerPlacement => _messages['adsBannerPlacement'] ?? '';
   String get adInterstitialHint => _messages['adInterstitialHint'] ?? '';

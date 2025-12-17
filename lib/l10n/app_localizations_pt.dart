@@ -75,9 +75,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ultimateLimitedMoves => 'Vença dentro de um número limitado de jogadas.';
 
   @override
-  String get ultimateCornersOnly => 'Vença usando apenas as quinas.';
-
-  @override
   String get movesRemaining => 'Jogadas restantes';
 
   @override

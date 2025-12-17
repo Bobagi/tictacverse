@@ -75,9 +75,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ultimateLimitedMoves => 'Win within a limited number of moves.';
 
   @override
-  String get ultimateCornersOnly => 'Win using only corner cells.';
-
-  @override
   String get movesRemaining => 'Moves remaining';
 
   @override
