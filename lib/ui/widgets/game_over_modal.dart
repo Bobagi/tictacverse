@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../localization/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/player_marker.dart';
 import '../../services/visual_assets.dart';
 import 'modern_background.dart';
@@ -25,7 +25,7 @@ class GameOverModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations localization = AppLocalizations.of(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: GlassPanel(

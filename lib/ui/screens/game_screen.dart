@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
-import '../../localization/app_localizations.dart';
+import '../../controllers/mandatory_full_screen_ad_controller.dart';
 import '../../models/chaos_event.dart';
 import '../../models/game_mode.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
-import '../../services/ad_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/visual_assets.dart';
 import '../widgets/game_board.dart';
@@ -17,13 +18,13 @@ class GameScreen extends StatefulWidget {
   const GameScreen({
     super.key,
     required this.controller,
-    required this.adService,
     required this.metricsService,
+    required this.mandatoryFullScreenAdController,
   });
 
   final GameController controller;
-  final AdService adService;
   final MetricsService metricsService;
+  final MandatoryFullScreenAdController mandatoryFullScreenAdController;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -31,10 +32,27 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final VisualAssetConfig _visualAssets = VisualAssetConfig();
+  final BannerAdController bannerAdController = BannerAdController();
+
+  @override
+  void initState() {
+    super.initState();
+    bannerAdController.loadBannerAd(
+      onAdLoaded: _refreshBannerArea,
+      onAdFailed: _refreshBannerArea,
+    );
+    widget.mandatoryFullScreenAdController.preloadAds();
+  }
+
+  @override
+  void dispose() {
+    bannerAdController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations localization = AppLocalizations.of(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
     return ModernGradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -58,7 +76,7 @@ class _GameScreenState extends State<GameScreen> {
                 const SizedBox(height: 16),
                 _buildPlayerMessageBanner(localization),
                 const Spacer(),
-                if (widget.adService.shouldShowBannerOnGameScreen()) _buildBannerPlaceholder(localization),
+                _buildBannerPlaceholder(localization),
               ],
             ),
           ),
@@ -202,11 +220,12 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildBannerPlaceholder(AppLocalizations localization) {
     return GlassPanel(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          Center(child: bannerAdController.buildBannerAdWidget()),
+          const SizedBox(height: 8),
           Text(localization.adsBannerPlacement),
-          const Icon(Icons.ad_units),
         ],
       ),
     );
@@ -218,14 +237,8 @@ class _GameScreenState extends State<GameScreen> {
     });
     if (widget.controller.state.result.isFinal) {
       widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
-      _maybeShowInterstitial();
+      widget.mandatoryFullScreenAdController.tryShowAdAfterMatchCompleted();
       _showGameOverSheet();
-    }
-  }
-
-  void _maybeShowInterstitial() {
-    if (widget.adService.shouldShowInterstitialOnMatchEnd()) {
-      widget.metricsService.recordAdImpression();
     }
   }
 
@@ -259,7 +272,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showGameOverSheet() {
-    final AppLocalizations localization = AppLocalizations.of(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
     final GameResult result = widget.controller.state.result;
     final String title;
     final String subtitle;
@@ -289,6 +302,12 @@ class _GameScreenState extends State<GameScreen> {
         visualAssets: _visualAssets,
       ),
     );
+  }
+
+  void _refreshBannerArea() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   String _describeChaosEvent(ChaosEvent event, AppLocalizations localization) {
