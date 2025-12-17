@@ -37,25 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: <Widget>[
-                GlassPanel(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(localization.gameModeLabel, style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(playAgainstCpu ? localization.cpuOpponent : localization.twoPlayers),
-                        value: playAgainstCpu,
-                        onChanged: (bool value) {
-                          setState(() {
-                            playAgainstCpu = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                _buildModeToggle(localization),
                 const SizedBox(height: 16),
                 Expanded(
                   child: GlassPanel(
@@ -101,6 +83,99 @@ class _HomeScreenState extends State<HomeScreen> {
           adService: adService,
           metricsService: widget.metricsService,
         ),
+      ),
+    );
+  }
+
+  Widget _buildModeToggle(AppLocalizations localization) {
+    return GlassPanel(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(localization.gameModeLabel, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
+                child: _ModePill(
+                  icon: Icons.group_rounded,
+                  label: localization.twoPlayers,
+                  isActive: !playAgainstCpu,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Switch(
+                  value: playAgainstCpu,
+                  onChanged: (bool value) {
+                    setState(() {
+                      playAgainstCpu = value;
+                    });
+                  },
+                  activeColor: Colors.lightBlueAccent,
+                  inactiveThumbColor: Colors.white,
+                  inactiveTrackColor: Colors.white.withOpacity(0.2),
+                ),
+              ),
+              Expanded(
+                child: _ModePill(
+                  icon: Icons.computer_rounded,
+                  label: localization.cpuOpponent,
+                  isActive: playAgainstCpu,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModePill extends StatelessWidget {
+  const _ModePill({required this.icon, required this.label, required this.isActive});
+
+  final IconData icon;
+  final String label;
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isActive
+              ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
+              : <Color>[Colors.white.withOpacity(0.05), Colors.white.withOpacity(0.08)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isActive ? Colors.white : Colors.white.withOpacity(0.25)),
+        boxShadow: isActive
+            ? <BoxShadow>[
+                BoxShadow(color: Colors.cyanAccent.withOpacity(0.35), blurRadius: 18, offset: const Offset(0, 8)),
+              ]
+            : <BoxShadow>[],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(icon, color: isActive ? const Color(0xFF041427) : Colors.white70),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isActive ? const Color(0xFF041427) : Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

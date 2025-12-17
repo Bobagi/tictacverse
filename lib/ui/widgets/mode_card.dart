@@ -29,8 +29,15 @@ class ModeCard extends StatelessWidget {
           const SizedBox(width: 12),
           ElevatedButton.icon(
             onPressed: onStart,
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: Text(MaterialLocalizations.of(context).continueButtonLabel),
+            icon: const Icon(Icons.sports_esports_rounded),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              backgroundColor: const Color(0xFF1AD1FF),
+              foregroundColor: const Color(0xFF041427),
+              elevation: 6,
+            ),
+            label: const Text('Play'),
           ),
         ],
       ),
