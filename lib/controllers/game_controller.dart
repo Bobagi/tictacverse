@@ -49,8 +49,11 @@ class GameController {
   void _performCpuMove() {
     for (int i = 0; i < state.board.length; i++) {
       if (state.isCellAvailable(i)) {
-        state = _engine.handlePlayerMove(state, i);
-        break;
+        final GameState attemptedState = _engine.handlePlayerMove(state, i);
+        if (!identical(attemptedState, state)) {
+          state = attemptedState;
+          break;
+        }
       }
     }
   }

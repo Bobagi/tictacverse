@@ -9,7 +9,7 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appTitle => 'TicTacVerse';
+  String get appTitle => 'Tic Tac Verse';
 
   @override
   String get modeClassicTitle => 'Jogo da Velha Clássico';
@@ -75,9 +75,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ultimateLimitedMoves => 'Vença dentro de um número limitado de jogadas.';
 
   @override
-  String get ultimateCornersOnly => 'Vença usando apenas as quinas.';
-
-  @override
   String get movesRemaining => 'Jogadas restantes';
 
   @override
@@ -88,4 +85,28 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get gameModeLabel => 'Modo de jogo';
+
+  @override
+  String get tapToClaim => 'Toque em qualquer célula para capturá-la';
+
+  @override
+  String get winInstruction => 'Forme uma linha de três para vencer a corrida neon.';
+
+  @override
+  String get takeTurnCta => 'Faça sua jogada e ilumine o tabuleiro';
+
+  @override
+  String get playLabel => 'Jogar';
+
+  @override
+  String get settingsTitle => 'Configurações';
+
+  @override
+  String get languageLabel => 'Idioma';
+
+  @override
+  String get languageEnglish => 'Inglês';
+
+  @override
+  String get languagePortuguese => 'Português';
 }

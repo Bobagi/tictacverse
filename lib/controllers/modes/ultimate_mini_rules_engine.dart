@@ -34,24 +34,17 @@ class UltimateMiniRulesEngine implements GameRulesEngine {
       return currentState;
     }
     final UltimateCondition? condition = currentState.activeUltimateCondition;
-    if (condition != null && !condition.isMoveAllowed(selectedIndex)) {
-      return currentState;
-    }
 
     final List<PlayerMarker?> updatedBoard = List<PlayerMarker?>.from(currentState.board);
-    updatedBoard[selectedIndex] = currentState.currentPlayer;
+    final PlayerMarker placingPlayer = currentState.currentPlayer;
+    updatedBoard[selectedIndex] = placingPlayer;
 
     int? movesRemaining = currentState.movesRemaining;
     if (movesRemaining != null) {
       movesRemaining -= 1;
     }
 
-    GameResult tentativeResult = WinChecker.evaluateBoard(updatedBoard);
-    if (condition != null && tentativeResult.resolution == GameResolution.victory) {
-      if (!condition.isBoardValid(updatedBoard)) {
-        tentativeResult = GameResult(resolution: GameResolution.ongoing);
-      }
-    }
+    GameResult tentativeResult = _resolveResultForCondition(condition, updatedBoard);
 
     if (movesRemaining != null && movesRemaining <= 0 && tentativeResult.resolution == GameResolution.ongoing) {
       tentativeResult = GameResult(resolution: GameResolution.draw);
@@ -66,11 +59,23 @@ class UltimateMiniRulesEngine implements GameRulesEngine {
     );
   }
 
+  GameResult _resolveResultForCondition(
+    UltimateCondition? condition,
+    List<PlayerMarker?> updatedBoard,
+  ) {
+    GameResult tentativeResult = WinChecker.evaluateBoard(updatedBoard);
+    if (condition != null && tentativeResult.resolution == GameResolution.victory) {
+      if (!condition.isBoardValid(updatedBoard)) {
+        tentativeResult = GameResult(resolution: GameResolution.ongoing);
+      }
+    }
+    return tentativeResult;
+  }
+
   UltimateCondition _selectCondition() {
     final List<UltimateConditionType> types = <UltimateConditionType>[
       UltimateConditionType.avoidCenter,
       UltimateConditionType.limitedMoves,
-      UltimateConditionType.cornersOnly,
     ];
     final UltimateConditionType chosen = types[_randomGenerator.nextInt(types.length)];
     switch (chosen) {

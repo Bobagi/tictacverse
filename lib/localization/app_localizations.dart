@@ -22,13 +22,17 @@ class AppLocalizations {
   ];
 
   static Future<AppLocalizations> load(Locale locale) async {
-    final Locale chosenLocale = _resolveLocale(locale);
+    final Locale chosenLocale = resolveSupportedLocale(locale);
     Intl.defaultLocale = chosenLocale.toLanguageTag();
     final Map<String, String> messages = await _loadMessagesForLocale(chosenLocale);
     return AppLocalizations(chosenLocale, messages);
   }
 
-  static Locale _resolveLocale(Locale requestedLocale) {
+  static Locale resolveSupportedLocale(Locale? requestedLocale) {
+    if (requestedLocale == null) {
+      return supportedLocales.first;
+    }
+
     for (final Locale supported in supportedLocales) {
       if (supported.languageCode == requestedLocale.languageCode) {
         return supported;
@@ -77,11 +81,18 @@ class AppLocalizations {
   String get chaosSwapSymbols => _messages['chaosSwapSymbols'] ?? '';
   String get ultimateNoCenter => _messages['ultimateNoCenter'] ?? '';
   String get ultimateLimitedMoves => _messages['ultimateLimitedMoves'] ?? '';
-  String get ultimateCornersOnly => _messages['ultimateCornersOnly'] ?? '';
   String get movesRemaining => _messages['movesRemaining'] ?? '';
   String get adsBannerPlacement => _messages['adsBannerPlacement'] ?? '';
   String get adInterstitialHint => _messages['adInterstitialHint'] ?? '';
   String get gameModeLabel => _messages['gameModeLabel'] ?? '';
+  String get tapToClaim => _messages['tapToClaim'] ?? '';
+  String get winInstruction => _messages['winInstruction'] ?? '';
+  String get takeTurnCta => _messages['takeTurnCta'] ?? '';
+  String get playLabel => _messages['playLabel'] ?? '';
+  String get settingsTitle => _messages['settingsTitle'] ?? '';
+  String get languageLabel => _messages['languageLabel'] ?? '';
+  String get languageEnglish => _messages['languageEnglish'] ?? '';
+  String get languagePortuguese => _messages['languagePortuguese'] ?? '';
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

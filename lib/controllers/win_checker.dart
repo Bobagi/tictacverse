@@ -17,7 +17,11 @@ class WinChecker {
     for (final List<int> line in winningLines) {
       final PlayerMarker? first = board[line.first];
       if (first != null && board[line[1]] == first && board[line[2]] == first) {
-        return GameResult(resolution: GameResolution.victory, winner: first);
+        return GameResult(
+          resolution: GameResolution.victory,
+          winner: first,
+          winningLine: line,
+        );
       }
     }
     if (!board.contains(null)) {

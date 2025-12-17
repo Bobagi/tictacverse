@@ -18,11 +18,14 @@ class TicTacVerseApp extends StatefulWidget {
 
 class _TicTacVerseAppState extends State<TicTacVerseApp> {
   final MetricsService metricsService = MetricsService();
+  late Locale _resolvedStartupLocale;
+  Locale? _userSelectedLocale;
 
   @override
   void initState() {
     super.initState();
     metricsService.recordSessionStart();
+    _resolvedStartupLocale = _resolveInitialLocale();
   }
 
   @override
@@ -30,6 +33,14 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       onGenerateTitle: (BuildContext context) => AppLocalizations.of(context).appTitle,
+      locale: _userSelectedLocale ?? _resolvedStartupLocale,
+      localeListResolutionCallback: (List<Locale>? locales, Iterable<Locale> supported) {
+        if (_userSelectedLocale != null) {
+          return _userSelectedLocale;
+        }
+        final Locale? deviceLocale = locales != null && locales.isNotEmpty ? locales.first : null;
+        return AppLocalizations.resolveSupportedLocale(deviceLocale ?? _resolvedStartupLocale);
+      },
       localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
         AppLocalizationsDelegate(),
         GlobalMaterialLocalizations.delegate,
@@ -38,10 +49,34 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> {
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyanAccent, brightness: Brightness.dark),
+        scaffoldBackgroundColor: Colors.transparent,
+        useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white.withOpacity(0.08),
+          elevation: 0,
+          foregroundColor: Colors.white,
+          centerTitle: false,
+        ),
+        textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Roboto'),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(metricsService: metricsService),
+      home: HomeScreen(
+        metricsService: metricsService,
+        onLocaleSelected: _handleLocaleChange,
+        activeLocale: _userSelectedLocale ?? _resolvedStartupLocale,
+      ),
     );
+  }
+
+  Locale _resolveInitialLocale() {
+    final Locale platformLocale = WidgetsBinding.instance.platformDispatcher.locale;
+    return AppLocalizations.resolveSupportedLocale(platformLocale);
+  }
+
+  void _handleLocaleChange(Locale locale) {
+    setState(() {
+      _userSelectedLocale = AppLocalizations.resolveSupportedLocale(locale);
+    });
   }
 }

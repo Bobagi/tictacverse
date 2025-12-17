@@ -1,5 +1,5 @@
 {
-  "appTitle": "TicTacVerse",
+  "appTitle": "Tic Tac Verse",
   "modeClassicTitle": "Classic Tic Tac Toe",
   "modeClassicSubtitle": "Traditional rules for quick rounds.",
   "modeShiftTitle": "Tic Tac Shift",
@@ -21,9 +21,16 @@
   "chaosSwapSymbols": "Chaos: Symbols swapped for one turn!",
   "ultimateNoCenter": "Win without using the center cell.",
   "ultimateLimitedMoves": "Win within a limited number of moves.",
-  "ultimateCornersOnly": "Win using only corner cells.",
   "movesRemaining": "Moves remaining",
   "adsBannerPlacement": "Banner ads appear on the game screen only.",
   "adInterstitialHint": "Interstitial ads show after some matches.",
-  "gameModeLabel": "Game mode"
+  "gameModeLabel": "Game mode",
+  "tapToClaim": "Tap any cell to claim it",
+  "winInstruction": "Line up three to win the neon run.",
+  "takeTurnCta": "Make your move and light the board",
+  "playLabel": "Play",
+  "settingsTitle": "Settings",
+  "languageLabel": "Language",
+  "languageEnglish": "English",
+  "languagePortuguese": "Português"
 }
