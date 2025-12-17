@@ -3,11 +3,18 @@ import 'package:flutter/material.dart';
 import 'modern_background.dart';
 
 class ModeCard extends StatelessWidget {
-  const ModeCard({super.key, required this.title, required this.subtitle, required this.onStart});
+  const ModeCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.onStart,
+    required this.buttonLabel,
+  });
 
   final String title;
   final String subtitle;
   final VoidCallback onStart;
+  final String buttonLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +44,7 @@ class ModeCard extends StatelessWidget {
               foregroundColor: const Color(0xFF041427),
               elevation: 6,
             ),
-            label: const Text('Play'),
+            label: Text(buttonLabel),
           ),
         ],
       ),

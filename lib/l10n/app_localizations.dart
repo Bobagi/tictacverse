@@ -98,7 +98,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'TicTacVerse'**
+  /// **'Tic Tac Verse'**
   String get appTitle;
 
   /// No description provided for @modeClassicTitle.
@@ -256,6 +256,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Game mode'**
   String get gameModeLabel;
+
+  /// No description provided for @tapToClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap any cell to claim it'**
+  String get tapToClaim;
+
+  /// No description provided for @winInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Line up three to win the neon run.'**
+  String get winInstruction;
+
+  /// No description provided for @takeTurnCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Make your move and light the board'**
+  String get takeTurnCta;
+
+  /// No description provided for @playLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get playLabel;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @languageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languagePortuguese.
+  ///
+  /// In en, this message translates to:
+  /// **'Portuguese'**
+  String get languagePortuguese;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

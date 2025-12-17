@@ -8,11 +8,19 @@ import '../../services/metrics_service.dart';
 import '../widgets/modern_background.dart';
 import '../screens/game_screen.dart';
 import '../widgets/mode_card.dart';
+import '../widgets/language_selector_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.metricsService});
+  const HomeScreen({
+    super.key,
+    required this.metricsService,
+    required this.onLocaleSelected,
+    required this.activeLocale,
+  });
 
   final MetricsService metricsService;
+  final void Function(Locale locale) onLocaleSelected;
+  final Locale activeLocale;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -31,6 +39,12 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: Text(localization.appTitle),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.settings_rounded),
+              onPressed: () => _openSettings(localization),
+            ),
+          ],
         ),
         body: SafeArea(
           child: Padding(
@@ -50,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return ModeCard(
                           title: definition.title(localization),
                           subtitle: definition.subtitle(localization),
+                          buttonLabel: localization.playLabel,
                           onStart: () => _openGame(definition),
                         );
                       },
@@ -83,6 +98,21 @@ class _HomeScreenState extends State<HomeScreen> {
           adService: adService,
           metricsService: widget.metricsService,
         ),
+      ),
+    );
+  }
+
+  void _openSettings(AppLocalizations localization) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) => LanguageSelectorSheet(
+        localization: localization,
+        selectedLocale: widget.activeLocale,
+        onLocaleSelected: (Locale locale) {
+          widget.onLocaleSelected(locale);
+          Navigator.of(context).pop();
+        },
       ),
     );
   }

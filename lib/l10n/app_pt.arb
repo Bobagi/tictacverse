@@ -1,5 +1,5 @@
 {
-  "appTitle": "TicTacVerse",
+  "appTitle": "Tic Tac Verse",
   "modeClassicTitle": "Jogo da Velha Clássico",
   "modeClassicSubtitle": "Regras tradicionais para partidas rápidas.",
   "modeShiftTitle": "Tic Tac Turno",
@@ -25,5 +25,13 @@
   "movesRemaining": "Jogadas restantes",
   "adsBannerPlacement": "Banners aparecem apenas na tela de jogo.",
   "adInterstitialHint": "Intersticiais aparecem após algumas partidas.",
-  "gameModeLabel": "Modo de jogo"
+  "gameModeLabel": "Modo de jogo",
+  "tapToClaim": "Toque em qualquer célula para capturá-la",
+  "winInstruction": "Forme uma linha de três para vencer a corrida neon.",
+  "takeTurnCta": "Faça sua jogada e ilumine o tabuleiro",
+  "playLabel": "Jogar",
+  "settingsTitle": "Configurações",
+  "languageLabel": "Idioma",
+  "languageEnglish": "Inglês",
+  "languagePortuguese": "Português"
 }

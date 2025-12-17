@@ -24,12 +24,14 @@ class GameBoard extends StatefulWidget {
   State<GameBoard> createState() => _GameBoardState();
 }
 
-class _GameBoardState extends State<GameBoard> {
+class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMixin {
   late final Random _randomGenerator = Random();
   late VisualAssetConfig _assetConfig = widget.visualAssetConfig ?? VisualAssetConfig();
   late Map<int, double> _cellRotations = <int, double>{};
   late Map<PlayerMarker, Color> _playerGlowColors = <PlayerMarker, Color>{};
   late List<PlayerMarker?> _previousBoardState = List<PlayerMarker?>.from(widget.board);
+  late final AnimationController _neonPulseController =
+      AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat();
 
   @override
   void initState() {
@@ -52,6 +54,12 @@ class _GameBoardState extends State<GameBoard> {
   }
 
   @override
+  void dispose() {
+    _neonPulseController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final VisualAssetConfig resolvedAssetConfig = _assetConfig;
     return GlassPanel(
@@ -64,11 +72,13 @@ class _GameBoardState extends State<GameBoard> {
             return Stack(
               children: <Widget>[
                 Positioned.fill(
-                  child: Center(
-                    child: Image.asset(
-                      resolvedAssetConfig.boardAssetPath,
-                      fit: BoxFit.contain,
-                    ),
+                  child: AnimatedBuilder(
+                    animation: _neonPulseController,
+                    builder: (BuildContext context, Widget? _) {
+                      return CustomPaint(
+                        painter: NeonGridPainter(progress: _neonPulseController.value),
+                      );
+                    },
                   ),
                 ),
                 GridView.builder(
@@ -135,8 +145,8 @@ class _GameBoardState extends State<GameBoard> {
       child: Transform.rotate(
         angle: rotationAngle,
         child: Container(
-          width: cellExtent * 0.72,
-          height: cellExtent * 0.72,
+          width: cellExtent * 0.64,
+          height: cellExtent * 0.64,
           decoration: BoxDecoration(
             boxShadow: <BoxShadow>[
               BoxShadow(
@@ -197,4 +207,65 @@ class _GameBoardState extends State<GameBoard> {
     final int randomIndex = _randomGenerator.nextInt(quarterTurns.length);
     return quarterTurns[randomIndex];
   }
+}
+
+class NeonGridPainter extends CustomPainter {
+  NeonGridPainter({required this.progress});
+
+  final double progress;
+
+  static const Color electricBlue = Color(0xFF6BE0FF);
+  static const Color neonPink = Color(0xFFFF6BD9);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double strokeWidth = size.shortestSide * 0.04;
+    final double glowStrokeWidth = strokeWidth * 1.55;
+    final Paint glowPaint = _buildGlowPaint(glowStrokeWidth);
+    final Paint linePaint = _buildLinePaint(strokeWidth);
+
+    final double firstDivision = size.width / 3;
+    final double secondDivision = 2 * firstDivision;
+    final Path gridPath = Path()
+      ..moveTo(firstDivision, 0)
+      ..lineTo(firstDivision, size.height)
+      ..moveTo(secondDivision, 0)
+      ..lineTo(secondDivision, size.height)
+      ..moveTo(0, firstDivision)
+      ..lineTo(size.width, firstDivision)
+      ..moveTo(0, secondDivision)
+      ..lineTo(size.width, secondDivision);
+
+    canvas.drawPath(gridPath, glowPaint);
+    canvas.drawPath(gridPath, linePaint);
+  }
+
+  Paint _buildLinePaint(double strokeWidth) {
+    return Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = strokeWidth
+      ..shader = _buildGradientShader(strokeWidth);
+  }
+
+  Paint _buildGlowPaint(double strokeWidth) {
+    return Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = strokeWidth
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18)
+      ..shader = _buildGradientShader(strokeWidth);
+  }
+
+  Shader _buildGradientShader(double strokeWidth) {
+    final Color primary = Color.lerp(electricBlue, neonPink, 0.5 * (1 + sin(progress * 2 * pi)))!;
+    final Color secondary = Color.lerp(neonPink, electricBlue, 0.5 * (1 + cos(progress * 2 * pi)))!;
+    return LinearGradient(
+      colors: <Color>[primary.withOpacity(0.85), secondary.withOpacity(0.85), primary.withOpacity(0.85)],
+      stops: const <double>[0.0, 0.5, 1.0],
+    ).createShader(Rect.fromLTWH(0, 0, strokeWidth * 20, strokeWidth * 20));
+  }
+
+  @override
+  bool shouldRepaint(covariant NeonGridPainter oldDelegate) => oldDelegate.progress != progress;
 }

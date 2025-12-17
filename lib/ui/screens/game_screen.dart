@@ -83,7 +83,7 @@ class _GameScreenState extends State<GameScreen> {
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                   const SizedBox(height: 4),
                   Text(
-                    'Line up the neon trio to win.',
+                    localization.winInstruction,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
                   ),
                 ],
@@ -95,7 +95,7 @@ class _GameScreenState extends State<GameScreen> {
             spacing: 10,
             runSpacing: 10,
             children: <Widget>[
-              _buildHudChip(Icons.sports_esports, 'Tap a tile to claim it'),
+              _buildHudChip(Icons.sports_esports, localization.tapToClaim),
               if (widget.controller.state.movesRemaining != null)
                 _buildHudChip(
                   Icons.timelapse_rounded,
@@ -134,7 +134,7 @@ class _GameScreenState extends State<GameScreen> {
     final ChaosEvent? chaosEvent = widget.controller.state.activeChaosEvent;
     final String messageDetail = chaosEvent != null
         ? _describeChaosEvent(chaosEvent, localization)
-        : widget.controller.state.activeUltimateCondition?.describe(localization) ?? 'Your move decides the round.';
+        : widget.controller.state.activeUltimateCondition?.describe(localization) ?? localization.takeTurnCta;
     final Color accentColor = chaosEvent != null ? Colors.pinkAccent : Colors.lightBlueAccent;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -187,7 +187,7 @@ class _GameScreenState extends State<GameScreen> {
                 Icon(Icons.touch_app_rounded, color: accentColor, size: 18),
                 const SizedBox(width: 6),
                 Text(
-                  'Play',
+                  localization.playLabel,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
@@ -228,29 +228,28 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildPlayerAvatar(PlayerMarker marker) {
+    final Color accentColor = marker == PlayerMarker.cross ? const Color(0xFF6BE0FF) : const Color(0xFFFF6BD9);
     final String assetPath = marker == PlayerMarker.cross ? _visualAssets.crossAssetPath : _visualAssets.noughtAssetPath;
     return Container(
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: <Color>[Color(0xFF1AD1FF), Color(0xFF7C4DFF)],
-        ),
+        gradient: LinearGradient(colors: <Color>[accentColor.withOpacity(0.85), Colors.white.withOpacity(0.1)]),
         shape: BoxShape.circle,
         boxShadow: <BoxShadow>[
-          BoxShadow(color: Colors.cyanAccent.withOpacity(0.35), blurRadius: 14, offset: const Offset(0, 8)),
+          BoxShadow(color: accentColor.withOpacity(0.45), blurRadius: 14, offset: const Offset(0, 8)),
         ],
       ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.16),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withOpacity(0.2)),
+          border: Border.all(color: accentColor.withOpacity(0.4)),
         ),
-        padding: const EdgeInsets.all(6),
+        padding: const EdgeInsets.all(5),
         child: Image.asset(
           assetPath,
-          width: 24,
-          height: 24,
+          width: 20,
+          height: 20,
           fit: BoxFit.contain,
         ),
       ),

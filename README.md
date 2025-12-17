@@ -1,4 +1,4 @@
-# TicTacVerse
+# Tic Tac Verse
 
 Offline cross-platform Tic Tac Toe (Android + iOS) built with Flutter, with multiple game modes and AdMob monetization.
 

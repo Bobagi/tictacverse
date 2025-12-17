@@ -12,6 +12,7 @@ class UltimateMiniRulesEngine implements GameRulesEngine {
 
   final Random _randomGenerator;
   static const int defaultMoveLimit = 6;
+  static const List<int> cornerIndexes = <int>[0, 2, 6, 8];
 
   @override
   GameState start() {
@@ -39,19 +40,15 @@ class UltimateMiniRulesEngine implements GameRulesEngine {
     }
 
     final List<PlayerMarker?> updatedBoard = List<PlayerMarker?>.from(currentState.board);
-    updatedBoard[selectedIndex] = currentState.currentPlayer;
+    final PlayerMarker placingPlayer = currentState.currentPlayer;
+    updatedBoard[selectedIndex] = placingPlayer;
 
     int? movesRemaining = currentState.movesRemaining;
     if (movesRemaining != null) {
       movesRemaining -= 1;
     }
 
-    GameResult tentativeResult = WinChecker.evaluateBoard(updatedBoard);
-    if (condition != null && tentativeResult.resolution == GameResolution.victory) {
-      if (!condition.isBoardValid(updatedBoard)) {
-        tentativeResult = GameResult(resolution: GameResolution.ongoing);
-      }
-    }
+    GameResult tentativeResult = _resolveResultForCondition(condition, updatedBoard, placingPlayer);
 
     if (movesRemaining != null && movesRemaining <= 0 && tentativeResult.resolution == GameResolution.ongoing) {
       tentativeResult = GameResult(resolution: GameResolution.draw);
@@ -64,6 +61,40 @@ class UltimateMiniRulesEngine implements GameRulesEngine {
       result: tentativeResult,
       movesRemaining: movesRemaining,
     );
+  }
+
+  GameResult _resolveResultForCondition(
+    UltimateCondition? condition,
+    List<PlayerMarker?> updatedBoard,
+    PlayerMarker placingPlayer,
+  ) {
+    if (condition?.type == UltimateConditionType.cornersOnly) {
+      return _evaluateCornersOnlyVictory(updatedBoard, placingPlayer);
+    }
+
+    GameResult tentativeResult = WinChecker.evaluateBoard(updatedBoard);
+    if (condition != null && tentativeResult.resolution == GameResolution.victory) {
+      if (!condition.isBoardValid(updatedBoard)) {
+        tentativeResult = GameResult(resolution: GameResolution.ongoing);
+      }
+    }
+    return tentativeResult;
+  }
+
+  GameResult _evaluateCornersOnlyVictory(List<PlayerMarker?> board, PlayerMarker placingPlayer) {
+    final bool allCornersBelongToCurrentPlayer = cornerIndexes
+        .every((int position) => board[position] != null && board[position] == placingPlayer);
+
+    if (allCornersBelongToCurrentPlayer) {
+      return GameResult(resolution: GameResolution.victory, winner: placingPlayer);
+    }
+
+    final bool hasEmptyCorner = cornerIndexes.any((int position) => board[position] == null);
+    if (!hasEmptyCorner) {
+      return GameResult(resolution: GameResolution.draw);
+    }
+
+    return GameResult(resolution: GameResolution.ongoing);
   }
 
   UltimateCondition _selectCondition() {

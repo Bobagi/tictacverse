@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'TicTacVerse';
+  String get appTitle => 'Tic Tac Verse';
 
   @override
   String get modeClassicTitle => 'Classic Tic Tac Toe';
@@ -88,4 +88,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameModeLabel => 'Game mode';
+
+  @override
+  String get tapToClaim => 'Tap any cell to claim it';
+
+  @override
+  String get winInstruction => 'Line up three to win the neon run.';
+
+  @override
+  String get takeTurnCta => 'Make your move and light the board';
+
+  @override
+  String get playLabel => 'Play';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languagePortuguese => 'Portuguese';
 }
