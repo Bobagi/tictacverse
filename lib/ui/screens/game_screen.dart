@@ -51,6 +51,8 @@ class _GameScreenState extends State<GameScreen> {
                   board: widget.controller.state.board,
                   blockedCells: widget.controller.state.blockedCells,
                   onCellSelected: _handleCellTap,
+                  winningLine: widget.controller.state.result.winningLine,
+                  winningPlayer: widget.controller.state.result.winner,
                   visualAssetConfig: _visualAssets,
                 ),
                 const SizedBox(height: 16),
@@ -231,7 +233,7 @@ class _GameScreenState extends State<GameScreen> {
     final Color accentColor = marker == PlayerMarker.cross ? const Color(0xFF6BE0FF) : const Color(0xFFFF6BD9);
     final String assetPath = marker == PlayerMarker.cross ? _visualAssets.crossAssetPath : _visualAssets.noughtAssetPath;
     return Container(
-      padding: const EdgeInsets.all(7),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: <Color>[accentColor.withOpacity(0.85), Colors.white.withOpacity(0.1)]),
         shape: BoxShape.circle,
@@ -245,11 +247,11 @@ class _GameScreenState extends State<GameScreen> {
           shape: BoxShape.circle,
           border: Border.all(color: accentColor.withOpacity(0.4)),
         ),
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(4),
         child: Image.asset(
           assetPath,
-          width: 20,
-          height: 20,
+          width: 16,
+          height: 16,
           fit: BoxFit.contain,
         ),
       ),
@@ -283,6 +285,8 @@ class _GameScreenState extends State<GameScreen> {
             ..pop()
             ..pop();
         },
+        winner: result.winner,
+        visualAssets: _visualAssets,
       ),
     );
   }

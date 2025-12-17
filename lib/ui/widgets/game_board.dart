@@ -12,12 +12,16 @@ class GameBoard extends StatefulWidget {
     required this.board,
     required this.blockedCells,
     required this.onCellSelected,
+    this.winningLine,
+    this.winningPlayer,
     this.visualAssetConfig,
   });
 
   final List<PlayerMarker?> board;
   final List<int> blockedCells;
   final void Function(int index) onCellSelected;
+  final List<int>? winningLine;
+  final PlayerMarker? winningPlayer;
   final VisualAssetConfig? visualAssetConfig;
 
   @override
@@ -94,6 +98,23 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
                     resolvedAssetConfig,
                   ),
                 ),
+                if (widget.winningLine != null && widget.winningPlayer != null)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: AnimatedBuilder(
+                        animation: _neonPulseController,
+                        builder: (BuildContext context, Widget? _) {
+                          return CustomPaint(
+                            painter: WinningLinePainter(
+                              winningLine: widget.winningLine!,
+                              glowColor: _playerGlowColors[widget.winningPlayer!] ?? Colors.cyanAccent,
+                              pulseValue: _neonPulseController.value,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
               ],
             );
           },
@@ -268,4 +289,65 @@ class NeonGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant NeonGridPainter oldDelegate) => oldDelegate.progress != progress;
+}
+
+class WinningLinePainter extends CustomPainter {
+  WinningLinePainter({
+    required this.winningLine,
+    required this.glowColor,
+    required this.pulseValue,
+  });
+
+  final List<int> winningLine;
+  final Color glowColor;
+  final double pulseValue;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (winningLine.length < 2) {
+      return;
+    }
+
+    final Offset start = _centerForIndex(winningLine.first, size);
+    final Offset end = _centerForIndex(winningLine.last, size);
+    final Paint glowPaint = _buildGlowPaint();
+    final Paint linePaint = _buildLinePaint();
+
+    canvas.drawLine(start, end, glowPaint);
+    canvas.drawLine(start, end, linePaint);
+  }
+
+  Paint _buildGlowPaint() {
+    return Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 18
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16)
+      ..color = glowColor.withOpacity(0.55 + (0.25 * sin(pulseValue * 2 * pi)));
+  }
+
+  Paint _buildLinePaint() {
+    return Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8
+      ..strokeCap = StrokeCap.round
+      ..color = glowColor.withOpacity(0.9);
+  }
+
+  Offset _centerForIndex(int index, Size size) {
+    final int row = index ~/ 3;
+    final int column = index % 3;
+    final double cellSize = size.width / 3;
+    return Offset(
+      (column * cellSize) + (cellSize / 2),
+      (row * cellSize) + (cellSize / 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant WinningLinePainter oldDelegate) {
+    return oldDelegate.winningLine != winningLine ||
+        oldDelegate.glowColor != glowColor ||
+        oldDelegate.pulseValue != pulseValue;
+  }
 }

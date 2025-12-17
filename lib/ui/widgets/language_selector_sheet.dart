@@ -46,7 +46,7 @@ class LanguageSelectorSheet extends StatelessWidget {
               locale: const Locale('en'),
               isSelected: selectedLocale.languageCode == 'en',
               onTap: () => onLocaleSelected(const Locale('en')),
-              icon: Icons.language,
+              leading: const Text('🇺🇸', style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(height: 8),
             _LanguageTile(
@@ -54,7 +54,7 @@ class LanguageSelectorSheet extends StatelessWidget {
               locale: const Locale('pt'),
               isSelected: selectedLocale.languageCode == 'pt',
               onTap: () => onLocaleSelected(const Locale('pt')),
-              icon: Icons.translate_rounded,
+              leading: const Text('🇧🇷', style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(height: 8),
           ],
@@ -70,14 +70,14 @@ class _LanguageTile extends StatelessWidget {
     required this.locale,
     required this.isSelected,
     required this.onTap,
-    required this.icon,
+    required this.leading,
   });
 
   final String title;
   final Locale locale;
   final bool isSelected;
   final VoidCallback onTap;
-  final IconData icon;
+  final Widget leading;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +93,7 @@ class _LanguageTile extends StatelessWidget {
         ),
         child: Row(
           children: <Widget>[
-            Icon(icon, color: Colors.white70),
+            leading,
             const SizedBox(width: 10),
             Expanded(child: Text(title, style: Theme.of(context).textTheme.bodyLarge)),
             if (isSelected)
