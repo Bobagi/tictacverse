@@ -8,6 +8,7 @@ import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
 import '../../services/metrics_service.dart';
+import '../../services/visual_assets.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_over_modal.dart';
 import '../widgets/modern_background.dart';
@@ -29,6 +30,8 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  final VisualAssetConfig _visualAssets = VisualAssetConfig();
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localization = AppLocalizations.of(context);
@@ -48,6 +51,7 @@ class _GameScreenState extends State<GameScreen> {
                   board: widget.controller.state.board,
                   blockedCells: widget.controller.state.blockedCells,
                   onCellSelected: _handleCellTap,
+                  visualAssetConfig: _visualAssets,
                 ),
                 const SizedBox(height: 16),
                 _buildPlayerMessageBanner(localization),
@@ -70,19 +74,7 @@ class _GameScreenState extends State<GameScreen> {
         children: <Widget>[
           Row(
             children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: <Color>[Color(0xFF1AD1FF), Color(0xFF7C4DFF)],
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(color: Colors.cyanAccent.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 8)),
-                  ],
-                ),
-                child: const Icon(Icons.bolt_rounded, color: Color(0xFF041427)),
-              ),
+              _buildPlayerAvatar(current),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,10 +155,7 @@ class _GameScreenState extends State<GameScreen> {
       ),
       child: Row(
         children: <Widget>[
-          CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.12),
-            child: Icon(Icons.light_mode_rounded, color: accentColor),
-          ),
+          _buildPlayerAvatar(current),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -236,6 +225,36 @@ class _GameScreenState extends State<GameScreen> {
     if (widget.adService.shouldShowInterstitialOnMatchEnd()) {
       widget.metricsService.recordAdImpression();
     }
+  }
+
+  Widget _buildPlayerAvatar(PlayerMarker marker) {
+    final String assetPath = marker == PlayerMarker.cross ? _visualAssets.crossAssetPath : _visualAssets.noughtAssetPath;
+    return Container(
+      padding: const EdgeInsets.all(9),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF1AD1FF), Color(0xFF7C4DFF)],
+        ),
+        shape: BoxShape.circle,
+        boxShadow: <BoxShadow>[
+          BoxShadow(color: Colors.cyanAccent.withOpacity(0.35), blurRadius: 14, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.16),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.2)),
+        ),
+        padding: const EdgeInsets.all(6),
+        child: Image.asset(
+          assetPath,
+          width: 24,
+          height: 24,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
   }
 
   void _showGameOverSheet() {
