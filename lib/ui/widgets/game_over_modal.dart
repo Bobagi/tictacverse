@@ -67,23 +67,27 @@ class GameOverModal extends StatelessWidget {
         : visualAssets!.noughtAssetPath;
     final Color accentColor = winner == PlayerMarker.cross ? const Color(0xFF6BE0FF) : const Color(0xFFFF6BD9);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: accentColor.withOpacity(0.8), width: 2),
-            boxShadow: <BoxShadow>[
-              BoxShadow(color: accentColor.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6)),
-            ],
-          ),
-          child: Image.asset(assetPath, width: 28, height: 28, fit: BoxFit.contain),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: accentColor.withOpacity(0.9), width: 2.5),
+        boxShadow: <BoxShadow>[
+          BoxShadow(color: accentColor.withOpacity(0.55), blurRadius: 18, offset: const Offset(0, 8)),
+        ],
+        gradient: RadialGradient(
+          colors: <Color>[
+            accentColor.withOpacity(0.3),
+            Colors.transparent,
+          ],
         ),
-        const SizedBox(width: 12),
-        Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
-      ],
+      ),
+      child: Image.asset(
+        assetPath,
+        width: 38,
+        height: 38,
+        fit: BoxFit.contain,
+      ),
     );
   }
 }

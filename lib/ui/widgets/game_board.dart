@@ -310,28 +310,52 @@ class WinningLinePainter extends CustomPainter {
 
     final Offset start = _centerForIndex(winningLine.first, size);
     final Offset end = _centerForIndex(winningLine.last, size);
-    final Paint glowPaint = _buildGlowPaint();
-    final Paint linePaint = _buildLinePaint();
+    final Rect shaderBounds = Rect.fromPoints(start, end).inflate(48);
+    final Paint glowPaint = _buildGlowPaint(shaderBounds);
+    final Paint linePaint = _buildLinePaint(shaderBounds);
 
     canvas.drawLine(start, end, glowPaint);
     canvas.drawLine(start, end, linePaint);
   }
 
-  Paint _buildGlowPaint() {
+  Paint _buildGlowPaint(Rect shaderBounds) {
+    final double pulse = 0.55 + (0.25 * sin(pulseValue * 2 * pi));
+    final Color brightTone = Color.lerp(glowColor, Colors.white, 0.4 + (0.15 * cos(pulseValue * 2 * pi)))!;
+    final Color dimTone = Color.lerp(glowColor, Colors.black, 0.1)!;
+
     return Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 18
+      ..strokeWidth = 20
       ..strokeCap = StrokeCap.round
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16)
-      ..color = glowColor.withOpacity(0.55 + (0.25 * sin(pulseValue * 2 * pi)));
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 24)
+      ..shader = LinearGradient(
+        colors: <Color>[
+          brightTone.withOpacity(pulse),
+          glowColor.withOpacity(0.85),
+          dimTone.withOpacity(pulse),
+          brightTone.withOpacity(pulse),
+        ],
+        stops: const <double>[0.0, 0.35, 0.7, 1.0],
+      ).createShader(shaderBounds);
   }
 
-  Paint _buildLinePaint() {
+  Paint _buildLinePaint(Rect shaderBounds) {
+    final double oscillation = 0.65 + (0.35 * sin((pulseValue + 0.25) * 2 * pi));
+    final Color edgeTone = Color.lerp(glowColor, Colors.white, 0.5)!;
+    final Color coreTone = glowColor.withOpacity(0.95);
+
     return Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 8
+      ..strokeWidth = 9
       ..strokeCap = StrokeCap.round
-      ..color = glowColor.withOpacity(0.9);
+      ..shader = LinearGradient(
+        colors: <Color>[
+          edgeTone.withOpacity(oscillation),
+          coreTone,
+          edgeTone.withOpacity(oscillation),
+        ],
+        stops: const <double>[0.0, 0.5, 1.0],
+      ).createShader(shaderBounds);
   }
 
   Offset _centerForIndex(int index, Size size) {
