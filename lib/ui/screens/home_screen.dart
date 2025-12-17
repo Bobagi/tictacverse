@@ -70,25 +70,32 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                _buildModeToggle(localization),
-                const SizedBox(height: 16),
                 Expanded(
-                  child: GlassPanel(
-                    padding: const EdgeInsets.all(12),
-                    child: ListView.separated(
-                      itemCount: modes.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (BuildContext context, int index) {
-                        final GameModeDefinition definition = modes[index];
-                        return ModeCard(
-                          title: definition.title(localization),
-                          subtitle: definition.subtitle(localization),
-                          buttonLabel: localization.playLabel,
-                          onStart: () => _openGame(definition),
-                        );
-                      },
-                    ),
+                  child: Column(
+                    children: <Widget>[
+                      _buildModeToggle(localization),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: GlassPanel(
+                          padding: const EdgeInsets.all(12),
+                          child: ListView.separated(
+                            itemCount: modes.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (BuildContext context, int index) {
+                              final GameModeDefinition definition = modes[index];
+                              return ModeCard(
+                                title: definition.title(localization),
+                                subtitle: definition.subtitle(localization),
+                                buttonLabel: localization.playLabel,
+                                onStart: () => _openGame(definition),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),

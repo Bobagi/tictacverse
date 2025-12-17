@@ -63,19 +63,28 @@ class _GameScreenState extends State<GameScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                _buildStatusHud(localization),
-                const SizedBox(height: 16),
-                GameBoard(
-                  board: widget.controller.state.board,
-                  blockedCells: widget.controller.state.blockedCells,
-                  onCellSelected: _handleCellTap,
-                  winningLine: widget.controller.state.result.winningLine,
-                  winningPlayer: widget.controller.state.result.winner,
-                  visualAssetConfig: _visualAssets,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      _buildStatusHud(localization),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: GameBoard(
+                          board: widget.controller.state.board,
+                          blockedCells: widget.controller.state.blockedCells,
+                          onCellSelected: _handleCellTap,
+                          winningLine: widget.controller.state.result.winningLine,
+                          winningPlayer: widget.controller.state.result.winner,
+                          visualAssetConfig: _visualAssets,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildPlayerMessageBanner(localization),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
-                _buildPlayerMessageBanner(localization),
-                const Spacer(),
                 _buildBannerPlaceholder(localization),
               ],
             ),

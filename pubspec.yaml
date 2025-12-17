@@ -24,5 +24,4 @@ flutter:
     - assets/symbols/board/
     - assets/symbols/x/
     - assets/symbols/o/
-    - l10n/
   generate: true
