@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';

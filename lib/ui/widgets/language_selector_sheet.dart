@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tictacverse/l10n/app_localizations.dart';
 import 'modern_background.dart';
 
 class LanguageSelectorSheet extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tictacverse/l10n/app_localizations.dart';
 
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
