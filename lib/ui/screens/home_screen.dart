@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tictacverse/l10n/app_localizations.dart';
 
+import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
-import '../../localization/app_localizations.dart';
 import '../../models/game_mode.dart';
-import '../../services/ad_service.dart';
 import '../../services/metrics_service.dart';
 import '../widgets/modern_background.dart';
 import '../screens/game_screen.dart';
@@ -28,12 +28,27 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<GameModeDefinition> modes = createGameModes();
-  final AdService adService = AdService();
+  final BannerAdController bannerAdController = BannerAdController();
   bool playAgainstCpu = false;
 
   @override
+  void initState() {
+    super.initState();
+    bannerAdController.loadBannerAd(
+      onAdLoaded: _refreshBannerArea,
+      onAdFailed: _refreshBannerArea,
+    );
+  }
+
+  @override
+  void dispose() {
+    bannerAdController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final AppLocalizations localization = AppLocalizations.of(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
     return ModernGradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -50,36 +65,44 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                _buildModeToggle(localization),
-                const SizedBox(height: 16),
                 Expanded(
-                  child: GlassPanel(
-                    padding: const EdgeInsets.all(12),
-                    child: ListView.separated(
-                      itemCount: modes.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (BuildContext context, int index) {
-                        final GameModeDefinition definition = modes[index];
-                        return ModeCard(
-                          title: definition.title(localization),
-                          subtitle: definition.subtitle(localization),
-                          buttonLabel: localization.playLabel,
-                          onStart: () => _openGame(definition),
-                        );
-                      },
-                    ),
+                  child: Column(
+                    children: <Widget>[
+                      _buildModeToggle(localization),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: GlassPanel(
+                          padding: const EdgeInsets.all(12),
+                          child: ListView.separated(
+                            itemCount: modes.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (BuildContext context, int index) {
+                              final GameModeDefinition definition = modes[index];
+                              return ModeCard(
+                                title: definition.title(localization),
+                                subtitle: definition.subtitle(localization),
+                                buttonLabel: localization.playLabel,
+                                onStart: () => _openGame(definition),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
                 GlassPanel(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(localization.adsBannerPlacement, style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 4),
-                      Text(localization.adInterstitialHint, style: Theme.of(context).textTheme.bodyMedium),
-                    ],
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Center(
+                        child: bannerAdController.buildBannerAdWidget(),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -95,11 +118,16 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute<void>(
         builder: (BuildContext context) => GameScreen(
           controller: GameController(modeDefinition: definition, playAgainstCpu: playAgainstCpu),
-          adService: adService,
           metricsService: widget.metricsService,
         ),
       ),
     );
+  }
+
+  void _refreshBannerArea() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _openSettings(AppLocalizations localization) {

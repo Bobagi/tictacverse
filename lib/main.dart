@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:tictacverse/l10n/app_localizations.dart';
 
-import 'localization/app_localizations.dart';
 import 'services/metrics_service.dart';
+import 'services/mobile_ads_initialization_service.dart';
 import 'ui/screens/home_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MobileAdsInitializationService().initialize();
   runApp(const TicTacVerseApp());
 }
 
@@ -25,28 +27,23 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> {
   void initState() {
     super.initState();
     metricsService.recordSessionStart();
-    _resolvedStartupLocale = _resolveInitialLocale();
+    _resolvedStartupLocale = _resolveSupportedLocale(WidgetsBinding.instance.platformDispatcher.locale);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      onGenerateTitle: (BuildContext context) => AppLocalizations.of(context).appTitle,
+      onGenerateTitle: (BuildContext context) => AppLocalizations.of(context)?.appTitle ?? '',
       locale: _userSelectedLocale ?? _resolvedStartupLocale,
       localeListResolutionCallback: (List<Locale>? locales, Iterable<Locale> supported) {
         if (_userSelectedLocale != null) {
           return _userSelectedLocale;
         }
         final Locale? deviceLocale = locales != null && locales.isNotEmpty ? locales.first : null;
-        return AppLocalizations.resolveSupportedLocale(deviceLocale ?? _resolvedStartupLocale);
+        return _resolveSupportedLocale(deviceLocale ?? _resolvedStartupLocale);
       },
-      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-        AppLocalizationsDelegate(),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyanAccent, brightness: Brightness.dark),
@@ -69,14 +66,22 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> {
     );
   }
 
-  Locale _resolveInitialLocale() {
-    final Locale platformLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    return AppLocalizations.resolveSupportedLocale(platformLocale);
+  Locale _resolveSupportedLocale(Locale? requestedLocale) {
+    final Locale fallbackLocale = AppLocalizations.supportedLocales.first;
+    if (requestedLocale == null) {
+      return fallbackLocale;
+    }
+    for (final Locale supportedLocale in AppLocalizations.supportedLocales) {
+      if (supportedLocale.languageCode == requestedLocale.languageCode) {
+        return supportedLocale;
+      }
+    }
+    return fallbackLocale;
   }
 
   void _handleLocaleChange(Locale locale) {
     setState(() {
-      _userSelectedLocale = AppLocalizations.resolveSupportedLocale(locale);
+      _userSelectedLocale = _resolveSupportedLocale(locale);
     });
   }
 }

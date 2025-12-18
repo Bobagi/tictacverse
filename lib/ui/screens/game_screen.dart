@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tictacverse/l10n/app_localizations.dart';
 
+import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
-import '../../localization/app_localizations.dart';
+import '../../controllers/interstitial_ad_controller.dart';
+import '../../controllers/rewarded_ad_controller.dart';
 import '../../models/chaos_event.dart';
 import '../../models/game_mode.dart';
 import '../../models/game_result.dart';
@@ -17,12 +20,10 @@ class GameScreen extends StatefulWidget {
   const GameScreen({
     super.key,
     required this.controller,
-    required this.adService,
     required this.metricsService,
   });
 
   final GameController controller;
-  final AdService adService;
   final MetricsService metricsService;
 
   @override
@@ -31,10 +32,33 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final VisualAssetConfig _visualAssets = VisualAssetConfig();
+  final BannerAdController bannerAdController = BannerAdController();
+  final InterstitialAdController interstitialAdController = InterstitialAdController();
+  final RewardedAdController rewardedAdController = RewardedAdController();
+  final AdService adService = AdService();
+
+  @override
+  void initState() {
+    super.initState();
+    bannerAdController.loadBannerAd(
+      onAdLoaded: _refreshBannerArea,
+      onAdFailed: _refreshBannerArea,
+    );
+    interstitialAdController.loadInterstitialAd();
+    rewardedAdController.loadRewardedAd();
+  }
+
+  @override
+  void dispose() {
+    bannerAdController.dispose();
+    interstitialAdController.dispose();
+    rewardedAdController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations localization = AppLocalizations.of(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
     return ModernGradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -45,20 +69,29 @@ class _GameScreenState extends State<GameScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                _buildStatusHud(localization),
-                const SizedBox(height: 16),
-                GameBoard(
-                  board: widget.controller.state.board,
-                  blockedCells: widget.controller.state.blockedCells,
-                  onCellSelected: _handleCellTap,
-                  winningLine: widget.controller.state.result.winningLine,
-                  winningPlayer: widget.controller.state.result.winner,
-                  visualAssetConfig: _visualAssets,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      _buildStatusHud(localization),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: GameBoard(
+                          board: widget.controller.state.board,
+                          blockedCells: widget.controller.state.blockedCells,
+                          onCellSelected: _handleCellTap,
+                          winningLine: widget.controller.state.result.winningLine,
+                          winningPlayer: widget.controller.state.result.winner,
+                          visualAssetConfig: _visualAssets,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildPlayerMessageBanner(localization),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
-                _buildPlayerMessageBanner(localization),
-                const Spacer(),
-                if (widget.adService.shouldShowBannerOnGameScreen()) _buildBannerPlaceholder(localization),
+                _buildBannerArea(),
               ],
             ),
           ),
@@ -200,14 +233,16 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildBannerPlaceholder(AppLocalizations localization) {
+  Widget _buildBannerArea() {
     return GlassPanel(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(localization.adsBannerPlacement),
-          const Icon(Icons.ad_units),
-        ],
+      child: SafeArea(
+        top: false,
+        child: Center(
+          child: SizedBox(
+            height: 50,
+            child: bannerAdController.buildBannerAdWidget(),
+          ),
+        ),
       ),
     );
   }
@@ -218,14 +253,13 @@ class _GameScreenState extends State<GameScreen> {
     });
     if (widget.controller.state.result.isFinal) {
       widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
-      _maybeShowInterstitial();
+      if (adService.shouldShowInterstitialOnMatchEnd()) {
+        interstitialAdController.showInterstitialAdIfAvailable();
+      } else {
+        interstitialAdController.loadInterstitialAd();
+      }
+      rewardedAdController.loadRewardedAd();
       _showGameOverSheet();
-    }
-  }
-
-  void _maybeShowInterstitial() {
-    if (widget.adService.shouldShowInterstitialOnMatchEnd()) {
-      widget.metricsService.recordAdImpression();
     }
   }
 
@@ -259,7 +293,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showGameOverSheet() {
-    final AppLocalizations localization = AppLocalizations.of(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
     final GameResult result = widget.controller.state.result;
     final String title;
     final String subtitle;
@@ -289,6 +323,12 @@ class _GameScreenState extends State<GameScreen> {
         visualAssets: _visualAssets,
       ),
     );
+  }
+
+  void _refreshBannerArea() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   String _describeChaosEvent(ChaosEvent event, AppLocalizations localization) {

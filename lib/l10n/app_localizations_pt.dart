@@ -15,7 +15,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get modeClassicTitle => 'Jogo da Velha Clássico';
 
   @override
-  String get modeClassicSubtitle => 'Regras tradicionais para partidas rápidas.';
+  String get modeClassicSubtitle =>
+      'Regras tradicionais para partidas rápidas.';
 
   @override
   String get modeShiftTitle => 'Tic Tac Turno';
@@ -27,13 +28,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get modeChaosTitle => 'Tic Tac Caos';
 
   @override
-  String get modeChaosSubtitle => 'A cada poucos turnos surge uma regra caótica.';
+  String get modeChaosSubtitle =>
+      'A cada poucos turnos surge uma regra caótica.';
 
   @override
   String get modeUltimateTitle => 'Tic Tac Mini Supremo';
 
   @override
-  String get modeUltimateSubtitle => 'Vença com condições de desafio rotativas.';
+  String get modeUltimateSubtitle =>
+      'Vença com condições de desafio rotativas.';
 
   @override
   String get startMatch => 'Iniciar partida';
@@ -72,7 +75,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ultimateNoCenter => 'Vença sem usar a célula central.';
 
   @override
-  String get ultimateLimitedMoves => 'Vença dentro de um número limitado de jogadas.';
+  String get ultimateLimitedMoves =>
+      'Vença dentro de um número limitado de jogadas.';
 
   @override
   String get movesRemaining => 'Jogadas restantes';
@@ -81,7 +85,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get adsBannerPlacement => 'Banners aparecem apenas na tela de jogo.';
 
   @override
-  String get adInterstitialHint => 'Intersticiais aparecem após algumas partidas.';
+  String get adInterstitialHint =>
+      'Intersticiais aparecem após algumas partidas.';
 
   @override
   String get gameModeLabel => 'Modo de jogo';
@@ -90,7 +95,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tapToClaim => 'Toque em qualquer célula para capturá-la';
 
   @override
-  String get winInstruction => 'Forme uma linha de três para vencer a corrida neon.';
+  String get winInstruction =>
+      'Forme uma linha de três para vencer a corrida neon.';
 
   @override
   String get takeTurnCta => 'Faça sua jogada e ilumine o tabuleiro';
