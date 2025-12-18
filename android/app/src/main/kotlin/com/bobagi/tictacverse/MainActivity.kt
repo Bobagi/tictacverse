@@ -1,4 +1,4 @@
-package com.example.tictacverse
+package com.bobagi.tictacverse
 
 import io.flutter.embedding.android.FlutterActivity
 
