@@ -3,7 +3,6 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
-import '../../controllers/mandatory_full_screen_ad_controller.dart';
 import '../../models/game_mode.dart';
 import '../../services/metrics_service.dart';
 import '../widgets/modern_background.dart';
@@ -30,7 +29,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<GameModeDefinition> modes = createGameModes();
   final BannerAdController bannerAdController = BannerAdController();
-  late final MandatoryFullScreenAdController mandatoryFullScreenAdController;
   bool playAgainstCpu = false;
 
   @override
@@ -40,14 +38,11 @@ class _HomeScreenState extends State<HomeScreen> {
       onAdLoaded: _refreshBannerArea,
       onAdFailed: _refreshBannerArea,
     );
-    mandatoryFullScreenAdController =
-        MandatoryFullScreenAdController(metricsService: widget.metricsService);
   }
 
   @override
   void dispose() {
     bannerAdController.dispose();
-    mandatoryFullScreenAdController.dispose();
     super.dispose();
   }
 
@@ -100,15 +95,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 GlassPanel(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Center(child: bannerAdController.buildBannerAdWidget()),
-                      const SizedBox(height: 8),
-                      Text(localization.adsBannerPlacement, style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 4),
-                      Text(localization.adInterstitialHint, style: Theme.of(context).textTheme.bodyMedium),
-                    ],
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Center(
+                        child: bannerAdController.buildBannerAdWidget(),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -125,7 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (BuildContext context) => GameScreen(
           controller: GameController(modeDefinition: definition, playAgainstCpu: playAgainstCpu),
           metricsService: widget.metricsService,
-          mandatoryFullScreenAdController: mandatoryFullScreenAdController,
         ),
       ),
     );
