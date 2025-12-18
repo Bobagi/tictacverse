@@ -3,11 +3,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
-import '../../controllers/mandatory_full_screen_ad_controller.dart';
+import '../../controllers/interstitial_ad_controller.dart';
+import '../../controllers/rewarded_ad_controller.dart';
 import '../../models/chaos_event.dart';
 import '../../models/game_mode.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
+import '../../services/ad_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/visual_assets.dart';
 import '../widgets/game_board.dart';
@@ -19,12 +21,16 @@ class GameScreen extends StatefulWidget {
     super.key,
     required this.controller,
     required this.metricsService,
-    required this.mandatoryFullScreenAdController,
+    required this.interstitialAdController,
+    required this.rewardedAdController,
+    required this.adService,
   });
 
   final GameController controller;
   final MetricsService metricsService;
-  final MandatoryFullScreenAdController mandatoryFullScreenAdController;
+  final InterstitialAdController interstitialAdController;
+  final RewardedAdController rewardedAdController;
+  final AdService adService;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -41,7 +47,8 @@ class _GameScreenState extends State<GameScreen> {
       onAdLoaded: _refreshBannerArea,
       onAdFailed: _refreshBannerArea,
     );
-    widget.mandatoryFullScreenAdController.preloadAds();
+    widget.interstitialAdController.loadInterstitialAd();
+    widget.rewardedAdController.loadRewardedAd();
   }
 
   @override
@@ -85,7 +92,7 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildBannerPlaceholder(localization),
+                _buildBannerPlacement(),
               ],
             ),
           ),
@@ -227,15 +234,10 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildBannerPlaceholder(AppLocalizations localization) {
+  Widget _buildBannerPlacement() {
     return GlassPanel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Center(child: bannerAdController.buildBannerAdWidget()),
-          const SizedBox(height: 8),
-          Text(localization.adsBannerPlacement),
-        ],
+      child: SafeArea(
+        child: Center(child: bannerAdController.buildBannerAdWidget()),
       ),
     );
   }
@@ -246,7 +248,9 @@ class _GameScreenState extends State<GameScreen> {
     });
     if (widget.controller.state.result.isFinal) {
       widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
-      widget.mandatoryFullScreenAdController.tryShowAdAfterMatchCompleted();
+      if (widget.adService.shouldShowInterstitialOnMatchEnd()) {
+        widget.interstitialAdController.showInterstitialAdIfAvailable();
+      }
       _showGameOverSheet();
     }
   }

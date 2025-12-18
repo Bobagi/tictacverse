@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
+import '../../controllers/interstitial_ad_controller.dart';
 import '../../controllers/game_controller.dart';
-import '../../controllers/mandatory_full_screen_ad_controller.dart';
+import '../../controllers/rewarded_ad_controller.dart';
 import '../../models/game_mode.dart';
+import '../../services/ad_service.dart';
 import '../../services/metrics_service.dart';
 import '../widgets/modern_background.dart';
 import '../screens/game_screen.dart';
@@ -30,7 +32,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<GameModeDefinition> modes = createGameModes();
   final BannerAdController bannerAdController = BannerAdController();
-  late final MandatoryFullScreenAdController mandatoryFullScreenAdController;
+  final InterstitialAdController interstitialAdController = InterstitialAdController();
+  final RewardedAdController rewardedAdController = RewardedAdController();
+  final AdService adService = AdService();
   bool playAgainstCpu = false;
 
   @override
@@ -40,14 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
       onAdLoaded: _refreshBannerArea,
       onAdFailed: _refreshBannerArea,
     );
-    mandatoryFullScreenAdController =
-        MandatoryFullScreenAdController(metricsService: widget.metricsService);
+    interstitialAdController.loadInterstitialAd();
+    rewardedAdController.loadRewardedAd();
   }
 
   @override
   void dispose() {
     bannerAdController.dispose();
-    mandatoryFullScreenAdController.dispose();
+    interstitialAdController.dispose();
+    rewardedAdController.dispose();
     super.dispose();
   }
 
@@ -100,15 +105,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 GlassPanel(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Center(child: bannerAdController.buildBannerAdWidget()),
-                      const SizedBox(height: 8),
-                      Text(localization.adsBannerPlacement, style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 4),
-                      Text(localization.adInterstitialHint, style: Theme.of(context).textTheme.bodyMedium),
-                    ],
+                  child: SafeArea(
+                    child: Center(
+                      child: bannerAdController.buildBannerAdWidget(),
+                    ),
                   ),
                 ),
               ],
@@ -125,7 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (BuildContext context) => GameScreen(
           controller: GameController(modeDefinition: definition, playAgainstCpu: playAgainstCpu),
           metricsService: widget.metricsService,
-          mandatoryFullScreenAdController: mandatoryFullScreenAdController,
+          interstitialAdController: interstitialAdController,
+          rewardedAdController: rewardedAdController,
+          adService: adService,
         ),
       ),
     );
