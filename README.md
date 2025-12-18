@@ -59,13 +59,33 @@ Check devices:
 flutter devices
 ```
 
-Run the app:
+Run the app (default: test ads):
 
 ```bash
-flutter run -d emulator-5554
+flutter run -d emulator-5554 --dart-define=ADS_MODE=test
 ```
 
 If your emulator ID is different, use the ID shown by `flutter devices`.
+
+### Choose ads mode when running on Android emulator
+
+No ads:
+
+```bash
+flutter run -d emulator-5554 --dart-define=ADS_MODE=off
+```
+
+Test ads:
+
+```bash
+flutter run -d emulator-5554 --dart-define=ADS_MODE=test
+```
+
+Real ads:
+
+```bash
+flutter run -d emulator-5554 --dart-define=ADS_MODE=real
+```
 
 ---
 
