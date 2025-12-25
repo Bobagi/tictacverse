@@ -161,6 +161,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icons.group_rounded,
                   label: localization.twoPlayers,
                   isActive: !playAgainstCpu,
+                  onTap: playAgainstCpu
+                      ? () {
+                          setState(() {
+                            playAgainstCpu = false;
+                          });
+                        }
+                      : null,
                 ),
               ),
               Padding(
@@ -182,6 +189,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icons.computer_rounded,
                   label: localization.cpuOpponent,
                   isActive: playAgainstCpu,
+                  onTap: !playAgainstCpu
+                      ? () {
+                          setState(() {
+                            playAgainstCpu = true;
+                          });
+                        }
+                      : null,
                 ),
               ),
             ],
@@ -193,47 +207,59 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _ModePill extends StatelessWidget {
-  const _ModePill({required this.icon, required this.label, required this.isActive});
+  const _ModePill({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    this.onTap,
+  });
 
   final IconData icon;
   final String label;
   final bool isActive;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isActive
-              ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
-              : <Color>[Colors.white.withOpacity(0.05), Colors.white.withOpacity(0.08)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isActive ? Colors.white : Colors.white.withOpacity(0.25)),
-        boxShadow: isActive
-            ? <BoxShadow>[
-                BoxShadow(color: Colors.cyanAccent.withOpacity(0.35), blurRadius: 18, offset: const Offset(0, 8)),
-              ]
-            : <BoxShadow>[],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(icon, color: isActive ? const Color(0xFF041427) : Colors.white70),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isActive ? const Color(0xFF041427) : Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
+    return Semantics(
+      button: onTap != null,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isActive
+                  ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
+                  : <Color>[Colors.white.withOpacity(0.05), Colors.white.withOpacity(0.08)],
             ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: isActive ? Colors.white : Colors.white.withOpacity(0.25)),
+            boxShadow: isActive
+                ? <BoxShadow>[
+                    BoxShadow(color: Colors.cyanAccent.withOpacity(0.35), blurRadius: 18, offset: const Offset(0, 8)),
+                  ]
+                : <BoxShadow>[],
           ),
-        ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(icon, color: isActive ? const Color(0xFF041427) : Colors.white70),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: isActive ? const Color(0xFF041427) : Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
