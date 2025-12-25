@@ -307,7 +307,7 @@ abstract class AppLocalizations {
   /// No description provided for @languageSpanish.
   ///
   /// In en, this message translates to:
-  /// **'Spanish'**
+  /// **'Español'**
   String get languageSpanish;
 }
 

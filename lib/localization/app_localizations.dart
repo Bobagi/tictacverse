@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -43,8 +42,8 @@ class AppLocalizations {
 
   static Future<Map<String, String>> _loadMessagesForLocale(Locale locale) async {
     final String localeCode = locale.languageCode;
-    final String fallbackPath = 'l10n/app_en.arb';
-    final String localePath = 'l10n/app_${localeCode}.arb';
+    const String fallbackPath = 'l10n/app_en.arb';
+    final String localePath = 'l10n/app_$localeCode.arb';
 
     final String rawJson = await _safeLoadString(localePath) ?? await _safeLoadString(fallbackPath) ?? '{}';
     final Map<String, dynamic> decoded = json.decode(rawJson) as Map<String, dynamic>;
