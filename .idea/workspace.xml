@@ -5,8 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="91d285fe-9984-41e1-994d-99a346b76a2c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/ad_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/ad_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/l10n/app_en.arb" beforeDir="false" afterPath="$PROJECT_DIR$/lib/l10n/app_en.arb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/l10n/app_es.arb" beforeDir="false" afterPath="$PROJECT_DIR$/lib/l10n/app_es.arb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/l10n/app_localizations.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/l10n/app_localizations.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/l10n/app_localizations_en.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/l10n/app_localizations_en.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/l10n/app_localizations_es.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/l10n/app_localizations_es.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/l10n/app_localizations_pt.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/l10n/app_localizations_pt.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/l10n/app_pt.arb" beforeDir="false" afterPath="$PROJECT_DIR$/lib/l10n/app_pt.arb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,9 +63,11 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feat/integrate-real-ads-into-flutter-app",
+    "git-widget-placeholder": "feat/locate-unnecessary-language-files",
     "io.flutter.project.isFirstOpen": "true",
-    "last_opened_file_path": "/Users/gustavo.perin/personal-projects/tictacverse",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/projetos/tictacverse",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>

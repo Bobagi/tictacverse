@@ -111,8 +111,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get languageLabel => 'Idioma';
 
   @override
-  String get languageEnglish => 'Inglês';
+  String get languageEnglish => 'English';
 
   @override
   String get languagePortuguese => 'Português';
+
+  @override
+  String get languageSpanish => 'Español';
 }

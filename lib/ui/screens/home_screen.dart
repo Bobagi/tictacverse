@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       playAgainstCpu = value;
                     });
                   },
-                  activeColor: Colors.lightBlueAccent,
+                  activeThumbColor: Colors.lightBlueAccent,
                   inactiveThumbColor: Colors.white,
                   inactiveTrackColor: Colors.white.withOpacity(0.2),
                 ),
