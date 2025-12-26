@@ -92,7 +92,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get gameModeLabel => 'Modo de jogo';
 
   @override
+  String get helpTitle => 'Ajuda';
+
+  @override
   String get tapToClaim => 'Toque em qualquer célula para capturá-la';
+
+  @override
+  String get closeLabel => 'Fechar';
 
   @override
   String get winInstruction =>

@@ -84,7 +84,9 @@ class AppLocalizations {
   String get adsBannerPlacement => _messages['adsBannerPlacement'] ?? '';
   String get adInterstitialHint => _messages['adInterstitialHint'] ?? '';
   String get gameModeLabel => _messages['gameModeLabel'] ?? '';
+  String get helpTitle => _messages['helpTitle'] ?? '';
   String get tapToClaim => _messages['tapToClaim'] ?? '';
+  String get closeLabel => _messages['closeLabel'] ?? '';
   String get winInstruction => _messages['winInstruction'] ?? '';
   String get takeTurnCta => _messages['takeTurnCta'] ?? '';
   String get playLabel => _messages['playLabel'] ?? '';

@@ -87,7 +87,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameModeLabel => 'Game mode';
 
   @override
+  String get helpTitle => 'Help';
+
+  @override
   String get tapToClaim => 'Tap any cell to claim it';
+
+  @override
+  String get closeLabel => 'Close';
 
   @override
   String get winInstruction => 'Line up three to win the neon run.';
