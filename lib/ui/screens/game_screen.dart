@@ -64,7 +64,7 @@ class _GameScreenState extends State<GameScreen> {
         appBar: AppBar(title: Text(widget.controller.modeDefinition.title(localization))),
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
@@ -73,23 +73,34 @@ class _GameScreenState extends State<GameScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       _buildStatusHud(localization),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Expanded(
-                        child: GameBoard(
-                          board: widget.controller.state.board,
-                          blockedCells: widget.controller.state.blockedCells,
-                          onCellSelected: _handleCellTap,
-                          winningLine: widget.controller.state.result.winningLine,
-                          winningPlayer: widget.controller.state.result.winner,
-                          visualAssetConfig: _visualAssets,
+                        child: LayoutBuilder(
+                          builder: (BuildContext context, BoxConstraints constraints) {
+                            final double boardSize = constraints.biggest.shortestSide;
+                            return Center(
+                              child: SizedBox(
+                                width: boardSize,
+                                height: boardSize,
+                                child: GameBoard(
+                                  board: widget.controller.state.board,
+                                  blockedCells: widget.controller.state.blockedCells,
+                                  onCellSelected: _handleCellTap,
+                                  winningLine: widget.controller.state.result.winningLine,
+                                  winningPlayer: widget.controller.state.result.winner,
+                                  visualAssetConfig: _visualAssets,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       _buildPlayerMessageBanner(localization),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildBannerArea(),
               ],
             ),
@@ -102,7 +113,7 @@ class _GameScreenState extends State<GameScreen> {
   Widget _buildStatusHud(AppLocalizations localization) {
     final PlayerMarker current = widget.controller.state.currentPlayer;
     return GlassPanel(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -110,26 +121,39 @@ class _GameScreenState extends State<GameScreen> {
             children: <Widget>[
               _buildPlayerAvatar(current),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('${localization.currentPlayer}: ${current.symbol}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 4),
-                  Text(
-                    localization.winInstruction,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      '${localization.currentPlayer}: ${current.symbol}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      localization.winInstruction,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => _showHelpModal(localization),
+                icon: const Icon(Icons.help_outline_rounded, color: Colors.white70),
+                tooltip: localization.helpTitle,
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          if (widget.controller.state.movesRemaining != null || widget.controller.state.activeUltimateCondition != null) ...<Widget>[
+            const SizedBox(height: 10),
+          ],
           Wrap(
             spacing: 10,
             runSpacing: 10,
             children: <Widget>[
-              _buildHudChip(Icons.sports_esports, localization.tapToClaim),
               if (widget.controller.state.movesRemaining != null)
                 _buildHudChip(
                   Icons.timelapse_rounded,
@@ -171,7 +195,7 @@ class _GameScreenState extends State<GameScreen> {
         : widget.controller.state.activeUltimateCondition?.describe(localization) ?? localization.takeTurnCta;
     final Color accentColor = chaosEvent != null ? Colors.pinkAccent : Colors.lightBlueAccent;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: <Color>[
@@ -199,17 +223,19 @@ class _GameScreenState extends State<GameScreen> {
                   '${localization.currentPlayer}: ${current.symbol}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   messageDetail,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(14),
@@ -222,7 +248,7 @@ class _GameScreenState extends State<GameScreen> {
                 const SizedBox(width: 6),
                 Text(
                   localization.playLabel,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -328,6 +354,48 @@ class _GameScreenState extends State<GameScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _showHelpModal(AppLocalizations localization) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: GlassPanel(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  const Icon(Icons.help_outline_rounded, color: Colors.lightBlueAccent),
+                  const SizedBox(width: 8),
+                  Text(
+                    localization.helpTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                localization.tapToClaim,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(localization.closeLabel),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   String _describeChaosEvent(ChaosEvent event, AppLocalizations localization) {
