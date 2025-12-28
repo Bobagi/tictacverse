@@ -97,11 +97,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 GlassPanel(
                   child: SafeArea(
                     top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Center(
-                        child: bannerAdController.buildBannerAdWidget(),
-                      ),
+                    child: SizedBox(
+                      height: 50,
+                      width: double.infinity,
+                      child: bannerAdController.buildBannerAdWidget(),
                     ),
                   ),
                 ),
@@ -160,6 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _ModePill(
                   icon: Icons.group_rounded,
                   label: localization.twoPlayers,
+                  showLabel: false,
                   isActive: !playAgainstCpu,
                   onTap: playAgainstCpu
                       ? () {
@@ -188,6 +188,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _ModePill(
                   icon: Icons.computer_rounded,
                   label: localization.cpuOpponent,
+                  secondaryIcon: Icons.person_rounded,
+                  showLabel: false,
                   isActive: playAgainstCpu,
                   onTap: !playAgainstCpu
                       ? () {
@@ -211,18 +213,24 @@ class _ModePill extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.isActive,
+    this.secondaryIcon,
+    this.showLabel = true,
     this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool isActive;
+  final IconData? secondaryIcon;
+  final bool showLabel;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final Color iconColor = isActive ? const Color(0xFF041427) : Colors.white70;
     return Semantics(
       button: onTap != null,
+      label: label,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
@@ -245,18 +253,24 @@ class _ModePill extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Icon(icon, color: isActive ? const Color(0xFF041427) : Colors.white70),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: isActive ? const Color(0xFF041427) : Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
+              Icon(icon, color: iconColor),
+              if (secondaryIcon != null) ...<Widget>[
+                const SizedBox(width: 6),
+                Icon(secondaryIcon, color: iconColor),
+              ],
+              if (showLabel) ...<Widget>[
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: isActive ? const Color(0xFF041427) : Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
