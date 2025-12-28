@@ -5,7 +5,6 @@ import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
 import '../../controllers/interstitial_ad_controller.dart';
 import '../../controllers/rewarded_ad_controller.dart';
-import '../../models/chaos_event.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
@@ -96,7 +95,6 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _buildPlayerMessageBanner(localization),
                     ],
                   ),
                 ),
@@ -187,84 +185,14 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildPlayerMessageBanner(AppLocalizations localization) {
-    final PlayerMarker current = widget.controller.state.currentPlayer;
-    final ChaosEvent? chaosEvent = widget.controller.state.activeChaosEvent;
-    final String messageDetail = chaosEvent != null
-        ? _describeChaosEvent(chaosEvent, localization)
-        : widget.controller.state.activeUltimateCondition?.describe(localization) ?? localization.takeTurnCta;
-    final Color accentColor = chaosEvent != null ? Colors.pinkAccent : Colors.lightBlueAccent;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: <Color>[
-            accentColor.withOpacity(0.18),
-            const Color(0xFF0D1C3D).withOpacity(0.7),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.35)),
-        boxShadow: <BoxShadow>[
-          BoxShadow(color: accentColor.withOpacity(0.28), blurRadius: 22, offset: const Offset(0, 12)),
-        ],
-      ),
-      child: Row(
-        children: <Widget>[
-          _buildPlayerAvatar(current),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '${localization.currentPlayer}: ${current.symbol}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  messageDetail,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: accentColor.withOpacity(0.6)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(Icons.touch_app_rounded, color: accentColor, size: 18),
-                const SizedBox(width: 6),
-                Text(
-                  localization.playLabel,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBannerArea() {
     return GlassPanel(
       child: SafeArea(
         top: false,
         child: Center(
           child: SizedBox(
-            height: 50,
+            height: 60,
+            width: double.infinity,
             child: bannerAdController.buildBannerAdWidget(),
           ),
         ),
@@ -357,11 +285,11 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showHelpModal(AppLocalizations localization) {
-    showModalBottomSheet<void>(
+    showDialog<void>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) => Padding(
-        padding: const EdgeInsets.all(16),
+      builder: (BuildContext context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(20),
         child: GlassPanel(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           child: Column(
@@ -398,14 +326,4 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  String _describeChaosEvent(ChaosEvent event, AppLocalizations localization) {
-    switch (event.type) {
-      case ChaosEffectType.removePiece:
-        return localization.chaosRemovePiece;
-      case ChaosEffectType.blockCell:
-        return localization.chaosBlockCell;
-      case ChaosEffectType.swapSymbols:
-        return localization.chaosSwapSymbols;
-    }
-  }
 }

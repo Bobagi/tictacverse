@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SafeArea(
                     top: false,
                     child: SizedBox(
-                      height: 50,
+                      height: 60,
                       width: double.infinity,
                       child: bannerAdController.buildBannerAdWidget(),
                     ),
