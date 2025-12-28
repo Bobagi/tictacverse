@@ -15,6 +15,7 @@ class GameBoard extends StatefulWidget {
     this.winningLine,
     this.winningPlayer,
     this.visualAssetConfig,
+    this.highlightIndex,
   });
 
   final List<PlayerMarker?> board;
@@ -23,6 +24,7 @@ class GameBoard extends StatefulWidget {
   final List<int>? winningLine;
   final PlayerMarker? winningPlayer;
   final VisualAssetConfig? visualAssetConfig;
+  final int? highlightIndex;
 
   @override
   State<GameBoard> createState() => _GameBoardState();
@@ -126,6 +128,7 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
   Widget _buildCell(BuildContext context, int index, double cellExtent, VisualAssetConfig assetConfig) {
     final PlayerMarker? marker = widget.board[index];
     final bool isBlocked = widget.blockedCells.contains(index);
+    final bool isHighlighted = widget.highlightIndex == index;
     return GestureDetector(
       onTap: () => widget.onCellSelected(index),
       child: Container(
@@ -145,6 +148,38 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
                 ),
                 child: Center(
                   child: Icon(Icons.block, color: Colors.redAccent.shade200),
+                ),
+              ),
+            if (isHighlighted)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.6, end: 1),
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeOutBack,
+                    builder: (BuildContext context, double value, Widget? child) {
+                      return Opacity(
+                        opacity: 1 - (value - 0.6) / 0.4,
+                        child: Transform.scale(
+                          scale: value,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.lightBlueAccent.withOpacity(0.85), width: 2),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: Colors.lightBlueAccent.withOpacity(0.35),
+                            blurRadius: 16,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
           ],

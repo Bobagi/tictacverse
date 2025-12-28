@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
@@ -34,6 +36,8 @@ class _GameScreenState extends State<GameScreen> {
   final InterstitialAdController interstitialAdController = InterstitialAdController();
   final RewardedAdController rewardedAdController = RewardedAdController();
   final AdService adService = AdService();
+  Timer? _cpuHighlightTimer;
+  int? _cpuMoveHighlightIndex;
 
   @override
   void initState() {
@@ -48,6 +52,7 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void dispose() {
+    _cpuHighlightTimer?.cancel();
     bannerAdController.dispose();
     interstitialAdController.dispose();
     rewardedAdController.dispose();
@@ -81,18 +86,19 @@ class _GameScreenState extends State<GameScreen> {
                               child: SizedBox(
                                 width: boardSize,
                                 height: boardSize,
-                                child: GameBoard(
-                                  board: widget.controller.state.board,
-                                  blockedCells: widget.controller.state.blockedCells,
-                                  onCellSelected: _handleCellTap,
-                                  winningLine: widget.controller.state.result.winningLine,
-                                  winningPlayer: widget.controller.state.result.winner,
-                                  visualAssetConfig: _visualAssets,
-                                ),
-                              ),
-                            );
-                          },
+                        child: GameBoard(
+                          board: widget.controller.state.board,
+                          blockedCells: widget.controller.state.blockedCells,
+                          onCellSelected: _handleCellTap,
+                          winningLine: widget.controller.state.result.winningLine,
+                          winningPlayer: widget.controller.state.result.winner,
+                          visualAssetConfig: _visualAssets,
+                          highlightIndex: _cpuMoveHighlightIndex,
                         ),
+                      ),
+                    );
+                  },
+                ),
                       ),
                       const SizedBox(height: 12),
                     ],
@@ -187,23 +193,27 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildBannerArea() {
     return GlassPanel(
+      padding: EdgeInsets.zero,
       child: SafeArea(
         top: false,
-        child: Center(
-          child: SizedBox(
-            height: 60,
-            width: double.infinity,
-            child: bannerAdController.buildBannerAdWidget(),
-          ),
+        child: SizedBox(
+          height: 60,
+          width: double.infinity,
+          child: bannerAdController.buildBannerAdWidget(),
         ),
       ),
     );
   }
 
   void _handleCellTap(int index) {
+    final List<PlayerMarker?> previousBoard = List<PlayerMarker?>.from(widget.controller.state.board);
     setState(() {
       widget.controller.selectCell(index);
     });
+    final int? cpuMoveIndex = _findCpuMoveIndex(previousBoard, widget.controller.state.board);
+    if (cpuMoveIndex != null) {
+      _triggerCpuMoveHighlight(cpuMoveIndex);
+    }
     if (widget.controller.state.result.isFinal) {
       widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
       if (adService.shouldShowInterstitialOnMatchEnd()) {
@@ -282,6 +292,29 @@ class _GameScreenState extends State<GameScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  int? _findCpuMoveIndex(List<PlayerMarker?> previousBoard, List<PlayerMarker?> currentBoard) {
+    for (int index = 0; index < currentBoard.length; index++) {
+      if (previousBoard[index] == null && currentBoard[index] == PlayerMarker.nought) {
+        return index;
+      }
+    }
+    return null;
+  }
+
+  void _triggerCpuMoveHighlight(int index) {
+    _cpuHighlightTimer?.cancel();
+    setState(() {
+      _cpuMoveHighlightIndex = index;
+    });
+    _cpuHighlightTimer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) {
+        setState(() {
+          _cpuMoveHighlightIndex = null;
+        });
+      }
+    });
   }
 
   void _showHelpModal(AppLocalizations localization) {

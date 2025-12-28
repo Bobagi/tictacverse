@@ -95,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 GlassPanel(
+                  padding: EdgeInsets.zero,
                   child: SafeArea(
                     top: false,
                     child: SizedBox(
