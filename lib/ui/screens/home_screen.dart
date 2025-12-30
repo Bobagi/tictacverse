@@ -5,10 +5,12 @@ import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
 import '../../models/game_mode.dart';
 import '../../services/metrics_service.dart';
+import '../../services/audio_service.dart';
 import '../screens/game_screen.dart';
 import '../widgets/language_selector_sheet.dart';
 import '../widgets/mode_card.dart';
 import '../widgets/modern_background.dart';
+import '../widgets/settings_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -29,6 +31,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<GameModeDefinition> modes = createGameModes();
   final BannerAdController bannerAdController = BannerAdController();
+  final AudioService audioService = AudioService.instance;
   bool playAgainstCpu = false;
 
   @override
@@ -40,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onAdLoaded: _refreshBannerArea,
         onAdFailed: _refreshBannerArea,
       );
+      audioService.ensureBackgroundMusic();
     });
   }
 
@@ -58,6 +62,10 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: Text(localization.appTitle),
           actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.language_rounded),
+              onPressed: () => _openLanguageSelector(localization),
+            ),
             IconButton(
               icon: const Icon(Icons.settings_rounded),
               onPressed: () => _openSettings(localization),
@@ -151,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _openSettings(AppLocalizations localization) {
+  void _openLanguageSelector(AppLocalizations localization) {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -163,6 +171,15 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.of(context).pop();
         },
       ),
+    );
+  }
+
+  void _openSettings(AppLocalizations localization) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) =>
+          SettingsSheet(localization: localization),
     );
   }
 
@@ -182,6 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _ModePill(
                   icon: Icons.group_rounded,
                   label: localization.twoPlayers,
+                  topLabel: 'vs player',
                   showLabel: false,
                   isActive: !playAgainstCpu,
                   onTap: playAgainstCpu
@@ -212,6 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icons.computer_rounded,
                   label: localization.cpuOpponent,
                   secondaryIcon: Icons.person_rounded,
+                  topLabel: 'vs cpu',
                   showLabel: false,
                   isActive: playAgainstCpu,
                   onTap: !playAgainstCpu
@@ -237,6 +256,7 @@ class _ModePill extends StatelessWidget {
     required this.label,
     required this.isActive,
     this.secondaryIcon,
+    this.topLabel,
     this.showLabel = true,
     this.onTap,
   });
@@ -245,6 +265,7 @@ class _ModePill extends StatelessWidget {
   final String label;
   final bool isActive;
   final IconData? secondaryIcon;
+  final String? topLabel;
   final bool showLabel;
   final VoidCallback? onTap;
 
@@ -282,30 +303,50 @@ class _ModePill extends StatelessWidget {
                   ]
                 : <BoxShadow>[],
           ),
-          child: Row(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Icon(icon, color: iconColor),
-              if (secondaryIcon != null) ...<Widget>[
-                Transform.translate(
-                  offset: const Offset(-4, 0),
-                  child: Icon(secondaryIcon, color: iconColor),
+              if (topLabel != null) ...<Widget>[
+                Text(
+                  topLabel!,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isActive
+                            ? const Color(0xFF041427)
+                            : Colors.white70,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
                 ),
+                const SizedBox(height: 4),
               ],
-              if (showLabel) ...<Widget>[
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color:
-                              isActive ? const Color(0xFF041427) : Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ),
-              ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(icon, color: iconColor),
+                  if (secondaryIcon != null) ...<Widget>[
+                    Transform.translate(
+                      offset: const Offset(-4, 0),
+                      child: Icon(secondaryIcon, color: iconColor),
+                    ),
+                  ],
+                  if (showLabel) ...<Widget>[
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: isActive
+                                  ? const Color(0xFF041427)
+                                  : Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
         ),

@@ -10,6 +10,7 @@ import '../../controllers/rewarded_ad_controller.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
+import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/visual_assets.dart';
 import '../widgets/game_board.dart';
@@ -37,6 +38,7 @@ class _GameScreenState extends State<GameScreen> {
       InterstitialAdController();
   final RewardedAdController rewardedAdController = RewardedAdController();
   final AdService adService = AdService();
+  final AudioService audioService = AudioService.instance;
   Timer? _cpuHighlightTimer;
   int? _cpuMoveHighlightIndex;
 
@@ -240,6 +242,11 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       widget.controller.selectCell(index);
     });
+    final int newPlacements =
+        _countNewPlacements(previousBoard, widget.controller.state.board);
+    if (newPlacements > 0) {
+      audioService.playMoveSfx();
+    }
     final int? cpuMoveIndex =
         _findCpuMoveIndex(previousBoard, widget.controller.state.board);
     if (cpuMoveIndex != null) {
@@ -344,6 +351,17 @@ class _GameScreenState extends State<GameScreen> {
       }
     }
     return null;
+  }
+
+  int _countNewPlacements(
+      List<PlayerMarker?> previousBoard, List<PlayerMarker?> currentBoard) {
+    int count = 0;
+    for (int index = 0; index < currentBoard.length; index++) {
+      if (previousBoard[index] == null && currentBoard[index] != null) {
+        count++;
+      }
+    }
+    return count;
   }
 
   void _triggerCpuMoveHighlight(int index) {

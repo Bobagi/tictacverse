@@ -29,7 +29,7 @@ class LanguageSelectorSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  localization.settingsTitle,
+                  localization.languageLabel,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 IconButton(
