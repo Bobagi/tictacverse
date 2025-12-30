@@ -30,7 +30,7 @@ class AudioService {
         contentType: AndroidContentType.music,
       ),
       iOS: AudioContextIOS(
-        category: AVAudioSessionCategory.ambient,
+        category: AVAudioSessionCategory.playback,
         options: <AVAudioSessionOptions>{AVAudioSessionOptions.mixWithOthers},
       ),
     );
