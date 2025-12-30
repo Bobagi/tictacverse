@@ -51,6 +51,7 @@ class _GameScreenState extends State<GameScreen> {
         onAdLoaded: _refreshBannerArea,
         onAdFailed: _refreshBannerArea,
       );
+      audioService.ensureBackgroundMusic();
     });
     interstitialAdController.loadInterstitialAd();
     rewardedAdController.loadRewardedAd();

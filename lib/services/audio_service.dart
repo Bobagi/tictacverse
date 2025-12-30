@@ -13,7 +13,7 @@ class AudioService {
   final AudioPlayer _musicPlayer = AudioPlayer();
   final AudioPlayer _sfxPlayer = AudioPlayer();
   final ValueNotifier<bool> _isMuted = ValueNotifier<bool>(false);
-  final ValueNotifier<double> _volume = ValueNotifier<double>(0.85);
+  final ValueNotifier<double> _volume = ValueNotifier<double>(1.0);
   bool _hasStartedMusic = false;
   StreamSubscription<void>? _musicLoopSubscription;
   AudioContext? _sharedContext;
