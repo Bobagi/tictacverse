@@ -256,11 +256,23 @@ abstract class AppLocalizations {
   /// **'Game mode'**
   String get gameModeLabel;
 
+  /// No description provided for @helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get helpTitle;
+
   /// No description provided for @tapToClaim.
   ///
   /// In en, this message translates to:
   /// **'Tap any cell to claim it'**
   String get tapToClaim;
+
+  /// No description provided for @closeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeLabel;
 
   /// No description provided for @winInstruction.
   ///

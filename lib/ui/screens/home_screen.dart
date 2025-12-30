@@ -5,10 +5,10 @@ import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
 import '../../models/game_mode.dart';
 import '../../services/metrics_service.dart';
-import '../widgets/modern_background.dart';
 import '../screens/game_screen.dart';
-import '../widgets/mode_card.dart';
 import '../widgets/language_selector_sheet.dart';
+import '../widgets/mode_card.dart';
+import '../widgets/modern_background.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -34,10 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    bannerAdController.loadBannerAd(
-      onAdLoaded: _refreshBannerArea,
-      onAdFailed: _refreshBannerArea,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      bannerAdController.loadBannerAd(
+        context: context,
+        onAdLoaded: _refreshBannerArea,
+        onAdFailed: _refreshBannerArea,
+      );
+    });
   }
 
   @override
@@ -73,13 +76,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       _buildModeToggle(localization),
                       const SizedBox(height: 16),
                       Expanded(
-                        child: GlassPanel(
-                          padding: const EdgeInsets.all(12),
+                        child: _buildModeListContainer(
                           child: ListView.separated(
                             itemCount: modes.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
                             itemBuilder: (BuildContext context, int index) {
-                              final GameModeDefinition definition = modes[index];
+                              final GameModeDefinition definition =
+                                  modes[index];
                               return ModeCard(
                                 title: definition.title(localization),
                                 subtitle: definition.subtitle(localization),
@@ -95,13 +99,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 GlassPanel(
+                  padding: EdgeInsets.zero,
                   child: SafeArea(
                     top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Center(
-                        child: bannerAdController.buildBannerAdWidget(),
-                      ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: bannerAdController.expectedAdHeight,
+                      child: bannerAdController.buildBannerAdWidget(),
                     ),
                   ),
                 ),
@@ -113,11 +117,28 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildModeListContainer({required Widget child}) {
+    final BorderRadius listRadius = BorderRadius.circular(22);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: listRadius,
+        border:
+            Border.all(color: Colors.cyanAccent.withOpacity(0.45), width: 1.6),
+        color: Colors.white.withOpacity(0.04),
+      ),
+      child: child,
+    );
+  }
+
   void _openGame(GameModeDefinition definition) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) => GameScreen(
-          controller: GameController(modeDefinition: definition, playAgainstCpu: playAgainstCpu),
+          controller: GameController(
+            modeDefinition: definition,
+            playAgainstCpu: playAgainstCpu,
+          ),
           metricsService: widget.metricsService,
         ),
       ),
@@ -151,7 +172,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text(localization.gameModeLabel, style: Theme.of(context).textTheme.titleLarge),
+          Text(localization.gameModeLabel,
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _ModePill(
                   icon: Icons.group_rounded,
                   label: localization.twoPlayers,
+                  showLabel: false,
                   isActive: !playAgainstCpu,
                   onTap: playAgainstCpu
                       ? () {
@@ -188,6 +211,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _ModePill(
                   icon: Icons.computer_rounded,
                   label: localization.cpuOpponent,
+                  secondaryIcon: Icons.person_rounded,
+                  showLabel: false,
                   isActive: playAgainstCpu,
                   onTap: !playAgainstCpu
                       ? () {
@@ -211,18 +236,24 @@ class _ModePill extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.isActive,
+    this.secondaryIcon,
+    this.showLabel = true,
     this.onTap,
   });
 
   final IconData icon;
   final String label;
   final bool isActive;
+  final IconData? secondaryIcon;
+  final bool showLabel;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final Color iconColor = isActive ? const Color(0xFF041427) : Colors.white70;
     return Semantics(
       button: onTap != null,
+      label: label,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
@@ -232,31 +263,49 @@ class _ModePill extends StatelessWidget {
             gradient: LinearGradient(
               colors: isActive
                   ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
-                  : <Color>[Colors.white.withOpacity(0.05), Colors.white.withOpacity(0.08)],
+                  : <Color>[
+                      Colors.white.withOpacity(0.05),
+                      Colors.white.withOpacity(0.08)
+                    ],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: isActive ? Colors.white : Colors.white.withOpacity(0.25)),
+            border: Border.all(
+                color:
+                    isActive ? Colors.white : Colors.white.withOpacity(0.25)),
             boxShadow: isActive
                 ? <BoxShadow>[
-                    BoxShadow(color: Colors.cyanAccent.withOpacity(0.35), blurRadius: 18, offset: const Offset(0, 8)),
+                    BoxShadow(
+                      color: Colors.cyanAccent.withOpacity(0.35),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
                   ]
                 : <BoxShadow>[],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Icon(icon, color: isActive ? const Color(0xFF041427) : Colors.white70),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: isActive ? const Color(0xFF041427) : Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
+              Icon(icon, color: iconColor),
+              if (secondaryIcon != null) ...<Widget>[
+                Transform.translate(
+                  offset: const Offset(-4, 0),
+                  child: Icon(secondaryIcon, color: iconColor),
                 ),
-              ),
+              ],
+              if (showLabel) ...<Widget>[
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color:
+                              isActive ? const Color(0xFF041427) : Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

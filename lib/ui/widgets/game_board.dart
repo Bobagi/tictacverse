@@ -15,6 +15,7 @@ class GameBoard extends StatefulWidget {
     this.winningLine,
     this.winningPlayer,
     this.visualAssetConfig,
+    this.highlightIndex,
   });
 
   final List<PlayerMarker?> board;
@@ -23,19 +24,24 @@ class GameBoard extends StatefulWidget {
   final List<int>? winningLine;
   final PlayerMarker? winningPlayer;
   final VisualAssetConfig? visualAssetConfig;
+  final int? highlightIndex;
 
   @override
   State<GameBoard> createState() => _GameBoardState();
 }
 
-class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMixin {
+class _GameBoardState extends State<GameBoard>
+    with SingleTickerProviderStateMixin {
   late final Random _randomGenerator = Random();
-  late VisualAssetConfig _assetConfig = widget.visualAssetConfig ?? VisualAssetConfig();
+  late VisualAssetConfig _assetConfig =
+      widget.visualAssetConfig ?? VisualAssetConfig();
   late Map<int, double> _cellRotations = <int, double>{};
   late Map<PlayerMarker, Color> _playerGlowColors = <PlayerMarker, Color>{};
-  late List<PlayerMarker?> _previousBoardState = List<PlayerMarker?>.from(widget.board);
+  late List<PlayerMarker?> _previousBoardState =
+      List<PlayerMarker?>.from(widget.board);
   late final AnimationController _neonPulseController =
-      AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat();
+      AnimationController(vsync: this, duration: const Duration(seconds: 6))
+        ..repeat();
 
   @override
   void initState() {
@@ -46,7 +52,8 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
   @override
   void didUpdateWidget(GameBoard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.visualAssetConfig != null && widget.visualAssetConfig != oldWidget.visualAssetConfig) {
+    if (widget.visualAssetConfig != null &&
+        widget.visualAssetConfig != oldWidget.visualAssetConfig) {
       _assetConfig = widget.visualAssetConfig!;
     }
     if (_boardWasReset()) {
@@ -80,7 +87,8 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
                     animation: _neonPulseController,
                     builder: (BuildContext context, Widget? _) {
                       return CustomPaint(
-                        painter: NeonGridPainter(progress: _neonPulseController.value),
+                        painter: NeonGridPainter(
+                            progress: _neonPulseController.value),
                       );
                     },
                   ),
@@ -89,7 +97,8 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   padding: EdgeInsets.zero,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3),
                   itemCount: widget.board.length,
                   itemBuilder: (BuildContext context, int index) => _buildCell(
                     context,
@@ -107,7 +116,9 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
                           return CustomPaint(
                             painter: WinningLinePainter(
                               winningLine: widget.winningLine!,
-                              glowColor: _playerGlowColors[widget.winningPlayer!] ?? Colors.cyanAccent,
+                              glowColor:
+                                  _playerGlowColors[widget.winningPlayer!] ??
+                                      Colors.cyanAccent,
                               pulseValue: _neonPulseController.value,
                             ),
                           );
@@ -123,9 +134,11 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildCell(BuildContext context, int index, double cellExtent, VisualAssetConfig assetConfig) {
+  Widget _buildCell(BuildContext context, int index, double cellExtent,
+      VisualAssetConfig assetConfig) {
     final PlayerMarker? marker = widget.board[index];
     final bool isBlocked = widget.blockedCells.contains(index);
+    final bool isHighlighted = widget.highlightIndex == index;
     return GestureDetector(
       onTap: () => widget.onCellSelected(index),
       child: Container(
@@ -136,7 +149,8 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
         ),
         child: Stack(
           children: <Widget>[
-            if (marker != null) _buildMarkerWithEffects(marker, index, cellExtent, assetConfig),
+            if (marker != null)
+              _buildMarkerWithEffects(marker, index, cellExtent, assetConfig),
             if (isBlocked)
               Container(
                 decoration: BoxDecoration(
@@ -145,6 +159,43 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
                 ),
                 child: Center(
                   child: Icon(Icons.block, color: Colors.redAccent.shade200),
+                ),
+              ),
+            if (isHighlighted)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.6, end: 1),
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeOutBack,
+                    builder:
+                        (BuildContext context, double value, Widget? child) {
+                      final double rawOpacity = 1 - (value - 0.6) / 0.4;
+                      final double safeOpacity = rawOpacity.clamp(0.0, 1.0);
+                      return Opacity(
+                        opacity: safeOpacity,
+                        child: Transform.scale(
+                          scale: value,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: Colors.lightBlueAccent.withOpacity(0.85),
+                            width: 2),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: Colors.lightBlueAccent.withOpacity(0.35),
+                            blurRadius: 16,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
           ],
@@ -161,7 +212,9 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
   ) {
     final double rotationAngle = _cellRotations[index] ?? 0;
     final Color glowColor = _playerGlowColors[marker] ?? Colors.cyanAccent;
-    final String assetPath = marker == PlayerMarker.cross ? assetConfig.crossAssetPath : assetConfig.noughtAssetPath;
+    final String assetPath = marker == PlayerMarker.cross
+        ? assetConfig.crossAssetPath
+        : assetConfig.noughtAssetPath;
     return Center(
       child: Transform.rotate(
         angle: rotationAngle,
@@ -210,7 +263,8 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
     for (int index = 0; index < widget.board.length; index++) {
       final PlayerMarker? previousMarker = _previousBoardState[index];
       final PlayerMarker? currentMarker = widget.board[index];
-      final bool placementIsNew = previousMarker == null && currentMarker != null;
+      final bool placementIsNew =
+          previousMarker == null && currentMarker != null;
       if (placementIsNew) {
         _cellRotations[index] = _generateQuarterTurnRotation();
       }
@@ -218,8 +272,10 @@ class _GameBoardState extends State<GameBoard> with SingleTickerProviderStateMix
   }
 
   bool _boardWasReset() {
-    final bool hadMarkers = _previousBoardState.any((PlayerMarker? marker) => marker != null);
-    final bool isNowEmpty = widget.board.every((PlayerMarker? marker) => marker == null);
+    final bool hadMarkers =
+        _previousBoardState.any((PlayerMarker? marker) => marker != null);
+    final bool isNowEmpty =
+        widget.board.every((PlayerMarker? marker) => marker == null);
     return hadMarkers && isNowEmpty;
   }
 
@@ -279,16 +335,23 @@ class NeonGridPainter extends CustomPainter {
   }
 
   Shader _buildGradientShader(double strokeWidth) {
-    final Color primary = Color.lerp(electricBlue, neonPink, 0.5 * (1 + sin(progress * 2 * pi)))!;
-    final Color secondary = Color.lerp(neonPink, electricBlue, 0.5 * (1 + cos(progress * 2 * pi)))!;
+    final Color primary =
+        Color.lerp(electricBlue, neonPink, 0.5 * (1 + sin(progress * 2 * pi)))!;
+    final Color secondary =
+        Color.lerp(neonPink, electricBlue, 0.5 * (1 + cos(progress * 2 * pi)))!;
     return LinearGradient(
-      colors: <Color>[primary.withOpacity(0.85), secondary.withOpacity(0.85), primary.withOpacity(0.85)],
+      colors: <Color>[
+        primary.withOpacity(0.85),
+        secondary.withOpacity(0.85),
+        primary.withOpacity(0.85)
+      ],
       stops: const <double>[0.0, 0.5, 1.0],
     ).createShader(Rect.fromLTWH(0, 0, strokeWidth * 20, strokeWidth * 20));
   }
 
   @override
-  bool shouldRepaint(covariant NeonGridPainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(covariant NeonGridPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }
 
 class WinningLinePainter extends CustomPainter {
@@ -320,7 +383,8 @@ class WinningLinePainter extends CustomPainter {
 
   Paint _buildGlowPaint(Rect shaderBounds) {
     final double pulse = 0.55 + (0.25 * sin(pulseValue * 2 * pi));
-    final Color brightTone = Color.lerp(glowColor, Colors.white, 0.4 + (0.15 * cos(pulseValue * 2 * pi)))!;
+    final Color brightTone = Color.lerp(
+        glowColor, Colors.white, 0.4 + (0.15 * cos(pulseValue * 2 * pi)))!;
     final Color dimTone = Color.lerp(glowColor, Colors.black, 0.1)!;
 
     return Paint()
@@ -340,7 +404,8 @@ class WinningLinePainter extends CustomPainter {
   }
 
   Paint _buildLinePaint(Rect shaderBounds) {
-    final double oscillation = 0.65 + (0.35 * sin((pulseValue + 0.25) * 2 * pi));
+    final double oscillation =
+        0.65 + (0.35 * sin((pulseValue + 0.25) * 2 * pi));
     final Color edgeTone = Color.lerp(glowColor, Colors.white, 0.5)!;
     final Color coreTone = glowColor.withOpacity(0.95);
 

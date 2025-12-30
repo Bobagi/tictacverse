@@ -6,19 +6,40 @@ import '../services/ad_unit_id_provider.dart';
 class BannerAdController {
   BannerAd? _bannerAd;
   bool _isLoading = false;
+  AdSize _activeAdSize = AdSize.mediumRectangle;
+  String _activeAdUnitId = '';
 
-  void loadBannerAd({VoidCallback? onAdLoaded, VoidCallback? onAdFailed}) {
+  double get expectedAdHeight => _activeAdSize.height.toDouble();
+
+  Future<void> loadBannerAd({
+    required BuildContext context,
+    VoidCallback? onAdLoaded,
+    VoidCallback? onAdFailed,
+  }) async {
     if (_bannerAd != null || _isLoading) {
       return;
     }
-    final String adUnitId = AdUnitIdProvider.getBannerAdUnitId();
-    if (adUnitId.isEmpty) {
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool shouldUseMediumRectangle = screenWidth >= 380;
+
+    final AdSize nextAdSize =
+        shouldUseMediumRectangle ? AdSize.mediumRectangle : AdSize.banner;
+    final String nextAdUnitId = shouldUseMediumRectangle
+        ? AdUnitIdProvider.getMediumRectangleAdUnitId()
+        : AdUnitIdProvider.getBannerAdUnitId();
+
+    if (nextAdUnitId.isEmpty) {
       return;
     }
+
+    _activeAdSize = nextAdSize;
+    _activeAdUnitId = nextAdUnitId;
     _isLoading = true;
-    final BannerAd banner = BannerAd(
-      adUnitId: adUnitId,
-      size: AdSize.banner,
+
+    final BannerAd bannerAd = BannerAd(
+      adUnitId: _activeAdUnitId,
+      size: _activeAdSize,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (Ad ad) {
@@ -34,20 +55,28 @@ class BannerAdController {
         },
       ),
     );
-    banner.load();
+
+    bannerAd.load();
   }
 
-  Widget buildBannerAdWidget() {
-    if (_bannerAd == null) {
-      return const SizedBox(
-        height: 50,
-        width: 320,
-      );
-    }
+  Widget buildBannerAdWidget({double? reservedHeight}) {
+    final double adHeight = reservedHeight ?? expectedAdHeight;
+
+    final Widget adWidget = _bannerAd == null
+        ? SizedBox(
+            width: _activeAdSize.width.toDouble(),
+            height: _activeAdSize.height.toDouble(),
+          )
+        : SizedBox(
+            width: _activeAdSize.width.toDouble(),
+            height: _activeAdSize.height.toDouble(),
+            child: AdWidget(ad: _bannerAd!),
+          );
+
     return SizedBox(
-      height: _bannerAd!.size.height.toDouble(),
-      width: _bannerAd!.size.width.toDouble(),
-      child: AdWidget(ad: _bannerAd!),
+      height: adHeight,
+      width: double.infinity,
+      child: Center(child: adWidget),
     );
   }
 
