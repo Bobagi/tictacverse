@@ -7,7 +7,9 @@
 .buildlog/
 .history
 
-
+android/key.properties
+*.keystore
+*.jks
 
 # Flutter repo-specific
 /bin/cache/
