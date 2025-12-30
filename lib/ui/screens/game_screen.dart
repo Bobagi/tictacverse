@@ -33,7 +33,8 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   final VisualAssetConfig _visualAssets = VisualAssetConfig();
   final BannerAdController bannerAdController = BannerAdController();
-  final InterstitialAdController interstitialAdController = InterstitialAdController();
+  final InterstitialAdController interstitialAdController =
+      InterstitialAdController();
   final RewardedAdController rewardedAdController = RewardedAdController();
   final AdService adService = AdService();
   Timer? _cpuHighlightTimer;
@@ -42,10 +43,13 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    bannerAdController.loadBannerAd(
-      onAdLoaded: _refreshBannerArea,
-      onAdFailed: _refreshBannerArea,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      bannerAdController.loadBannerAd(
+        context: context,
+        onAdLoaded: _refreshBannerArea,
+        onAdFailed: _refreshBannerArea,
+      );
+    });
     interstitialAdController.loadInterstitialAd();
     rewardedAdController.loadRewardedAd();
   }
@@ -65,7 +69,8 @@ class _GameScreenState extends State<GameScreen> {
     return ModernGradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(title: Text(widget.controller.modeDefinition.title(localization))),
+        appBar: AppBar(
+            title: Text(widget.controller.modeDefinition.title(localization))),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -80,25 +85,30 @@ class _GameScreenState extends State<GameScreen> {
                       const SizedBox(height: 12),
                       Expanded(
                         child: LayoutBuilder(
-                          builder: (BuildContext context, BoxConstraints constraints) {
-                            final double boardSize = constraints.biggest.shortestSide;
+                          builder: (BuildContext context,
+                              BoxConstraints constraints) {
+                            final double boardSize =
+                                constraints.biggest.shortestSide;
                             return Center(
                               child: SizedBox(
                                 width: boardSize,
                                 height: boardSize,
-                        child: GameBoard(
-                          board: widget.controller.state.board,
-                          blockedCells: widget.controller.state.blockedCells,
-                          onCellSelected: _handleCellTap,
-                          winningLine: widget.controller.state.result.winningLine,
-                          winningPlayer: widget.controller.state.result.winner,
-                          visualAssetConfig: _visualAssets,
-                          highlightIndex: _cpuMoveHighlightIndex,
+                                child: GameBoard(
+                                  board: widget.controller.state.board,
+                                  blockedCells:
+                                      widget.controller.state.blockedCells,
+                                  onCellSelected: _handleCellTap,
+                                  winningLine: widget
+                                      .controller.state.result.winningLine,
+                                  winningPlayer:
+                                      widget.controller.state.result.winner,
+                                  visualAssetConfig: _visualAssets,
+                                  highlightIndex: _cpuMoveHighlightIndex,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    );
-                  },
-                ),
                       ),
                       const SizedBox(height: 12),
                     ],
@@ -131,14 +141,20 @@ class _GameScreenState extends State<GameScreen> {
                   children: <Widget>[
                     Text(
                       '${localization.currentPlayer}: ${current.symbol}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       localization.winInstruction,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.white70),
                     ),
                   ],
                 ),
@@ -146,12 +162,15 @@ class _GameScreenState extends State<GameScreen> {
               const SizedBox(width: 8),
               IconButton(
                 onPressed: () => _showHelpModal(localization),
-                icon: const Icon(Icons.help_outline_rounded, color: Colors.white70),
+                icon: const Icon(Icons.help_outline_rounded,
+                    color: Colors.white70),
                 tooltip: localization.helpTitle,
               ),
             ],
           ),
-          if (widget.controller.state.movesRemaining != null || widget.controller.state.activeUltimateCondition != null) ...<Widget>[
+          if (widget.controller.state.movesRemaining != null ||
+              widget.controller.state.activeUltimateCondition !=
+                  null) ...<Widget>[
             const SizedBox(height: 10),
           ],
           Wrap(
@@ -164,7 +183,11 @@ class _GameScreenState extends State<GameScreen> {
                   '${localization.movesRemaining}: ${widget.controller.state.movesRemaining}',
                 ),
               if (widget.controller.state.activeUltimateCondition != null)
-                _buildHudChip(Icons.auto_awesome_rounded, widget.controller.state.activeUltimateCondition!.describe(localization)),
+                _buildHudChip(
+                  Icons.auto_awesome_rounded,
+                  widget.controller.state.activeUltimateCondition!
+                      .describe(localization),
+                ),
             ],
           ),
         ],
@@ -185,7 +208,13 @@ class _GameScreenState extends State<GameScreen> {
         children: <Widget>[
           Icon(icon, size: 18, color: Colors.lightBlueAccent),
           const SizedBox(width: 8),
-          Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white)),
+          Text(
+            label,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.white),
+          ),
         ],
       ),
     );
@@ -197,8 +226,8 @@ class _GameScreenState extends State<GameScreen> {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 60,
           width: double.infinity,
+          height: bannerAdController.expectedAdHeight,
           child: bannerAdController.buildBannerAdWidget(),
         ),
       ),
@@ -206,11 +235,13 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _handleCellTap(int index) {
-    final List<PlayerMarker?> previousBoard = List<PlayerMarker?>.from(widget.controller.state.board);
+    final List<PlayerMarker?> previousBoard =
+        List<PlayerMarker?>.from(widget.controller.state.board);
     setState(() {
       widget.controller.selectCell(index);
     });
-    final int? cpuMoveIndex = _findCpuMoveIndex(previousBoard, widget.controller.state.board);
+    final int? cpuMoveIndex =
+        _findCpuMoveIndex(previousBoard, widget.controller.state.board);
     if (cpuMoveIndex != null) {
       _triggerCpuMoveHighlight(cpuMoveIndex);
     }
@@ -227,15 +258,25 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildPlayerAvatar(PlayerMarker marker) {
-    final Color accentColor = marker == PlayerMarker.cross ? const Color(0xFF6BE0FF) : const Color(0xFFFF6BD9);
-    final String assetPath = marker == PlayerMarker.cross ? _visualAssets.crossAssetPath : _visualAssets.noughtAssetPath;
+    final Color accentColor = marker == PlayerMarker.cross
+        ? const Color(0xFF6BE0FF)
+        : const Color(0xFFFF6BD9);
+    final String assetPath = marker == PlayerMarker.cross
+        ? _visualAssets.crossAssetPath
+        : _visualAssets.noughtAssetPath;
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: <Color>[accentColor.withOpacity(0.85), Colors.white.withOpacity(0.1)]),
+        gradient: LinearGradient(colors: <Color>[
+          accentColor.withOpacity(0.85),
+          Colors.white.withOpacity(0.1)
+        ]),
         shape: BoxShape.circle,
         boxShadow: <BoxShadow>[
-          BoxShadow(color: accentColor.withOpacity(0.45), blurRadius: 14, offset: const Offset(0, 8)),
+          BoxShadow(
+              color: accentColor.withOpacity(0.45),
+              blurRadius: 14,
+              offset: const Offset(0, 8)),
         ],
       ),
       child: Container(
@@ -294,9 +335,11 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  int? _findCpuMoveIndex(List<PlayerMarker?> previousBoard, List<PlayerMarker?> currentBoard) {
+  int? _findCpuMoveIndex(
+      List<PlayerMarker?> previousBoard, List<PlayerMarker?> currentBoard) {
     for (int index = 0; index < currentBoard.length; index++) {
-      if (previousBoard[index] == null && currentBoard[index] == PlayerMarker.nought) {
+      if (previousBoard[index] == null &&
+          currentBoard[index] == PlayerMarker.nought) {
         return index;
       }
     }
@@ -331,18 +374,25 @@ class _GameScreenState extends State<GameScreen> {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  const Icon(Icons.help_outline_rounded, color: Colors.lightBlueAccent),
+                  const Icon(Icons.help_outline_rounded,
+                      color: Colors.lightBlueAccent),
                   const SizedBox(width: 8),
                   Text(
                     localization.helpTitle,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Text(
                 localization.tapToClaim,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.white70),
               ),
               const SizedBox(height: 12),
               Align(
@@ -358,5 +408,4 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
   }
-
 }

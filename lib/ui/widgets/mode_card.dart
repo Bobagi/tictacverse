@@ -18,35 +18,41 @@ class ModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassPanel(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 4),
-                Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
-              ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: GlassPanel(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(title, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          ElevatedButton.icon(
-            onPressed: onStart,
-            icon: const Icon(Icons.sports_esports_rounded),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              backgroundColor: const Color(0xFF1AD1FF),
-              foregroundColor: const Color(0xFF041427),
-              elevation: 6,
+            const SizedBox(width: 12),
+            ElevatedButton.icon(
+              onPressed: onStart,
+              icon: const Icon(Icons.sports_esports_rounded),
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                backgroundColor: const Color(0xFF1AD1FF),
+                foregroundColor: const Color(0xFF041427),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              label: Text(buttonLabel),
             ),
-            label: Text(buttonLabel),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

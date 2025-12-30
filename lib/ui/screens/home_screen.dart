@@ -5,10 +5,10 @@ import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
 import '../../models/game_mode.dart';
 import '../../services/metrics_service.dart';
-import '../widgets/modern_background.dart';
 import '../screens/game_screen.dart';
-import '../widgets/mode_card.dart';
 import '../widgets/language_selector_sheet.dart';
+import '../widgets/mode_card.dart';
+import '../widgets/modern_background.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -34,10 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    bannerAdController.loadBannerAd(
-      onAdLoaded: _refreshBannerArea,
-      onAdFailed: _refreshBannerArea,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      bannerAdController.loadBannerAd(
+        context: context,
+        onAdLoaded: _refreshBannerArea,
+        onAdFailed: _refreshBannerArea,
+      );
+    });
   }
 
   @override
@@ -73,13 +76,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       _buildModeToggle(localization),
                       const SizedBox(height: 16),
                       Expanded(
-                        child: GlassPanel(
-                          padding: const EdgeInsets.all(12),
+                        child: _buildModeListContainer(
                           child: ListView.separated(
                             itemCount: modes.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
                             itemBuilder: (BuildContext context, int index) {
-                              final GameModeDefinition definition = modes[index];
+                              final GameModeDefinition definition =
+                                  modes[index];
                               return ModeCard(
                                 title: definition.title(localization),
                                 subtitle: definition.subtitle(localization),
@@ -99,8 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SafeArea(
                     top: false,
                     child: SizedBox(
-                      height: 60,
                       width: double.infinity,
+                      height: bannerAdController.expectedAdHeight,
                       child: bannerAdController.buildBannerAdWidget(),
                     ),
                   ),
@@ -113,11 +117,28 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildModeListContainer({required Widget child}) {
+    final BorderRadius listRadius = BorderRadius.circular(22);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: listRadius,
+        border:
+            Border.all(color: Colors.cyanAccent.withOpacity(0.45), width: 1.6),
+        color: Colors.white.withOpacity(0.04),
+      ),
+      child: child,
+    );
+  }
+
   void _openGame(GameModeDefinition definition) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) => GameScreen(
-          controller: GameController(modeDefinition: definition, playAgainstCpu: playAgainstCpu),
+          controller: GameController(
+            modeDefinition: definition,
+            playAgainstCpu: playAgainstCpu,
+          ),
           metricsService: widget.metricsService,
         ),
       ),
@@ -151,7 +172,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Text(localization.gameModeLabel, style: Theme.of(context).textTheme.titleLarge),
+          Text(localization.gameModeLabel,
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -241,13 +263,22 @@ class _ModePill extends StatelessWidget {
             gradient: LinearGradient(
               colors: isActive
                   ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
-                  : <Color>[Colors.white.withOpacity(0.05), Colors.white.withOpacity(0.08)],
+                  : <Color>[
+                      Colors.white.withOpacity(0.05),
+                      Colors.white.withOpacity(0.08)
+                    ],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: isActive ? Colors.white : Colors.white.withOpacity(0.25)),
+            border: Border.all(
+                color:
+                    isActive ? Colors.white : Colors.white.withOpacity(0.25)),
             boxShadow: isActive
                 ? <BoxShadow>[
-                    BoxShadow(color: Colors.cyanAccent.withOpacity(0.35), blurRadius: 18, offset: const Offset(0, 8)),
+                    BoxShadow(
+                      color: Colors.cyanAccent.withOpacity(0.35),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
                   ]
                 : <BoxShadow>[],
           ),
@@ -256,8 +287,10 @@ class _ModePill extends StatelessWidget {
             children: <Widget>[
               Icon(icon, color: iconColor),
               if (secondaryIcon != null) ...<Widget>[
-                const SizedBox(width: 6),
-                Icon(secondaryIcon, color: iconColor),
+                Transform.translate(
+                  offset: const Offset(-4, 0),
+                  child: Icon(secondaryIcon, color: iconColor),
+                ),
               ],
               if (showLabel) ...<Widget>[
                 const SizedBox(width: 8),
@@ -266,7 +299,8 @@ class _ModePill extends StatelessWidget {
                     label,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isActive ? const Color(0xFF041427) : Colors.white,
+                          color:
+                              isActive ? const Color(0xFF041427) : Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
                   ),

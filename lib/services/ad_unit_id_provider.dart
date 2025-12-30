@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'ads_configuration.dart';
 
@@ -7,7 +7,7 @@ class AdUnitIdProvider {
     if (AdsConfiguration.activeAdsMode == AdsMode.off) {
       return '';
     }
-    if (!Platform.isAndroid) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       return '';
     }
     if (AdsConfiguration.activeAdsMode == AdsMode.test) {
@@ -19,11 +19,15 @@ class AdUnitIdProvider {
     return '';
   }
 
+  static String getMediumRectangleAdUnitId() {
+    return getBannerAdUnitId();
+  }
+
   static String getInterstitialAdUnitId() {
     if (AdsConfiguration.activeAdsMode == AdsMode.off) {
       return '';
     }
-    if (!Platform.isAndroid) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       return '';
     }
     if (AdsConfiguration.activeAdsMode == AdsMode.test) {
@@ -39,7 +43,7 @@ class AdUnitIdProvider {
     if (AdsConfiguration.activeAdsMode == AdsMode.off) {
       return '';
     }
-    if (!Platform.isAndroid) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
       return '';
     }
     if (AdsConfiguration.activeAdsMode == AdsMode.test) {
