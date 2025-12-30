@@ -64,11 +64,17 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.language_rounded),
-              onPressed: () => _openLanguageSelector(localization),
+              onPressed: () {
+                audioService.playUiClick();
+                _openLanguageSelector(localization);
+              },
             ),
             IconButton(
               icon: const Icon(Icons.settings_rounded),
-              onPressed: () => _openSettings(localization),
+              onPressed: () {
+                audioService.playUiClick();
+                _openSettings(localization);
+              },
             ),
           ],
         ),
@@ -204,6 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   isActive: !playAgainstCpu,
                   onTap: playAgainstCpu
                       ? () {
+                          audioService.playUiClick();
                           setState(() {
                             playAgainstCpu = false;
                           });
@@ -235,6 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   isActive: playAgainstCpu,
                   onTap: !playAgainstCpu
                       ? () {
+                          audioService.playUiClick();
                           setState(() {
                             playAgainstCpu = true;
                           });

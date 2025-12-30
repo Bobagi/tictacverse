@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:tictacverse/l10n/app_localizations.dart';
 import '../../models/player_marker.dart';
+import '../../services/audio_service.dart';
 import '../../services/visual_assets.dart';
 import 'modern_background.dart';
 
@@ -45,10 +46,19 @@ class GameOverModal extends StatelessWidget {
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
                   ),
-                  onPressed: onPlayAgain,
+                  onPressed: () {
+                    AudioService.instance.playUiClick();
+                    onPlayAgain();
+                  },
                   child: Text(localization.playAgain),
                 ),
-                TextButton(onPressed: onBackToMenu, child: Text(localization.backToMenu)),
+                TextButton(
+                  onPressed: () {
+                    AudioService.instance.playUiClick();
+                    onBackToMenu();
+                  },
+                  child: Text(localization.backToMenu),
+                ),
               ],
             ),
           ],

@@ -29,7 +29,10 @@ class SettingsSheet extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    audioService.playUiClick();
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             ),

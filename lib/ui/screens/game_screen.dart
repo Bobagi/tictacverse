@@ -164,7 +164,10 @@ class _GameScreenState extends State<GameScreen> {
               ),
               const SizedBox(width: 8),
               IconButton(
-                onPressed: () => _showHelpModal(localization),
+                onPressed: () {
+                  audioService.playUiClick();
+                  _showHelpModal(localization);
+                },
                 icon: const Icon(Icons.help_outline_rounded,
                     color: Colors.white70),
                 tooltip: localization.helpTitle,
@@ -417,7 +420,10 @@ class _GameScreenState extends State<GameScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    audioService.playUiClick();
+                    Navigator.of(context).pop();
+                  },
                   child: Text(localization.closeLabel),
                 ),
               ),
