@@ -16,6 +16,7 @@ class AudioService {
   final ValueNotifier<double> _volume = ValueNotifier<double>(0.85);
   bool _hasStartedMusic = false;
   StreamSubscription<void>? _musicLoopSubscription;
+  AudioContext? _sharedContext;
 
   ValueListenable<bool> get isMutedListenable => _isMuted;
   ValueListenable<double> get volumeListenable => _volume;
@@ -34,6 +35,7 @@ class AudioService {
         options: <AVAudioSessionOptions>{AVAudioSessionOptions.mixWithOthers},
       ),
     );
+    _sharedContext = sharedContext;
     _musicPlayer.setAudioContext(sharedContext);
     _sfxPlayer.setAudioContext(sharedContext);
     _musicPlayer.setReleaseMode(ReleaseMode.loop);
@@ -98,10 +100,18 @@ class AudioService {
       return;
     }
     try {
-      await _sfxPlayer.play(
+      final AudioPlayer player = AudioPlayer();
+      final AudioContext? sharedContext = _sharedContext;
+      if (sharedContext != null) {
+        await player.setAudioContext(sharedContext);
+      }
+      await player.setReleaseMode(ReleaseMode.stop);
+      await player.setVolume(_volume.value);
+      await player.play(
         AssetSource('audio/sfx/move_click.wav'),
         volume: _volume.value,
       );
+      player.onPlayerComplete.listen((_) => player.dispose());
     } catch (_) {
       // Ignore missing asset errors until audio files are swapped.
     }
