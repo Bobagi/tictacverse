@@ -1,12 +1,11 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
 class AudioService {
   AudioService._() {
-    _musicPlayer.setReleaseMode(ReleaseMode.loop);
-    _musicPlayer.setVolume(_volume.value);
-    _sfxPlayer.setReleaseMode(ReleaseMode.stop);
-    _sfxPlayer.setVolume(_volume.value);
+    _configurePlayers();
   }
 
   static final AudioService instance = AudioService._();
@@ -14,13 +13,43 @@ class AudioService {
   final AudioPlayer _musicPlayer = AudioPlayer();
   final AudioPlayer _sfxPlayer = AudioPlayer();
   final ValueNotifier<bool> _isMuted = ValueNotifier<bool>(false);
-  final ValueNotifier<double> _volume = ValueNotifier<double>(0.6);
+  final ValueNotifier<double> _volume = ValueNotifier<double>(0.85);
   bool _hasStartedMusic = false;
+  StreamSubscription<void>? _musicLoopSubscription;
 
   ValueListenable<bool> get isMutedListenable => _isMuted;
   ValueListenable<double> get volumeListenable => _volume;
   bool get isMuted => _isMuted.value;
   double get volume => _volume.value;
+
+  void _configurePlayers() {
+    const AudioContext sharedContext = AudioContext(
+      android: AudioContextAndroid(
+        audioFocus: AndroidAudioFocus.none,
+        usageType: AndroidUsageType.game,
+        contentType: AndroidContentType.music,
+      ),
+      iOS: AudioContextIOS(
+        category: AVAudioSessionCategory.ambient,
+        options: <AVAudioSessionOptions>{AVAudioSessionOptions.mixWithOthers},
+      ),
+    );
+    _musicPlayer.setAudioContext(sharedContext);
+    _sfxPlayer.setAudioContext(sharedContext);
+    _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    _musicPlayer.setVolume(_volume.value);
+    _sfxPlayer.setReleaseMode(ReleaseMode.stop);
+    _sfxPlayer.setVolume(_volume.value);
+    _musicLoopSubscription?.cancel();
+    _musicLoopSubscription = _musicPlayer.onPlayerComplete.listen((_) {
+      if (!_isMuted.value) {
+        _musicPlayer.play(
+          AssetSource('audio/music/background_loop.wav'),
+          volume: _volume.value,
+        );
+      }
+    });
+  }
 
   Future<void> setMuted(bool value) async {
     _isMuted.value = value;
@@ -55,7 +84,8 @@ class AudioService {
           AssetSource('audio/music/background_loop.wav'),
           volume: _volume.value,
         );
-      } else if (_musicPlayer.state == PlayerState.paused) {
+      } else if (_musicPlayer.state == PlayerState.paused ||
+          _musicPlayer.state == PlayerState.stopped) {
         await _musicPlayer.resume();
       }
     } catch (_) {
