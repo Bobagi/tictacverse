@@ -23,7 +23,7 @@ class AudioService {
   double get volume => _volume.value;
 
   void _configurePlayers() {
-    const AudioContext sharedContext = AudioContext(
+    final AudioContext sharedContext = AudioContext(
       android: AudioContextAndroid(
         audioFocus: AndroidAudioFocus.none,
         usageType: AndroidUsageType.game,
