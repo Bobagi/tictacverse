@@ -35,5 +35,8 @@
   "languageLabel": "Language",
   "languageEnglish": "English",
   "languagePortuguese": "Português",
-  "languageSpanish": "Español"
+  "languageSpanish": "Español",
+  "audioLabel": "Audio",
+  "muteLabel": "Mute",
+  "volumeLabel": "Volume"
 }

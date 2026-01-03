@@ -321,6 +321,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Español'**
   String get languageSpanish;
+
+  /// No description provided for @audioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get audioLabel;
+
+  /// No description provided for @muteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get muteLabel;
+
+  /// No description provided for @volumeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get volumeLabel;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/audio_service.dart';
 import 'modern_background.dart';
 
 class ModeCard extends StatelessWidget {
@@ -37,7 +38,10 @@ class ModeCard extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             ElevatedButton.icon(
-              onPressed: onStart,
+              onPressed: () {
+                AudioService.instance.playUiClick();
+                onStart();
+              },
               icon: const Icon(Icons.sports_esports_rounded),
               style: ElevatedButton.styleFrom(
                 padding:
