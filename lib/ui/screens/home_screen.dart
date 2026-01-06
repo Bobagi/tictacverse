@@ -154,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openSettings(AppLocalizations localization) {
     showModalBottomSheet<void>(
       context: context,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => LanguageSelectorSheet(
         localization: localization,

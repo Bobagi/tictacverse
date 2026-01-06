@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import 'services/metrics_service.dart';
@@ -18,7 +19,7 @@ class TicTacVerseApp extends StatefulWidget {
   State<TicTacVerseApp> createState() => _TicTacVerseAppState();
 }
 
-class _TicTacVerseAppState extends State<TicTacVerseApp> {
+class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObserver {
   final MetricsService metricsService = MetricsService();
   late Locale _resolvedStartupLocale;
   Locale? _userSelectedLocale;
@@ -26,8 +27,29 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     metricsService.recordSessionStart();
     _resolvedStartupLocale = _resolveSupportedLocale(WidgetsBinding.instance.platformDispatcher.locale);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      MobileAds.instance.setAppMuted(false);
+      MobileAds.instance.setAppVolume(1.0);
+      return;
+    }
+
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      MobileAds.instance.setAppMuted(true);
+      MobileAds.instance.setAppVolume(0.0);
+    }
   }
 
   @override
