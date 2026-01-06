@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:tictacverse/l10n/app_localizations.dart';
+import '../../services/audio_service.dart';
 import 'modern_background.dart';
 
 class LanguageSelectorSheet extends StatelessWidget {
@@ -29,12 +30,15 @@ class LanguageSelectorSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  localization.settingsTitle,
+                  localization.languageLabel,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    AudioService.instance.playUiClick();
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             ),
@@ -45,7 +49,10 @@ class LanguageSelectorSheet extends StatelessWidget {
               title: localization.languageEnglish,
               locale: const Locale('en'),
               isSelected: selectedLocale.languageCode == 'en',
-              onTap: () => onLocaleSelected(const Locale('en')),
+              onTap: () {
+                AudioService.instance.playUiClick();
+                onLocaleSelected(const Locale('en'));
+              },
               leading: const Text('🇺🇸', style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(height: 8),
@@ -53,7 +60,10 @@ class LanguageSelectorSheet extends StatelessWidget {
               title: localization.languagePortuguese,
               locale: const Locale('pt'),
               isSelected: selectedLocale.languageCode == 'pt',
-              onTap: () => onLocaleSelected(const Locale('pt')),
+              onTap: () {
+                AudioService.instance.playUiClick();
+                onLocaleSelected(const Locale('pt'));
+              },
               leading: const Text('🇧🇷', style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(height: 8),
@@ -61,7 +71,10 @@ class LanguageSelectorSheet extends StatelessWidget {
               title: localization.languageSpanish,
               locale: const Locale('es'),
               isSelected: selectedLocale.languageCode == 'es',
-              onTap: () => onLocaleSelected(const Locale('es')),
+              onTap: () {
+                AudioService.instance.playUiClick();
+                onLocaleSelected(const Locale('es'));
+              },
               leading: const Text('🇪🇸', style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(height: 8),

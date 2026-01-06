@@ -124,4 +124,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get languageSpanish => 'Español';
+
+  @override
+  String get audioLabel => 'Áudio';
+
+  @override
+  String get muteLabel => 'Silenciar';
+
+  @override
+  String get volumeLabel => 'Volume';
 }
