@@ -321,6 +321,7 @@ class _GameScreenState extends State<GameScreen> {
     }
     showModalBottomSheet<void>(
       context: context,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => GameOverModal(
         title: title,
