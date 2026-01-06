@@ -140,6 +140,14 @@ Use test App ID while developing.
 
 ---
 
+## Build
+
+```bash
+flutter build appbundle --release --dart-define=ADS_MODE=real
+```
+
+---
+
 ## Common Commands
 
 List devices:
