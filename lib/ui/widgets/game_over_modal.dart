@@ -27,8 +27,9 @@ class GameOverModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localization = AppLocalizations.of(context)!;
+    final double bottomInset = MediaQuery.of(context).viewPadding.bottom;
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
       child: GlassPanel(
         child: Column(
           mainAxisSize: MainAxisSize.min,
