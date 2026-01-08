@@ -3,25 +3,19 @@ class AdService {
 
   final int interstitialInterval;
   int _matchesSinceInterstitial = 0;
-  bool _shouldUseShorterInterstitialInterval = true;
 
   bool shouldShowBannerOnGameScreen() => true;
 
   bool shouldShowInterstitialOnMatchEnd() {
     _matchesSinceInterstitial += 1;
-
-    final int currentInterval = _shouldUseShorterInterstitialInterval ? 2 : interstitialInterval;
-    final bool shouldDisplay = _matchesSinceInterstitial % currentInterval == 0;
-
-    if (shouldDisplay) {
-      _shouldUseShorterInterstitialInterval = !_shouldUseShorterInterstitialInterval;
+    if (_matchesSinceInterstitial < interstitialInterval) {
+      return false;
     }
-
-    return shouldDisplay;
+    _matchesSinceInterstitial = 0;
+    return true;
   }
 
   void resetTracking() {
     _matchesSinceInterstitial = 0;
-    _shouldUseShorterInterstitialInterval = true;
   }
 }
