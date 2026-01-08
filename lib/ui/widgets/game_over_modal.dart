@@ -27,42 +27,43 @@ class GameOverModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localization = AppLocalizations.of(context)!;
-    final double bottomInset = MediaQuery.of(context).viewPadding.bottom;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
-      child: GlassPanel(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            _buildWinnerDetails(context),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent.shade400,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GlassPanel(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(title, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 8),
+              _buildWinnerDetails(context),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.greenAccent.shade400,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                    ),
+                    onPressed: () {
+                      AudioService.instance.playUiClick();
+                      onPlayAgain();
+                    },
+                    child: Text(localization.playAgain),
                   ),
-                  onPressed: () {
-                    AudioService.instance.playUiClick();
-                    onPlayAgain();
-                  },
-                  child: Text(localization.playAgain),
-                ),
-                TextButton(
-                  onPressed: () {
-                    AudioService.instance.playUiClick();
-                    onBackToMenu();
-                  },
-                  child: Text(localization.backToMenu),
-                ),
-              ],
-            ),
-          ],
+                  TextButton(
+                    onPressed: () {
+                      AudioService.instance.playUiClick();
+                      onBackToMenu();
+                    },
+                    child: Text(localization.backToMenu),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

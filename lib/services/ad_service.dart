@@ -1,5 +1,5 @@
 class AdService {
-  AdService({this.interstitialInterval = 5});
+  AdService({this.interstitialInterval = 3});
 
   final int interstitialInterval;
   int _matchesSinceInterstitial = 0;
