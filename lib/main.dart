@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
+import 'services/audio_service.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
 import 'ui/screens/home_screen.dart';
@@ -43,12 +44,14 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
     if (state == AppLifecycleState.resumed) {
       MobileAds.instance.setAppMuted(false);
       MobileAds.instance.setAppVolume(1.0);
+      AudioService.instance.resumeBackgroundMusic();
       return;
     }
 
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       MobileAds.instance.setAppMuted(true);
       MobileAds.instance.setAppVolume(0.0);
+      AudioService.instance.pauseAll();
     }
   }
 

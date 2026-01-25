@@ -386,49 +386,51 @@ class _GameScreenState extends State<GameScreen> {
   void _showHelpModal(AppLocalizations localization) {
     showDialog<void>(
       context: context,
-      builder: (BuildContext context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(20),
-        child: GlassPanel(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  const Icon(Icons.help_outline_rounded,
-                      color: Colors.lightBlueAccent),
-                  const SizedBox(width: 8),
-                  Text(
-                    localization.helpTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                localization.tapToClaim,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Colors.white70),
-              ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    audioService.playUiClick();
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(localization.closeLabel),
+      builder: (BuildContext context) => SafeArea(
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(20),
+          child: GlassPanel(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    const Icon(Icons.help_outline_rounded,
+                        color: Colors.lightBlueAccent),
+                    const SizedBox(width: 8),
+                    Text(
+                      localization.helpTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Text(
+                  localization.tapToClaim,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.white70),
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      audioService.playUiClick();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(localization.closeLabel),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

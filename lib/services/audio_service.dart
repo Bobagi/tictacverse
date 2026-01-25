@@ -139,4 +139,14 @@ class AudioService {
       // Ignore missing asset errors until audio files are swapped.
     }
   }
+
+  Future<void> pauseAll() async {
+    await _musicPlayer.pause();
+    await _sfxPlayer.stop();
+    await _uiClickPlayer.stop();
+  }
+
+  Future<void> resumeBackgroundMusic() async {
+    await ensureBackgroundMusic();
+  }
 }
