@@ -140,6 +140,16 @@ Use test App ID while developing.
 
 ---
 
+## Change app icon
+
+```bash
+flutter pub run flutter_launcher_icons
+```
+
+```bash
+dart run flutter_native_splash:create
+```
+
 ## Build
 
 ```bash
