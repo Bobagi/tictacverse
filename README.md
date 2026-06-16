@@ -153,8 +153,12 @@ dart run flutter_native_splash:create
 ## Build
 
 ```bash
-flutter build appbundle --release --dart-define=ADS_MODE=real
+flutter build appbundle --release
 ```
+
+Release builds serve **real ads** automatically (see `lib/services/ads_configuration.dart`).
+You can still force a mode explicitly with `--dart-define=ADS_MODE=real|test|off`.
+Debug/profile builds always use test ads.
 
 ---
 

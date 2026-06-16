@@ -3,12 +3,14 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import 'services/audio_service.dart';
+import 'services/consent_service.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
 import 'ui/screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ConsentService().gatherConsent();
   await MobileAdsInitializationService().initialize();
   runApp(const TicTacVerseApp());
 }
