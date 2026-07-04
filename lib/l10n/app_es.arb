@@ -38,5 +38,19 @@
   "languageSpanish": "Español",
   "audioLabel": "Audio",
   "muteLabel": "Silenciar",
-  "volumeLabel": "Volumen"
+  "volumeLabel": "Volumen",
+  "difficultyLabel": "Dificultad",
+  "difficultyEasy": "Fácil",
+  "difficultyMedium": "Medio",
+  "difficultyHard": "Imposible",
+  "statsTitle": "Estadísticas",
+  "statsTotalMatches": "Partidas jugadas",
+  "statsVsCpu": "Contra la CPU",
+  "statsWins": "Victorias",
+  "statsLosses": "Derrotas",
+  "statsDraws": "Empates",
+  "statsStreak": "Racha de victorias",
+  "statsBestStreak": "Mejor racha",
+  "statsByMode": "Por modo",
+  "statsEmpty": "¡Juega una partida para empezar tus estadísticas!"
 }

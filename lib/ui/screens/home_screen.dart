@@ -3,14 +3,17 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
+import '../../models/cpu_difficulty.dart';
 import '../../models/game_mode.dart';
 import '../../services/metrics_service.dart';
 import '../../services/audio_service.dart';
+import '../../services/storage_service.dart';
 import '../screens/game_screen.dart';
 import '../widgets/language_selector_sheet.dart';
 import '../widgets/mode_card.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/settings_sheet.dart';
+import '../widgets/stats_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -32,7 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<GameModeDefinition> modes = createGameModes();
   final BannerAdController bannerAdController = BannerAdController();
   final AudioService audioService = AudioService.instance;
-  bool playAgainstCpu = false;
+  bool playAgainstCpu = StorageService.instance.playAgainstCpu;
+  CpuDifficulty cpuDifficulty = StorageService.instance.cpuDifficulty;
 
   @override
   void initState() {
@@ -62,6 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: Text(localization.appTitle),
           actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.bar_chart_rounded),
+              tooltip: localization.statsTitle,
+              onPressed: () {
+                audioService.playUiClick();
+                _openStats(localization);
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.language_rounded),
               onPressed: () {
@@ -152,10 +164,79 @@ class _HomeScreenState extends State<HomeScreen> {
           controller: GameController(
             modeDefinition: definition,
             playAgainstCpu: playAgainstCpu,
+            cpuDifficulty: cpuDifficulty,
           ),
           metricsService: widget.metricsService,
         ),
       ),
+    );
+  }
+
+  void _openStats(AppLocalizations localization) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) => StatsSheet(localization: localization),
+    );
+  }
+
+  void _setPlayAgainstCpu(bool value) {
+    setState(() {
+      playAgainstCpu = value;
+    });
+    StorageService.instance.savePlayAgainstCpu(value);
+  }
+
+  void _setCpuDifficulty(CpuDifficulty value) {
+    setState(() {
+      cpuDifficulty = value;
+    });
+    StorageService.instance.saveCpuDifficulty(value);
+  }
+
+  String _difficultyLabel(AppLocalizations localization, CpuDifficulty difficulty) {
+    switch (difficulty) {
+      case CpuDifficulty.easy:
+        return localization.difficultyEasy;
+      case CpuDifficulty.medium:
+        return localization.difficultyMedium;
+      case CpuDifficulty.hard:
+        return localization.difficultyHard;
+    }
+  }
+
+  Widget _buildDifficultySelector(AppLocalizations localization) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        const SizedBox(height: 14),
+        Text(
+          localization.difficultyLabel,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: Colors.white70, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: <Widget>[
+            for (final CpuDifficulty difficulty in CpuDifficulty.values) ...<Widget>[
+              if (difficulty != CpuDifficulty.values.first) const SizedBox(width: 8),
+              Expanded(
+                child: _DifficultyPill(
+                  label: _difficultyLabel(localization, difficulty),
+                  isActive: cpuDifficulty == difficulty,
+                  onTap: () {
+                    audioService.playUiClick();
+                    _setCpuDifficulty(difficulty);
+                  },
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
     );
   }
 
@@ -213,9 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: playAgainstCpu
                       ? () {
                           audioService.playUiClick();
-                          setState(() {
-                            playAgainstCpu = false;
-                          });
+                          _setPlayAgainstCpu(false);
                         }
                       : null,
                 ),
@@ -224,11 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Switch(
                   value: playAgainstCpu,
-                  onChanged: (bool value) {
-                    setState(() {
-                      playAgainstCpu = value;
-                    });
-                  },
+                  onChanged: _setPlayAgainstCpu,
                   activeThumbColor: Colors.lightBlueAccent,
                   inactiveThumbColor: Colors.white,
                   inactiveTrackColor: Colors.white.withOpacity(0.2),
@@ -245,16 +320,67 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: !playAgainstCpu
                       ? () {
                           audioService.playUiClick();
-                          setState(() {
-                            playAgainstCpu = true;
-                          });
+                          _setPlayAgainstCpu(true);
                         }
                       : null,
                 ),
               ),
             ],
           ),
+          if (playAgainstCpu) _buildDifficultySelector(localization),
         ],
+      ),
+    );
+  }
+}
+
+class _DifficultyPill extends StatelessWidget {
+  const _DifficultyPill({
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: isActive,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isActive
+                  ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
+                  : <Color>[
+                      Colors.white.withOpacity(0.05),
+                      Colors.white.withOpacity(0.08)
+                    ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isActive ? Colors.white : Colors.white.withOpacity(0.25),
+            ),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: isActive ? const Color(0xFF041427) : Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ),
       ),
     );
   }

@@ -1,6 +1,10 @@
+import 'dart:math';
+
+import '../models/cpu_difficulty.dart';
 import '../models/game_mode.dart';
 import '../models/game_state.dart';
 import '../models/player_marker.dart';
+import 'cpu_strategy.dart';
 import 'modes/chaos_rules_engine.dart';
 import 'modes/classic_rules_engine.dart';
 import 'modes/game_rules_engine.dart';
@@ -8,13 +12,20 @@ import 'modes/shift_rules_engine.dart';
 import 'modes/ultimate_mini_rules_engine.dart';
 
 class GameController {
-  GameController({required this.modeDefinition, required this.playAgainstCpu}) {
+  GameController({
+    required this.modeDefinition,
+    required this.playAgainstCpu,
+    this.cpuDifficulty = CpuDifficulty.medium,
+    Random? random,
+  }) : _strategy = CpuStrategy(random: random) {
     _engine = _buildEngine();
     state = _engine.start();
   }
 
   final GameModeDefinition modeDefinition;
   final bool playAgainstCpu;
+  final CpuDifficulty cpuDifficulty;
+  final CpuStrategy _strategy;
 
   late GameRulesEngine _engine;
   late GameState state;
@@ -44,9 +55,23 @@ class GameController {
     }
   }
 
-  bool _shouldTriggerCpuMove() => playAgainstCpu && !state.result.isFinal && state.currentPlayer == PlayerMarker.nought;
+  bool _shouldTriggerCpuMove() =>
+      playAgainstCpu && !state.result.isFinal && state.currentPlayer == PlayerMarker.nought;
 
   void _performCpuMove() {
+    final int? chosenMove = _strategy.chooseMove(
+      state: state,
+      mode: modeDefinition.type,
+      difficulty: cpuDifficulty,
+    );
+    if (chosenMove != null) {
+      final GameState attemptedState = _engine.handlePlayerMove(state, chosenMove);
+      if (!identical(attemptedState, state)) {
+        state = attemptedState;
+        return;
+      }
+    }
+    // Fallback defensivo: primeira célula aceita pela engine.
     for (int i = 0; i < state.board.length; i++) {
       if (state.isCellAvailable(i)) {
         final GameState attemptedState = _engine.handlePlayerMove(state, i);

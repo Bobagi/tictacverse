@@ -12,6 +12,8 @@ import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
 import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
+import '../../services/review_service.dart';
+import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_over_modal.dart';
@@ -257,7 +259,17 @@ class _GameScreenState extends State<GameScreen> {
       _triggerCpuMoveHighlight(cpuMoveIndex);
     }
     if (widget.controller.state.result.isFinal) {
+      final GameResult finalResult = widget.controller.state.result;
       widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
+      StorageService.instance.recordMatch(
+        mode: widget.controller.modeDefinition.type,
+        result: finalResult,
+        vsCpu: widget.controller.playAgainstCpu,
+      );
+      if (widget.controller.playAgainstCpu &&
+          finalResult.winner == PlayerMarker.cross) {
+        ReviewService.instance.maybeRequestReview();
+      }
       if (adService.shouldShowInterstitialOnMatchEnd()) {
         interstitialAdController.showInterstitialAdIfAvailable();
       } else {

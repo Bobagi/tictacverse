@@ -1,5 +1,5 @@
 name: tictacverse
-version: 1.0.4+9
+version: 1.1.0+10
 publish_to: 'none'
 
 environment:
@@ -13,6 +13,8 @@ dependencies:
   intl: ^0.20.2
   google_mobile_ads: ^7.0.0
   audioplayers: ^6.0.0
+  shared_preferences: ^2.3.2
+  in_app_review: ^2.0.9
 
 dev_dependencies:
   flutter_test:

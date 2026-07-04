@@ -127,4 +127,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get volumeLabel => 'Volume';
+
+  @override
+  String get difficultyLabel => 'Difficulty';
+
+  @override
+  String get difficultyEasy => 'Easy';
+
+  @override
+  String get difficultyMedium => 'Medium';
+
+  @override
+  String get difficultyHard => 'Impossible';
+
+  @override
+  String get statsTitle => 'Statistics';
+
+  @override
+  String get statsTotalMatches => 'Matches played';
+
+  @override
+  String get statsVsCpu => 'Versus CPU';
+
+  @override
+  String get statsWins => 'Wins';
+
+  @override
+  String get statsLosses => 'Losses';
+
+  @override
+  String get statsDraws => 'Draws';
+
+  @override
+  String get statsStreak => 'Win streak';
+
+  @override
+  String get statsBestStreak => 'Best streak';
+
+  @override
+  String get statsByMode => 'By mode';
+
+  @override
+  String get statsEmpty => 'Play a match to start building your stats!';
 }

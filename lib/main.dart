@@ -6,10 +6,16 @@ import 'services/audio_service.dart';
 import 'services/consent_service.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
+import 'services/storage_service.dart';
 import 'ui/screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await StorageService.instance.load();
+  AudioService.instance.applyStoredSettings(
+    muted: StorageService.instance.audioMuted,
+    volume: StorageService.instance.audioVolume,
+  );
   await ConsentService().gatherConsent();
   await MobileAdsInitializationService().initialize();
   runApp(const TicTacVerseApp());
@@ -33,6 +39,10 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
     WidgetsBinding.instance.addObserver(this);
     metricsService.recordSessionStart();
     _resolvedStartupLocale = _resolveSupportedLocale(WidgetsBinding.instance.platformDispatcher.locale);
+    final String? storedLocaleCode = StorageService.instance.localeCode;
+    if (storedLocaleCode != null) {
+      _userSelectedLocale = _resolveSupportedLocale(Locale(storedLocaleCode));
+    }
   }
 
   @override
@@ -110,5 +120,6 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
     setState(() {
       _userSelectedLocale = _resolveSupportedLocale(locale);
     });
+    StorageService.instance.saveLocale(locale.languageCode);
   }
 }

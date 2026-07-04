@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
+import 'storage_service.dart';
+
 class AudioService {
   AudioService._() {
     _configurePlayers();
@@ -57,8 +59,23 @@ class AudioService {
     });
   }
 
+  /// Aplica preferências persistidas sem tocar música (chamado no startup).
+  void applyStoredSettings({required bool muted, required double volume}) {
+    _isMuted.value = muted;
+    _volume.value = volume.clamp(0.0, 1.0);
+    _musicPlayer.setVolume(muted ? 0 : _volume.value);
+    _sfxPlayer.setVolume(muted ? 0 : _volume.value);
+    _uiClickPlayer.setVolume(muted ? 0 : _volume.value);
+  }
+
+  void _persistSettings() {
+    StorageService.instance
+        .saveAudioSettings(muted: _isMuted.value, volume: _volume.value);
+  }
+
   Future<void> setMuted(bool value) async {
     _isMuted.value = value;
+    _persistSettings();
     if (value) {
       await _musicPlayer.pause();
       await _musicPlayer.setVolume(0);
@@ -75,6 +92,7 @@ class AudioService {
   Future<void> setVolume(double value) async {
     final double clamped = value.clamp(0.0, 1.0);
     _volume.value = clamped;
+    _persistSettings();
     if (!_isMuted.value) {
       await _musicPlayer.setVolume(clamped);
       await _sfxPlayer.setVolume(clamped);

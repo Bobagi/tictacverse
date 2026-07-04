@@ -133,4 +133,46 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get volumeLabel => 'Volume';
+
+  @override
+  String get difficultyLabel => 'Dificuldade';
+
+  @override
+  String get difficultyEasy => 'Fácil';
+
+  @override
+  String get difficultyMedium => 'Médio';
+
+  @override
+  String get difficultyHard => 'Impossível';
+
+  @override
+  String get statsTitle => 'Estatísticas';
+
+  @override
+  String get statsTotalMatches => 'Partidas jogadas';
+
+  @override
+  String get statsVsCpu => 'Contra a CPU';
+
+  @override
+  String get statsWins => 'Vitórias';
+
+  @override
+  String get statsLosses => 'Derrotas';
+
+  @override
+  String get statsDraws => 'Empates';
+
+  @override
+  String get statsStreak => 'Sequência de vitórias';
+
+  @override
+  String get statsBestStreak => 'Melhor sequência';
+
+  @override
+  String get statsByMode => 'Por modo';
+
+  @override
+  String get statsEmpty => 'Jogue uma partida para começar suas estatísticas!';
 }

@@ -339,6 +339,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Volume'**
   String get volumeLabel;
+
+  /// No description provided for @difficultyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get difficultyLabel;
+
+  /// No description provided for @difficultyEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get difficultyEasy;
+
+  /// No description provided for @difficultyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get difficultyMedium;
+
+  /// No description provided for @difficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Impossible'**
+  String get difficultyHard;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statsTitle;
+
+  /// No description provided for @statsTotalMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches played'**
+  String get statsTotalMatches;
+
+  /// No description provided for @statsVsCpu.
+  ///
+  /// In en, this message translates to:
+  /// **'Versus CPU'**
+  String get statsVsCpu;
+
+  /// No description provided for @statsWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Wins'**
+  String get statsWins;
+
+  /// No description provided for @statsLosses.
+  ///
+  /// In en, this message translates to:
+  /// **'Losses'**
+  String get statsLosses;
+
+  /// No description provided for @statsDraws.
+  ///
+  /// In en, this message translates to:
+  /// **'Draws'**
+  String get statsDraws;
+
+  /// No description provided for @statsStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Win streak'**
+  String get statsStreak;
+
+  /// No description provided for @statsBestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best streak'**
+  String get statsBestStreak;
+
+  /// No description provided for @statsByMode.
+  ///
+  /// In en, this message translates to:
+  /// **'By mode'**
+  String get statsByMode;
+
+  /// No description provided for @statsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a match to start building your stats!'**
+  String get statsEmpty;
 }
 
 class _AppLocalizationsDelegate

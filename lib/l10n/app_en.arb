@@ -38,5 +38,19 @@
   "languageSpanish": "Español",
   "audioLabel": "Audio",
   "muteLabel": "Mute",
-  "volumeLabel": "Volume"
+  "volumeLabel": "Volume",
+  "difficultyLabel": "Difficulty",
+  "difficultyEasy": "Easy",
+  "difficultyMedium": "Medium",
+  "difficultyHard": "Impossible",
+  "statsTitle": "Statistics",
+  "statsTotalMatches": "Matches played",
+  "statsVsCpu": "Versus CPU",
+  "statsWins": "Wins",
+  "statsLosses": "Losses",
+  "statsDraws": "Draws",
+  "statsStreak": "Win streak",
+  "statsBestStreak": "Best streak",
+  "statsByMode": "By mode",
+  "statsEmpty": "Play a match to start building your stats!"
 }
