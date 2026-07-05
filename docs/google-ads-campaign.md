@@ -1,5 +1,21 @@
 # Campanha Google Ads — pacote pronto (guardado em 2026-07-05, operador vai rodar DEPOIS da repaginação visual)
 
+> **DIRETRIZ DO OPERADOR (2026-07-05): o Tic Tac Toe 2 é o CARRO-CHEFE do app.**
+> Toda campanha, criativo, screenshot de ficha e esforço de divulgação deve girar em torno
+> dele ("9 tabuleiros em um / sua jogada decide onde o rival joga"). Ao regenerar os banners,
+> usar screenshots do tabuleirão do TTT2. Títulos/descrições abaixo devem ser priorizados na
+> variante TTT2.
+
+## Títulos focados no carro-chefe (usar primeiro)
+1. Tic Tac Toe 2: 9 em 1
+2. O jogo da velha evoluiu
+3. Jogo da velha estratégico
+4. Sua jogada manda no rival
+
+## Descrições focadas no carro-chefe
+1. Tic Tac Toe 2: 9 tabuleiros em um. Sua jogada decide onde o rival joga. Grátis!
+2. O jogo da velha virou estratégia de verdade. Vença 3 tabuleiros em linha. Offline.
+
 Criar em ads.google.com → Nova campanha → **Promoção de app** → Android → Tic Tac Verse.
 
 ## Imagens
