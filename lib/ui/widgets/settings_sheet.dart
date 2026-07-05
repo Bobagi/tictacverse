@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../services/audio_service.dart';
+import '../../services/update_service.dart';
 import 'modern_background.dart';
 
 class SettingsSheet extends StatelessWidget {
@@ -90,8 +91,67 @@ class SettingsSheet extends StatelessWidget {
                 );
               },
             ),
+            const SizedBox(height: 12),
+            Text(
+              localization.updatesLabel,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            _UpdateCheckButton(localization: localization),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _UpdateCheckButton extends StatefulWidget {
+  const _UpdateCheckButton({required this.localization});
+
+  final AppLocalizations localization;
+
+  @override
+  State<_UpdateCheckButton> createState() => _UpdateCheckButtonState();
+}
+
+class _UpdateCheckButtonState extends State<_UpdateCheckButton> {
+  bool _checking = false;
+
+  Future<void> _check() async {
+    setState(() {
+      _checking = true;
+    });
+    final UpdateCheckOutcome outcome = await UpdateService.instance.checkForUpdate();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _checking = false;
+    });
+    final String? message = switch (outcome) {
+      UpdateCheckOutcome.upToDate => widget.localization.upToDateMessage,
+      UpdateCheckOutcome.failed => widget.localization.updateFailedMessage,
+      _ => null,
+    };
+    if (message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton.tonalIcon(
+      onPressed: _checking ? null : _check,
+      icon: _checking
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.system_update_rounded),
+      label: Text(widget.localization.checkUpdatesLabel),
+      style: FilledButton.styleFrom(
+        minimumSize: const Size.fromHeight(46),
       ),
     );
   }

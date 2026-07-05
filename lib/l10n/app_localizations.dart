@@ -423,6 +423,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play a match to start building your stats!'**
   String get statsEmpty;
+
+  /// No description provided for @updatesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get updatesLabel;
+
+  /// No description provided for @checkUpdatesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get checkUpdatesLabel;
+
+  /// No description provided for @upToDateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already on the latest version!'**
+  String get upToDateMessage;
+
+  /// No description provided for @updateFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check for updates. Try again later.'**
+  String get updateFailedMessage;
 }
 
 class _AppLocalizationsDelegate

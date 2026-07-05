@@ -52,5 +52,9 @@
   "statsStreak": "Sequência de vitórias",
   "statsBestStreak": "Melhor sequência",
   "statsByMode": "Por modo",
-  "statsEmpty": "Jogue uma partida para começar suas estatísticas!"
+  "statsEmpty": "Jogue uma partida para começar suas estatísticas!",
+  "updatesLabel": "Atualizações",
+  "checkUpdatesLabel": "Buscar atualizações",
+  "upToDateMessage": "Você já está na versão mais recente!",
+  "updateFailedMessage": "Não foi possível verificar atualizações. Tente de novo mais tarde."
 }

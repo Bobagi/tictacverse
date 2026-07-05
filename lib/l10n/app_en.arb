@@ -52,5 +52,9 @@
   "statsStreak": "Win streak",
   "statsBestStreak": "Best streak",
   "statsByMode": "By mode",
-  "statsEmpty": "Play a match to start building your stats!"
+  "statsEmpty": "Play a match to start building your stats!",
+  "updatesLabel": "Updates",
+  "checkUpdatesLabel": "Check for updates",
+  "upToDateMessage": "You are already on the latest version!",
+  "updateFailedMessage": "Could not check for updates. Try again later."
 }

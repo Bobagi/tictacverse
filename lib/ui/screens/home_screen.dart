@@ -66,6 +66,18 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: Text(localization.appTitle),
           actions: <Widget>[
+            ValueListenableBuilder<bool>(
+              valueListenable: audioService.isMutedListenable,
+              builder: (BuildContext context, bool isMuted, Widget? _) {
+                return IconButton(
+                  icon: Icon(isMuted
+                      ? Icons.volume_off_rounded
+                      : Icons.volume_up_rounded),
+                  tooltip: localization.muteLabel,
+                  onPressed: () => audioService.setMuted(!isMuted),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.bar_chart_rounded),
               tooltip: localization.statsTitle,

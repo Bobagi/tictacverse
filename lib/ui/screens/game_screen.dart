@@ -75,7 +75,22 @@ class _GameScreenState extends State<GameScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-            title: Text(widget.controller.modeDefinition.title(localization))),
+          title: Text(widget.controller.modeDefinition.title(localization)),
+          actions: <Widget>[
+            ValueListenableBuilder<bool>(
+              valueListenable: audioService.isMutedListenable,
+              builder: (BuildContext context, bool isMuted, Widget? _) {
+                return IconButton(
+                  icon: Icon(isMuted
+                      ? Icons.volume_off_rounded
+                      : Icons.volume_up_rounded),
+                  tooltip: localization.muteLabel,
+                  onPressed: () => audioService.setMuted(!isMuted),
+                );
+              },
+            ),
+          ],
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(12),

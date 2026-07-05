@@ -175,4 +175,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get statsEmpty => 'Jogue uma partida para começar suas estatísticas!';
+
+  @override
+  String get updatesLabel => 'Atualizações';
+
+  @override
+  String get checkUpdatesLabel => 'Buscar atualizações';
+
+  @override
+  String get upToDateMessage => 'Você já está na versão mais recente!';
+
+  @override
+  String get updateFailedMessage =>
+      'Não foi possível verificar atualizações. Tente de novo mais tarde.';
 }

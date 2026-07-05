@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
@@ -16,8 +17,12 @@ Future<void> main() async {
     muted: StorageService.instance.audioMuted,
     volume: StorageService.instance.audioVolume,
   );
-  await ConsentService().gatherConsent();
-  await MobileAdsInitializationService().initialize();
+  // O plugin google_mobile_ads não existe na web — consent/ads só fora dela,
+  // senão o main() trava no splash.
+  if (!kIsWeb) {
+    await ConsentService().gatherConsent();
+    await MobileAdsInitializationService().initialize();
+  }
   runApp(const TicTacVerseApp());
 }
 
@@ -54,15 +59,19 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      MobileAds.instance.setAppMuted(false);
-      MobileAds.instance.setAppVolume(1.0);
+      if (!kIsWeb) {
+        MobileAds.instance.setAppMuted(false);
+        MobileAds.instance.setAppVolume(1.0);
+      }
       AudioService.instance.resumeBackgroundMusic();
       return;
     }
 
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      MobileAds.instance.setAppMuted(true);
-      MobileAds.instance.setAppVolume(0.0);
+      if (!kIsWeb) {
+        MobileAds.instance.setAppMuted(true);
+        MobileAds.instance.setAppVolume(0.0);
+      }
       AudioService.instance.pauseAll();
     }
   }
