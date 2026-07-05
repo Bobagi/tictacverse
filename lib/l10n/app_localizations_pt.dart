@@ -188,4 +188,21 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get updateFailedMessage =>
       'Não foi possível verificar atualizações. Tente de novo mais tarde.';
+
+  @override
+  String get modeUltimate2Title => 'Tic Tac Toe 2';
+
+  @override
+  String get modeUltimate2Subtitle =>
+      '9 tabuleiros em um. Sua jogada define onde o rival joga.';
+
+  @override
+  String get ultimate2FreeMove => 'Jogada livre: jogue em qualquer tabuleiro';
+
+  @override
+  String get ultimate2PlayIn => 'Jogue no tabuleiro destacado';
+
+  @override
+  String get ultimate2Help =>
+      'Cada casa do tabuleirão guarda um jogo da velha pequeno. A casa que você marca dentro de um tabuleiro pequeno manda o adversário para o tabuleiro correspondente. Vença um tabuleiro pequeno para conquistar a casa dele no tabuleirão — faça três casas conquistadas em linha para vencer a partida. Se o destino estiver fechado, a jogada é livre.';
 }

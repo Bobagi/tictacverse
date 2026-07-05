@@ -7,6 +7,7 @@ import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
 import '../../controllers/interstitial_ad_controller.dart';
 import '../../controllers/rewarded_ad_controller.dart';
+import '../../models/chaos_event.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
@@ -211,11 +212,28 @@ class _GameScreenState extends State<GameScreen> {
                   widget.controller.state.activeUltimateCondition!
                       .describe(localization),
                 ),
+              if (widget.controller.state.activeChaosEvent != null)
+                _buildHudChip(
+                  Icons.bolt_rounded,
+                  _chaosEventLabel(
+                      localization, widget.controller.state.activeChaosEvent!),
+                ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  String _chaosEventLabel(AppLocalizations localization, ChaosEvent event) {
+    switch (event.type) {
+      case ChaosEffectType.removePiece:
+        return localization.chaosRemovePiece;
+      case ChaosEffectType.blockCell:
+        return localization.chaosBlockCell;
+      case ChaosEffectType.swapSymbols:
+        return localization.chaosSwapSymbols;
+    }
   }
 
   Widget _buildHudChip(IconData icon, String label) {

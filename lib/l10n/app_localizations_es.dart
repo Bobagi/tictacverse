@@ -189,4 +189,21 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get updateFailedMessage =>
       'No se pudo comprobar si hay actualizaciones. Inténtalo más tarde.';
+
+  @override
+  String get modeUltimate2Title => 'Tic Tac Toe 2';
+
+  @override
+  String get modeUltimate2Subtitle =>
+      '9 tableros en uno. Tu jugada decide dónde juega el rival.';
+
+  @override
+  String get ultimate2FreeMove => 'Jugada libre: juega en cualquier tablero';
+
+  @override
+  String get ultimate2PlayIn => 'Juega en el tablero resaltado';
+
+  @override
+  String get ultimate2Help =>
+      'Cada casilla del tablero grande guarda un tres en raya pequeño. La casilla que marcas dentro de un tablero pequeño envía a tu rival al tablero correspondiente. Gana un tablero pequeño para conquistar su casilla en el grande — haz tres casillas conquistadas en línea para ganar. Si el destino está cerrado, la jugada es libre.';
 }

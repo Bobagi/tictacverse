@@ -52,6 +52,9 @@ class GameController {
         return ChaosRulesEngine();
       case GameModeType.ultimateMini:
         return UltimateMiniRulesEngine();
+      case GameModeType.ultimate2:
+        // Tic Tac Toe 2 tem tela/engine próprias (Ultimate2Screen).
+        throw UnsupportedError('ultimate2 não usa GameController');
     }
   }
 

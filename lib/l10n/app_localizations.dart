@@ -447,6 +447,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not check for updates. Try again later.'**
   String get updateFailedMessage;
+
+  /// No description provided for @modeUltimate2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tic Tac Toe 2'**
+  String get modeUltimate2Title;
+
+  /// No description provided for @modeUltimate2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'9 boards in one. Your move picks where your rival plays.'**
+  String get modeUltimate2Subtitle;
+
+  /// No description provided for @ultimate2FreeMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Free move: play in any board'**
+  String get ultimate2FreeMove;
+
+  /// No description provided for @ultimate2PlayIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Play in the highlighted board'**
+  String get ultimate2PlayIn;
+
+  /// No description provided for @ultimate2Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board — line up three claimed cells to win the match. If your destination board is closed, you play anywhere.'**
+  String get ultimate2Help;
 }
 
 class _AppLocalizationsDelegate

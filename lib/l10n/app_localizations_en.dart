@@ -182,4 +182,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get updateFailedMessage =>
       'Could not check for updates. Try again later.';
+
+  @override
+  String get modeUltimate2Title => 'Tic Tac Toe 2';
+
+  @override
+  String get modeUltimate2Subtitle =>
+      '9 boards in one. Your move picks where your rival plays.';
+
+  @override
+  String get ultimate2FreeMove => 'Free move: play in any board';
+
+  @override
+  String get ultimate2PlayIn => 'Play in the highlighted board';
+
+  @override
+  String get ultimate2Help =>
+      'Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board — line up three claimed cells to win the match. If your destination board is closed, you play anywhere.';
 }

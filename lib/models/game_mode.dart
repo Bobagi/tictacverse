@@ -5,6 +5,7 @@ enum GameModeType {
   shift,
   chaos,
   ultimateMini,
+  ultimate2,
 }
 
 class GameModeDefinition {
@@ -24,6 +25,11 @@ class GameModeDefinition {
 }
 
 List<GameModeDefinition> createGameModes() => <GameModeDefinition>[
+      GameModeDefinition(
+        type: GameModeType.ultimate2,
+        titleBuilder: (AppLocalizations localization) => localization.modeUltimate2Title,
+        subtitleBuilder: (AppLocalizations localization) => localization.modeUltimate2Subtitle,
+      ),
       GameModeDefinition(
         type: GameModeType.classic,
         titleBuilder: (AppLocalizations localization) => localization.modeClassicTitle,

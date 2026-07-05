@@ -11,12 +11,15 @@ class ChaosRulesEngine implements GameRulesEngine {
   ChaosRulesEngine({int? randomSeed}) : _randomGenerator = Random(randomSeed);
 
   final Random _randomGenerator;
+  static const int maxTotalMoves = 30;
   int _turnsUntilChaos = 2;
+  int _totalMoves = 0;
   bool _swapSymbolsNextTurn = false;
 
   @override
   GameState start() {
     _turnsUntilChaos = 2;
+    _totalMoves = 0;
     _swapSymbolsNextTurn = false;
     return GameState(
       board: List<PlayerMarker?>.filled(9, null),
@@ -65,6 +68,13 @@ class ChaosRulesEngine implements GameRulesEngine {
         }
         _turnsUntilChaos = _turnsUntilChaos == 0 ? 3 : 2;
       }
+    }
+
+    // A remoção de peças pode impedir o tabuleiro de encher: sem este teto a
+    // partida podia nunca acabar (bug relatado). Empata após N jogadas.
+    _totalMoves += 1;
+    if (!newResult.isFinal && _totalMoves >= maxTotalMoves) {
+      newResult = GameResult(resolution: GameResolution.draw);
     }
 
     final PlayerMarker nextPlayer = currentState.currentPlayer.opponent;

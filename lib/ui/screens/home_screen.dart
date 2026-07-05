@@ -9,6 +9,7 @@ import '../../services/metrics_service.dart';
 import '../../services/audio_service.dart';
 import '../../services/storage_service.dart';
 import '../screens/game_screen.dart';
+import '../screens/ultimate2_screen.dart';
 import '../widgets/language_selector_sheet.dart';
 import '../widgets/mode_card.dart';
 import '../widgets/modern_background.dart';
@@ -87,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.language_rounded),
+              icon: const Icon(Icons.translate_rounded),
               onPressed: () {
                 audioService.playUiClick();
                 _openLanguageSelector(localization);
@@ -170,6 +171,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openGame(GameModeDefinition definition) {
+    if (definition.type == GameModeType.ultimate2) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => Ultimate2Screen(
+            playAgainstCpu: playAgainstCpu,
+            cpuDifficulty: cpuDifficulty,
+            metricsService: widget.metricsService,
+          ),
+        ),
+      );
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) => GameScreen(

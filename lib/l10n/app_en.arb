@@ -56,5 +56,10 @@
   "updatesLabel": "Updates",
   "checkUpdatesLabel": "Check for updates",
   "upToDateMessage": "You are already on the latest version!",
-  "updateFailedMessage": "Could not check for updates. Try again later."
+  "updateFailedMessage": "Could not check for updates. Try again later.",
+  "modeUltimate2Title": "Tic Tac Toe 2",
+  "modeUltimate2Subtitle": "9 boards in one. Your move picks where your rival plays.",
+  "ultimate2FreeMove": "Free move: play in any board",
+  "ultimate2PlayIn": "Play in the highlighted board",
+  "ultimate2Help": "Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board — line up three claimed cells to win the match. If your destination board is closed, you play anywhere."
 }
