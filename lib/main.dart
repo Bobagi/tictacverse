@@ -8,6 +8,7 @@ import 'services/consent_service.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
 import 'services/storage_service.dart';
+import 'services/update_service.dart';
 import 'ui/screens/home_screen.dart';
 
 Future<void> main() async {
@@ -23,6 +24,8 @@ Future<void> main() async {
     await ConsentService().gatherConsent();
     await MobileAdsInitializationService().initialize();
   }
+  // Fire-and-forget: marca o badge de "nova versão" se a Play tiver update.
+  UpdateService.instance.silentCheck();
   runApp(const TicTacVerseApp());
 }
 

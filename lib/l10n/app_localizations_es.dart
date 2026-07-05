@@ -12,31 +12,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appTitle => 'Tic Tac Verse';
 
   @override
-  String get modeClassicTitle => 'Tres en raya clásico';
+  String get modeClassicTitle => 'Tres en Raya Clásico';
 
   @override
   String get modeClassicSubtitle =>
       'Reglas tradicionales para partidas rápidas.';
 
   @override
-  String get modeShiftTitle => 'Tic Tac Cambio';
+  String get modeShiftTitle => 'Modo Shift';
 
   @override
-  String get modeShiftSubtitle => 'Solo tres piezas activas por jugador.';
+  String get modeShiftSubtitle =>
+      'Solo 3 fichas por jugador — la más antigua desaparece.';
 
   @override
-  String get modeChaosTitle => 'Tic Tac Caos';
+  String get modeChaosTitle => 'Modo Caos';
 
   @override
   String get modeChaosSubtitle =>
-      'Cada pocos turnos aparece una regla caótica.';
+      'Cada pocas rondas, un evento cambia las reglas.';
 
   @override
-  String get modeUltimateTitle => 'Tic Tac Mini Supremo';
+  String get modeUltimateTitle => 'Mini Supremo';
 
   @override
   String get modeUltimateSubtitle =>
-      'Gana con condiciones de desafío rotativas.';
+      'Gana bajo una condición especial que cambia cada partida.';
 
   @override
   String get startMatch => 'Iniciar partida';
@@ -206,4 +207,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get ultimate2Help =>
       'Cada casilla del tablero grande guarda un tres en raya pequeño. La casilla que marcas dentro de un tablero pequeño envía a tu rival al tablero correspondiente. Gana un tablero pequeño para conquistar su casilla en el grande — haz tres casillas conquistadas en línea para ganar. Si el destino está cerrado, la jugada es libre.';
+
+  @override
+  String get playVsCpuBig => 'Jugar contra la máquina';
+
+  @override
+  String get playWithFriend => 'Jugar con un amigo';
+
+  @override
+  String get chooseModeTitle => 'Elige el modo';
 }

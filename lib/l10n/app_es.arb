@@ -1,13 +1,13 @@
 {
   "appTitle": "Tic Tac Verse",
-  "modeClassicTitle": "Tres en raya clásico",
+  "modeClassicTitle": "Tres en Raya Clásico",
   "modeClassicSubtitle": "Reglas tradicionales para partidas rápidas.",
-  "modeShiftTitle": "Tic Tac Cambio",
-  "modeShiftSubtitle": "Solo tres piezas activas por jugador.",
-  "modeChaosTitle": "Tic Tac Caos",
-  "modeChaosSubtitle": "Cada pocos turnos aparece una regla caótica.",
-  "modeUltimateTitle": "Tic Tac Mini Supremo",
-  "modeUltimateSubtitle": "Gana con condiciones de desafío rotativas.",
+  "modeShiftTitle": "Modo Shift",
+  "modeShiftSubtitle": "Solo 3 fichas por jugador — la más antigua desaparece.",
+  "modeChaosTitle": "Modo Caos",
+  "modeChaosSubtitle": "Cada pocas rondas, un evento cambia las reglas.",
+  "modeUltimateTitle": "Mini Supremo",
+  "modeUltimateSubtitle": "Gana bajo una condición especial que cambia cada partida.",
   "startMatch": "Iniciar partida",
   "twoPlayers": "Dos jugadores",
   "cpuOpponent": "Jugar contra CPU",
@@ -61,5 +61,8 @@
   "modeUltimate2Subtitle": "9 tableros en uno. Tu jugada decide dónde juega el rival.",
   "ultimate2FreeMove": "Jugada libre: juega en cualquier tablero",
   "ultimate2PlayIn": "Juega en el tablero resaltado",
-  "ultimate2Help": "Cada casilla del tablero grande guarda un tres en raya pequeño. La casilla que marcas dentro de un tablero pequeño envía a tu rival al tablero correspondiente. Gana un tablero pequeño para conquistar su casilla en el grande — haz tres casillas conquistadas en línea para ganar. Si el destino está cerrado, la jugada es libre."
+  "ultimate2Help": "Cada casilla del tablero grande guarda un tres en raya pequeño. La casilla que marcas dentro de un tablero pequeño envía a tu rival al tablero correspondiente. Gana un tablero pequeño para conquistar su casilla en el grande — haz tres casillas conquistadas en línea para ganar. Si el destino está cerrado, la jugada es libre.",
+  "playVsCpuBig": "Jugar contra la máquina",
+  "playWithFriend": "Jugar con un amigo",
+  "chooseModeTitle": "Elige el modo"
 }

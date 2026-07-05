@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../models/player_marker.dart';
 import '../../services/visual_assets.dart';
 import 'modern_background.dart';
+import 'neon_win_line.dart';
 
 class GameBoard extends StatefulWidget {
   const GameBoard({
@@ -110,19 +111,12 @@ class _GameBoardState extends State<GameBoard>
                 if (widget.winningLine != null && widget.winningPlayer != null)
                   Positioned.fill(
                     child: IgnorePointer(
-                      child: AnimatedBuilder(
-                        animation: _neonPulseController,
-                        builder: (BuildContext context, Widget? _) {
-                          return CustomPaint(
-                            painter: WinningLinePainter(
-                              winningLine: widget.winningLine!,
-                              glowColor:
-                                  _playerGlowColors[widget.winningPlayer!] ??
-                                      Colors.cyanAccent,
-                              pulseValue: _neonPulseController.value,
-                            ),
-                          );
-                        },
+                      child: NeonWinLine(
+                        key: ValueKey<String>(
+                            'win-${widget.winningLine!.join('-')}'),
+                        winningLine: widget.winningLine!,
+                        color: _playerGlowColors[widget.winningPlayer!] ??
+                            Colors.cyanAccent,
                       ),
                     ),
                   ),

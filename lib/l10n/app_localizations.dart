@@ -477,6 +477,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board — line up three claimed cells to win the match. If your destination board is closed, you play anywhere.'**
   String get ultimate2Help;
+
+  /// No description provided for @playVsCpuBig.
+  ///
+  /// In en, this message translates to:
+  /// **'Play vs the machine'**
+  String get playVsCpuBig;
+
+  /// No description provided for @playWithFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with a friend'**
+  String get playWithFriend;
+
+  /// No description provided for @chooseModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a mode'**
+  String get chooseModeTitle;
 }
 
 class _AppLocalizationsDelegate

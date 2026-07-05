@@ -16,6 +16,7 @@ import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
 import '../widgets/game_over_modal.dart';
 import '../widgets/modern_background.dart';
+import '../widgets/neon_win_line.dart';
 
 class Ultimate2Screen extends StatefulWidget {
   const Ultimate2Screen({
@@ -307,15 +308,33 @@ class _MacroBoard extends StatelessWidget {
         color: Colors.white.withOpacity(0.03),
       ),
       padding: const EdgeInsets.all(6),
-      child: Column(
+      child: Stack(
         children: <Widget>[
-          for (int row = 0; row < 3; row++)
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  for (int col = 0; col < 3; col++)
-                    Expanded(child: _buildMini(context, row * 3 + col)),
-                ],
+          Column(
+            children: <Widget>[
+              for (int row = 0; row < 3; row++)
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      for (int col = 0; col < 3; col++)
+                        Expanded(child: _buildMini(context, row * 3 + col)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          if (state.result.resolution == GameResolution.victory &&
+              state.result.winningLine != null)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: NeonWinLine(
+                  key: ValueKey<String>(
+                      'macro-${state.result.winningLine!.join('-')}'),
+                  winningLine: state.result.winningLine!,
+                  color: state.result.winner == PlayerMarker.cross
+                      ? const Color(0xFF6BE0FF)
+                      : const Color(0xFFFF6BD9),
+                ),
               ),
             ),
         ],

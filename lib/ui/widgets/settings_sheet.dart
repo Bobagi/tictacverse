@@ -5,6 +5,8 @@ import '../../services/audio_service.dart';
 import '../../services/update_service.dart';
 import 'modern_background.dart';
 
+// (Badge do Material 3 usado para o indicador de nova versão.)
+
 class SettingsSheet extends StatelessWidget {
   const SettingsSheet({super.key, required this.localization});
 
@@ -140,19 +142,29 @@ class _UpdateCheckButtonState extends State<_UpdateCheckButton> {
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton.tonalIcon(
-      onPressed: _checking ? null : _check,
-      icon: _checking
-          ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.system_update_rounded),
-      label: Text(widget.localization.checkUpdatesLabel),
-      style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(46),
-      ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: UpdateService.instance.updateAvailable,
+      builder: (BuildContext context, bool hasUpdate, Widget? _) {
+        return FilledButton.tonalIcon(
+          onPressed: _checking ? null : _check,
+          icon: _checking
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Badge(
+                  isLabelVisible: hasUpdate,
+                  smallSize: 9,
+                  backgroundColor: Colors.redAccent,
+                  child: const Icon(Icons.system_update_rounded),
+                ),
+          label: Text(widget.localization.checkUpdatesLabel),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(46),
+          ),
+        );
+      },
     );
   }
 }

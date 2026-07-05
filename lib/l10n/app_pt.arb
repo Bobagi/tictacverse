@@ -2,12 +2,12 @@
   "appTitle": "Tic Tac Verse",
   "modeClassicTitle": "Jogo da Velha Clássico",
   "modeClassicSubtitle": "Regras tradicionais para partidas rápidas.",
-  "modeShiftTitle": "Tic Tac Turno",
-  "modeShiftSubtitle": "Apenas três peças ativas por jogador.",
-  "modeChaosTitle": "Tic Tac Caos",
-  "modeChaosSubtitle": "A cada poucos turnos surge uma regra caótica.",
-  "modeUltimateTitle": "Tic Tac Mini Supremo",
-  "modeUltimateSubtitle": "Vença com condições de desafio rotativas.",
+  "modeShiftTitle": "Modo Shift",
+  "modeShiftSubtitle": "Só 3 peças por jogador — a mais antiga some.",
+  "modeChaosTitle": "Modo Caos",
+  "modeChaosSubtitle": "A cada rodadas, um evento muda as regras.",
+  "modeUltimateTitle": "Mini Supremo",
+  "modeUltimateSubtitle": "Vença sob uma condição especial que muda a cada partida.",
   "startMatch": "Iniciar partida",
   "twoPlayers": "Dois jogadores",
   "cpuOpponent": "Jogar contra CPU",
@@ -61,5 +61,8 @@
   "modeUltimate2Subtitle": "9 tabuleiros em um. Sua jogada define onde o rival joga.",
   "ultimate2FreeMove": "Jogada livre: jogue em qualquer tabuleiro",
   "ultimate2PlayIn": "Jogue no tabuleiro destacado",
-  "ultimate2Help": "Cada casa do tabuleirão guarda um jogo da velha pequeno. A casa que você marca dentro de um tabuleiro pequeno manda o adversário para o tabuleiro correspondente. Vença um tabuleiro pequeno para conquistar a casa dele no tabuleirão — faça três casas conquistadas em linha para vencer a partida. Se o destino estiver fechado, a jogada é livre."
+  "ultimate2Help": "Cada casa do tabuleirão guarda um jogo da velha pequeno. A casa que você marca dentro de um tabuleiro pequeno manda o adversário para o tabuleiro correspondente. Vença um tabuleiro pequeno para conquistar a casa dele no tabuleirão — faça três casas conquistadas em linha para vencer a partida. Se o destino estiver fechado, a jogada é livre.",
+  "playVsCpuBig": "Jogar contra a máquina",
+  "playWithFriend": "Jogar com um amigo",
+  "chooseModeTitle": "Escolha o modo"
 }

@@ -19,24 +19,24 @@ class AppLocalizationsPt extends AppLocalizations {
       'Regras tradicionais para partidas rápidas.';
 
   @override
-  String get modeShiftTitle => 'Tic Tac Turno';
+  String get modeShiftTitle => 'Modo Shift';
 
   @override
-  String get modeShiftSubtitle => 'Apenas três peças ativas por jogador.';
+  String get modeShiftSubtitle =>
+      'Só 3 peças por jogador — a mais antiga some.';
 
   @override
-  String get modeChaosTitle => 'Tic Tac Caos';
+  String get modeChaosTitle => 'Modo Caos';
 
   @override
-  String get modeChaosSubtitle =>
-      'A cada poucos turnos surge uma regra caótica.';
+  String get modeChaosSubtitle => 'A cada rodadas, um evento muda as regras.';
 
   @override
-  String get modeUltimateTitle => 'Tic Tac Mini Supremo';
+  String get modeUltimateTitle => 'Mini Supremo';
 
   @override
   String get modeUltimateSubtitle =>
-      'Vença com condições de desafio rotativas.';
+      'Vença sob uma condição especial que muda a cada partida.';
 
   @override
   String get startMatch => 'Iniciar partida';
@@ -205,4 +205,13 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get ultimate2Help =>
       'Cada casa do tabuleirão guarda um jogo da velha pequeno. A casa que você marca dentro de um tabuleiro pequeno manda o adversário para o tabuleiro correspondente. Vença um tabuleiro pequeno para conquistar a casa dele no tabuleirão — faça três casas conquistadas em linha para vencer a partida. Se o destino estiver fechado, a jogada é livre.';
+
+  @override
+  String get playVsCpuBig => 'Jogar contra a máquina';
+
+  @override
+  String get playWithFriend => 'Jogar com um amigo';
+
+  @override
+  String get chooseModeTitle => 'Escolha o modo';
 }

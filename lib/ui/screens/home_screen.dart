@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
-import '../../controllers/game_controller.dart';
-import '../../models/cpu_difficulty.dart';
-import '../../models/game_mode.dart';
-import '../../services/metrics_service.dart';
 import '../../services/audio_service.dart';
+import '../../services/metrics_service.dart';
 import '../../services/storage_service.dart';
-import '../screens/game_screen.dart';
-import '../screens/ultimate2_screen.dart';
+import '../../services/update_service.dart';
 import '../widgets/language_selector_sheet.dart';
-import '../widgets/mode_card.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/stats_sheet.dart';
+import 'mode_select_screen.dart';
 
+/// Tela inicial enxuta: escolha do oponente (máquina ou amigo). Os modos de
+/// jogo moram na ModeSelectScreen, com espaço de sobra.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
@@ -33,11 +31,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<GameModeDefinition> modes = createGameModes();
   final BannerAdController bannerAdController = BannerAdController();
   final AudioService audioService = AudioService.instance;
-  bool playAgainstCpu = StorageService.instance.playAgainstCpu;
-  CpuDifficulty cpuDifficulty = StorageService.instance.cpuDifficulty;
 
   @override
   void initState() {
@@ -89,16 +84,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.translate_rounded),
+              tooltip: localization.languageLabel,
               onPressed: () {
                 audioService.playUiClick();
                 _openLanguageSelector(localization);
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.settings_rounded),
-              onPressed: () {
-                audioService.playUiClick();
-                _openSettings(localization);
+            ValueListenableBuilder<bool>(
+              valueListenable: UpdateService.instance.updateAvailable,
+              builder: (BuildContext context, bool hasUpdate, Widget? _) {
+                return IconButton(
+                  icon: Badge(
+                    isLabelVisible: hasUpdate,
+                    smallSize: 9,
+                    backgroundColor: Colors.redAccent,
+                    child: const Icon(Icons.settings_rounded),
+                  ),
+                  tooltip: localization.settingsTitle,
+                  onPressed: () {
+                    audioService.playUiClick();
+                    _openSettings(localization);
+                  },
+                );
               },
             ),
           ],
@@ -111,27 +118,39 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 Expanded(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      _buildModeToggle(localization),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: _buildModeListContainer(
-                          child: ListView.separated(
-                            itemCount: modes.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (BuildContext context, int index) {
-                              final GameModeDefinition definition =
-                                  modes[index];
-                              return ModeCard(
-                                title: definition.title(localization),
-                                subtitle: definition.subtitle(localization),
-                                buttonLabel: localization.playLabel,
-                                onStart: () => _openGame(definition),
-                              );
-                            },
-                          ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(26),
+                        child: Image.asset(
+                          'assets/icon/app_icon.png',
+                          width: 104,
+                          height: 104,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                         ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        localization.appTitle,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 34),
+                      _OpponentButton(
+                        icon: Icons.smart_toy_rounded,
+                        label: localization.playVsCpuBig,
+                        accent: const Color(0xFF6BE0FF),
+                        onTap: () => _openModes(playAgainstCpu: true),
+                      ),
+                      const SizedBox(height: 14),
+                      _OpponentButton(
+                        icon: Icons.group_rounded,
+                        label: localization.playWithFriend,
+                        accent: const Color(0xFFFF6BD9),
+                        onTap: () => _openModes(playAgainstCpu: false),
                       ),
                     ],
                   ),
@@ -156,45 +175,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildModeListContainer({required Widget child}) {
-    final BorderRadius listRadius = BorderRadius.circular(22);
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        borderRadius: listRadius,
-        border:
-            Border.all(color: Colors.cyanAccent.withOpacity(0.45), width: 1.6),
-        color: Colors.white.withOpacity(0.04),
-      ),
-      child: child,
-    );
-  }
-
-  void _openGame(GameModeDefinition definition) {
-    if (definition.type == GameModeType.ultimate2) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => Ultimate2Screen(
-            playAgainstCpu: playAgainstCpu,
-            cpuDifficulty: cpuDifficulty,
-            metricsService: widget.metricsService,
-          ),
-        ),
-      );
-      return;
-    }
+  void _openModes({required bool playAgainstCpu}) {
+    audioService.playUiClick();
+    StorageService.instance.savePlayAgainstCpu(playAgainstCpu);
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => GameScreen(
-          controller: GameController(
-            modeDefinition: definition,
-            playAgainstCpu: playAgainstCpu,
-            cpuDifficulty: cpuDifficulty,
-          ),
+        builder: (BuildContext context) => ModeSelectScreen(
+          playAgainstCpu: playAgainstCpu,
           metricsService: widget.metricsService,
         ),
       ),
     );
+  }
+
+  void _refreshBannerArea() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _openStats(AppLocalizations localization) {
@@ -204,71 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => StatsSheet(localization: localization),
     );
-  }
-
-  void _setPlayAgainstCpu(bool value) {
-    setState(() {
-      playAgainstCpu = value;
-    });
-    StorageService.instance.savePlayAgainstCpu(value);
-  }
-
-  void _setCpuDifficulty(CpuDifficulty value) {
-    setState(() {
-      cpuDifficulty = value;
-    });
-    StorageService.instance.saveCpuDifficulty(value);
-  }
-
-  String _difficultyLabel(AppLocalizations localization, CpuDifficulty difficulty) {
-    switch (difficulty) {
-      case CpuDifficulty.easy:
-        return localization.difficultyEasy;
-      case CpuDifficulty.medium:
-        return localization.difficultyMedium;
-      case CpuDifficulty.hard:
-        return localization.difficultyHard;
-    }
-  }
-
-  Widget _buildDifficultySelector(AppLocalizations localization) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        const SizedBox(height: 14),
-        Text(
-          localization.difficultyLabel,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Colors.white70, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: <Widget>[
-            for (final CpuDifficulty difficulty in CpuDifficulty.values) ...<Widget>[
-              if (difficulty != CpuDifficulty.values.first) const SizedBox(width: 8),
-              Expanded(
-                child: _DifficultyPill(
-                  label: _difficultyLabel(localization, difficulty),
-                  isActive: cpuDifficulty == difficulty,
-                  onTap: () {
-                    audioService.playUiClick();
-                    _setCpuDifficulty(difficulty);
-                  },
-                ),
-              ),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
-
-  void _refreshBannerArea() {
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   void _openLanguageSelector(AppLocalizations localization) {
@@ -296,218 +228,64 @@ class _HomeScreenState extends State<HomeScreen> {
           SettingsSheet(localization: localization),
     );
   }
-
-  Widget _buildModeToggle(AppLocalizations localization) {
-    return GlassPanel(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(localization.gameModeLabel,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                child: _ModePill(
-                  icon: Icons.group_rounded,
-                  label: localization.twoPlayers,
-                  topLabel: 'vs player',
-                  showLabel: false,
-                  isActive: !playAgainstCpu,
-                  onTap: playAgainstCpu
-                      ? () {
-                          audioService.playUiClick();
-                          _setPlayAgainstCpu(false);
-                        }
-                      : null,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Switch(
-                  value: playAgainstCpu,
-                  onChanged: _setPlayAgainstCpu,
-                  activeThumbColor: Colors.lightBlueAccent,
-                  inactiveThumbColor: Colors.white,
-                  inactiveTrackColor: Colors.white.withOpacity(0.2),
-                ),
-              ),
-              Expanded(
-                child: _ModePill(
-                  icon: Icons.computer_rounded,
-                  label: localization.cpuOpponent,
-                  secondaryIcon: Icons.person_rounded,
-                  topLabel: 'vs cpu',
-                  showLabel: false,
-                  isActive: playAgainstCpu,
-                  onTap: !playAgainstCpu
-                      ? () {
-                          audioService.playUiClick();
-                          _setPlayAgainstCpu(true);
-                        }
-                      : null,
-                ),
-              ),
-            ],
-          ),
-          if (playAgainstCpu) _buildDifficultySelector(localization),
-        ],
-      ),
-    );
-  }
 }
 
-class _DifficultyPill extends StatelessWidget {
-  const _DifficultyPill({
+class _OpponentButton extends StatelessWidget {
+  const _OpponentButton({
+    required this.icon,
     required this.label,
-    required this.isActive,
+    required this.accent,
     required this.onTap,
   });
 
+  final IconData icon;
   final String label;
-  final bool isActive;
+  final Color accent;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      selected: isActive,
       label: label,
       child: GestureDetector(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isActive
-                  ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
-                  : <Color>[
-                      Colors.white.withOpacity(0.05),
-                      Colors.white.withOpacity(0.08)
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isActive ? Colors.white : Colors.white.withOpacity(0.25),
-            ),
+            gradient: LinearGradient(colors: <Color>[
+              accent.withOpacity(0.16),
+              Colors.white.withOpacity(0.05),
+            ]),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: accent.withOpacity(0.65), width: 1.6),
+            boxShadow: <BoxShadow>[
+              BoxShadow(color: accent.withOpacity(0.28), blurRadius: 18),
+            ],
           ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: isActive ? const Color(0xFF041427) : Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ModePill extends StatelessWidget {
-  const _ModePill({
-    required this.icon,
-    required this.label,
-    required this.isActive,
-    this.secondaryIcon,
-    this.topLabel,
-    this.showLabel = true,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final IconData? secondaryIcon;
-  final String? topLabel;
-  final bool showLabel;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color iconColor = isActive ? const Color(0xFF041427) : Colors.white70;
-    return Semantics(
-      button: onTap != null,
-      label: label,
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isActive
-                  ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
-                  : <Color>[
-                      Colors.white.withOpacity(0.05),
-                      Colors.white.withOpacity(0.08)
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color:
-                    isActive ? Colors.white : Colors.white.withOpacity(0.25)),
-            boxShadow: isActive
-                ? <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.cyanAccent.withOpacity(0.35),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                  ]
-                : <BoxShadow>[],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
             children: <Widget>[
-              if (topLabel != null) ...<Widget>[
-                Text(
-                  topLabel!,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: isActive
-                            ? const Color(0xFF041427)
-                            : Colors.white70,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: accent.withOpacity(0.18),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: accent.withOpacity(0.5)),
                 ),
-                const SizedBox(height: 4),
-              ],
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(icon, color: iconColor),
-                  if (secondaryIcon != null) ...<Widget>[
-                    Transform.translate(
-                      offset: const Offset(-4, 0),
-                      child: Icon(secondaryIcon, color: iconColor),
-                    ),
-                  ],
-                  if (showLabel) ...<Widget>[
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: isActive
-                                  ? const Color(0xFF041427)
-                                  : Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                      ),
-                    ),
-                  ],
-                ],
+                child: Icon(icon, color: accent, size: 30),
               ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded,
+                  color: Colors.white.withOpacity(0.7)),
             ],
           ),
         ),
