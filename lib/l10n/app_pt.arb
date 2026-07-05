@@ -57,7 +57,7 @@
   "checkUpdatesLabel": "Buscar atualizações",
   "upToDateMessage": "Você já está na versão mais recente!",
   "updateFailedMessage": "Não foi possível verificar atualizações. Tente de novo mais tarde.",
-  "modeUltimate2Title": "Tic Tac Toe 2",
+  "modeUltimate2Title": "Super Jogo da Velha",
   "modeUltimate2Subtitle": "9 tabuleiros em um. Sua jogada define onde o rival joga.",
   "ultimate2FreeMove": "Jogada livre: jogue em qualquer tabuleiro",
   "ultimate2PlayIn": "Jogue no tabuleiro destacado",

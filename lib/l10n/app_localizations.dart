@@ -451,7 +451,7 @@ abstract class AppLocalizations {
   /// No description provided for @modeUltimate2Title.
   ///
   /// In en, this message translates to:
-  /// **'Tic Tac Toe 2'**
+  /// **'Ultimate Tic Tac Toe'**
   String get modeUltimate2Title;
 
   /// No description provided for @modeUltimate2Subtitle.

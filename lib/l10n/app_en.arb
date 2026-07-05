@@ -57,7 +57,7 @@
   "checkUpdatesLabel": "Check for updates",
   "upToDateMessage": "You are already on the latest version!",
   "updateFailedMessage": "Could not check for updates. Try again later.",
-  "modeUltimate2Title": "Tic Tac Toe 2",
+  "modeUltimate2Title": "Ultimate Tic Tac Toe",
   "modeUltimate2Subtitle": "9 boards in one. Your move picks where your rival plays.",
   "ultimate2FreeMove": "Free move: play in any board",
   "ultimate2PlayIn": "Play in the highlighted board",

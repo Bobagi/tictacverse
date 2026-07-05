@@ -96,10 +96,13 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (BuildContext context, int index) {
                       final GameModeDefinition definition = modes[index];
+                      final (Color, IconData) look = _modeLook(definition.type);
                       final Widget card = ModeCard(
                         title: definition.title(localization),
                         subtitle: definition.subtitle(localization),
                         buttonLabel: localization.playLabel,
+                        accent: look.$1,
+                        icon: look.$2,
                         onStart: () => _openGame(definition),
                       );
                       if (definition.type == GameModeType.ultimate2) {
@@ -151,6 +154,7 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
                 Expanded(
                   child: _DifficultyPill(
                     label: _difficultyLabel(localization, difficulty),
+                    accent: _difficultyColor(difficulty),
                     isActive: cpuDifficulty == difficulty,
                     onTap: () {
                       audioService.playUiClick();
@@ -178,6 +182,32 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
         return localization.difficultyMedium;
       case CpuDifficulty.hard:
         return localization.difficultyHard;
+    }
+  }
+
+  Color _difficultyColor(CpuDifficulty difficulty) {
+    switch (difficulty) {
+      case CpuDifficulty.easy:
+        return const Color(0xFF35A2FF);
+      case CpuDifficulty.medium:
+        return VerseColors.energy;
+      case CpuDifficulty.hard:
+        return VerseColors.danger;
+    }
+  }
+
+  (Color, IconData) _modeLook(GameModeType type) {
+    switch (type) {
+      case GameModeType.ultimate2:
+        return (VerseColors.energy, Icons.grid_view_rounded);
+      case GameModeType.classic:
+        return (VerseColors.cross, Icons.grid_3x3_rounded);
+      case GameModeType.shift:
+        return (const Color(0xFF3EF0C4), Icons.autorenew_rounded);
+      case GameModeType.chaos:
+        return (VerseColors.nought, Icons.bolt_rounded);
+      case GameModeType.ultimateMini:
+        return (const Color(0xFFB98BFF), Icons.auto_awesome_rounded);
     }
   }
 
@@ -244,21 +274,30 @@ class _FlagshipGlowState extends State<_FlagshipGlow>
       animation: _controller,
       builder: (BuildContext context, Widget? child) {
         final double t = _controller.value;
-        final Color glow = Color.lerp(
-            const Color(0xFF1AD1FF), const Color(0xFFFF6BD9), t)!;
+        final Color glow =
+            Color.lerp(VerseColors.cross, VerseColors.nought, t)!;
+        // Preenchimento em gradiente (vira a "borda") + sombra: com fill
+        // sólido a sombra segue o raio arredondado — sem halo quadrado.
         return Container(
+          padding: const EdgeInsets.all(2.4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: glow.withOpacity(0.9), width: 2),
+            gradient: LinearGradient(
+              colors: <Color>[glow, VerseColors.energy, glow],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: glow.withOpacity(0.30 + 0.25 * t),
-                blurRadius: 18 + 10 * t,
-                spreadRadius: 1,
+                color: glow.withOpacity(0.28 + 0.22 * t),
+                blurRadius: 16 + 8 * t,
               ),
             ],
           ),
-          child: child,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(17.6),
+            child: child,
+          ),
         );
       },
       child: widget.child,
@@ -269,11 +308,13 @@ class _FlagshipGlowState extends State<_FlagshipGlow>
 class _DifficultyPill extends StatelessWidget {
   const _DifficultyPill({
     required this.label,
+    required this.accent,
     required this.isActive,
     required this.onTap,
   });
 
   final String label;
+  final Color accent;
   final bool isActive;
   final VoidCallback onTap;
 
@@ -289,28 +330,28 @@ class _DifficultyPill extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isActive
-                  ? <Color>[const Color(0xFF1AD1FF), const Color(0xFF6F7CFF)]
-                  : <Color>[
-                      Colors.white.withOpacity(0.05),
-                      Colors.white.withOpacity(0.08)
-                    ],
-            ),
+            color: isActive ? accent : accent.withOpacity(0.10),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isActive ? Colors.white : Colors.white.withOpacity(0.25),
+              color: isActive ? Colors.white : accent.withOpacity(0.55),
             ),
+            boxShadow: isActive
+                ? <BoxShadow>[
+                    BoxShadow(color: accent.withOpacity(0.5), blurRadius: 12),
+                  ]
+                : const <BoxShadow>[],
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: isActive ? const Color(0xFF041427) : Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+            style: TextStyle(
+              fontFamily: 'Fredoka',
+              fontWeight: FontWeight.w600,
+              fontSize: 13.5,
+              color: isActive ? const Color(0xFF160B29) : Colors.white,
+            ),
           ),
         ),
       ),

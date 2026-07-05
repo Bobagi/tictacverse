@@ -95,16 +95,39 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyanAccent, brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFB98BFF), brightness: Brightness.dark),
         scaffoldBackgroundColor: Colors.transparent,
         useMaterial3: true,
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white.withOpacity(0.08),
+          backgroundColor: Colors.white.withOpacity(0.06),
           elevation: 0,
           foregroundColor: Colors.white,
           centerTitle: false,
+          titleTextStyle: const TextStyle(
+            fontFamily: 'Fredoka',
+            fontWeight: FontWeight.w600,
+            fontSize: 21,
+            color: Colors.white,
+          ),
         ),
-        textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Roboto'),
+        textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Roboto').copyWith(
+              headlineMedium: const TextStyle(
+                  fontFamily: 'Fredoka',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 30,
+                  color: Colors.white),
+              titleLarge: const TextStyle(
+                  fontFamily: 'Fredoka',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 22,
+                  color: Colors.white),
+              titleMedium: const TextStyle(
+                  fontFamily: 'Fredoka',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 17,
+                  color: Colors.white),
+            ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: HomeScreen(

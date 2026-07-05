@@ -1,5 +1,5 @@
 name: tictacverse
-version: 1.4.0+13
+version: 1.5.0+14
 publish_to: 'none'
 
 environment:
@@ -35,6 +35,10 @@ flutter:
     - assets/audio/sfx/
     - assets/audio/music/
   generate: true
+  fonts:
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka.ttf
 
 flutter_launcher_icons:
   android: true

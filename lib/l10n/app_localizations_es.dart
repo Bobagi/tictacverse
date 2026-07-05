@@ -192,7 +192,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo comprobar si hay actualizaciones. Inténtalo más tarde.';
 
   @override
-  String get modeUltimate2Title => 'Tic Tac Toe 2';
+  String get modeUltimate2Title => 'Súper Tres en Raya';
 
   @override
   String get modeUltimate2Subtitle =>

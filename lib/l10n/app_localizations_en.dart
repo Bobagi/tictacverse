@@ -184,7 +184,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not check for updates. Try again later.';
 
   @override
-  String get modeUltimate2Title => 'Tic Tac Toe 2';
+  String get modeUltimate2Title => 'Ultimate Tic Tac Toe';
 
   @override
   String get modeUltimate2Subtitle =>

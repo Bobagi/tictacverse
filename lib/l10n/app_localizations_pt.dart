@@ -190,7 +190,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Não foi possível verificar atualizações. Tente de novo mais tarde.';
 
   @override
-  String get modeUltimate2Title => 'Tic Tac Toe 2';
+  String get modeUltimate2Title => 'Super Jogo da Velha';
 
   @override
   String get modeUltimate2Subtitle =>
