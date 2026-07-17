@@ -276,6 +276,11 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _handleCellTap(int index) {
+    // Partida encerrada: ignorar toques, senão a partida é re-contada nas
+    // estatísticas e o modal/review/interstitial disparam de novo.
+    if (widget.controller.state.result.isFinal) {
+      return;
+    }
     final List<PlayerMarker?> previousBoard =
         List<PlayerMarker?>.from(widget.controller.state.board);
     setState(() {

@@ -79,6 +79,17 @@ class LanguageSelectorSheet extends StatelessWidget {
               leading: const Text('🇪🇸', style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(height: 8),
+            _LanguageTile(
+              title: localization.languageHindi,
+              locale: const Locale('hi'),
+              isSelected: selectedLocale.languageCode == 'hi',
+              onTap: () {
+                AudioService.instance.playUiClick();
+                onLocaleSelected(const Locale('hi'));
+              },
+              leading: const Text('🇮🇳', style: TextStyle(fontSize: 20)),
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),

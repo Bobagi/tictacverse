@@ -120,6 +120,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageSpanish => 'Español';
 
   @override
+  String get languageHindi => 'हिन्दी';
+
+  @override
   String get audioLabel => 'Audio';
 
   @override

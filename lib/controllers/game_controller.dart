@@ -31,6 +31,9 @@ class GameController {
   late GameState state;
 
   void selectCell(int index) {
+    if (state.result.isFinal) {
+      return;
+    }
     state = _engine.handlePlayerMove(state, index);
     if (_shouldTriggerCpuMove()) {
       _performCpuMove();
