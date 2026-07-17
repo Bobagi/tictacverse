@@ -1,4 +1,20 @@
-# Campanha Google Ads — Tic Tac Verse (estado atual: 2026-07-06)
+# Campanha Google Ads — Tic Tac Verse (estado atual: 2026-07-17)
+
+## GRUPO HI (Hindi) — pacote pronto em 2026-07-17, aguardando operador criar na UI
+
+Motivo: relatório de 30d mostrou Índia como país nº 1 (78 instalações; campanha sem geo)
+e a v1.6.0+15 saiu com tradução Hindi + ficha hi-IN. Pacote de criativos no padrão v3 em
+**`/root/prints/tictacverse-ads/hi/`**: 3 banners (628/1200/1500, frame Pixel 5 real +
+screenshots do app EM HINDI), `video-gameplay-9x16.mp4` (17,5s, gameplay REAL do Ultimate
+com UI Hindi — mesma coreografia do superB, X vence o board central; end card com o ícone
+real) e `textos.txt` (10 títulos ≤30 + 5 descrições ≤90, validados; inclui keyword local
+"ज़ीरो काटा"/zero kata). **Passos do operador na UI:** (1) Configurações da campanha →
+Idiomas → adicionar **Hindi** (hoje só EN+ES+PT — sem isso o público hindi não é
+segmentado; conferir se Índia está em Locais); (2) criar grupo de anúncios "HI" colando
+textos/banners; (3) subir o vídeo no YouTube "Não listado" e colar a URL. **Os scripts do
+pipeline de vídeo agora estão PRESERVADOS** em `feature-src/hi-video-src/` (record.mjs,
+make_gameplay.py, vidbg.html, ad.html — os originais de 06/07 se perderam com o scratchpad;
+para regenerar em outro idioma, mudar locale/textos).
 
 > **DIRETRIZ DO OPERADOR (2026-07-05): o Ultimate Tic Tac Toe / Super Jogo da Velha é o
 > CARRO-CHEFE do app.** Toda campanha, criativo, screenshot de ficha e esforço de divulgação
