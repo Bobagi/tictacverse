@@ -5,6 +5,7 @@ import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/game_controller.dart';
 import '../../models/cpu_difficulty.dart';
 import '../../models/game_mode.dart';
+import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/storage_service.dart';
@@ -112,18 +113,20 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 14),
-                GlassPanel(
-                  padding: EdgeInsets.zero,
-                  child: SafeArea(
-                    top: false,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: bannerAdController.expectedAdHeight,
-                      child: bannerAdController.buildBannerAdWidget(),
+                if (AdsConfiguration.adsEnabled) ...<Widget>[
+                  const SizedBox(height: 14),
+                  GlassPanel(
+                    padding: EdgeInsets.zero,
+                    child: SafeArea(
+                      top: false,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: bannerAdController.expectedAdHeight,
+                        child: bannerAdController.buildBannerAdWidget(),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
