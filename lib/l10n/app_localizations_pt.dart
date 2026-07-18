@@ -129,6 +129,21 @@ class AppLocalizationsPt extends AppLocalizations {
   String get languageHindi => 'हिन्दी';
 
   @override
+  String get languageBengali => 'বাংলা';
+
+  @override
+  String get languageNepali => 'नेपाली';
+
+  @override
+  String get langSuggestTitle => 'Agora disponível no seu idioma!';
+
+  @override
+  String get langSuggestAccept => 'Trocar de idioma';
+
+  @override
+  String get langSuggestKeep => 'Continuar em português';
+
+  @override
   String get audioLabel => 'Áudio';
 
   @override

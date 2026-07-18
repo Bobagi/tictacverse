@@ -11,6 +11,7 @@ import '../../models/chaos_event.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
+import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/review_service.dart';
@@ -135,8 +136,10 @@ class _GameScreenState extends State<GameScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                _buildBannerArea(),
+                if (AdsConfiguration.adsEnabled) ...<Widget>[
+                  const SizedBox(height: 12),
+                  _buildBannerArea(),
+                ],
               ],
             ),
           ),

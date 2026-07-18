@@ -9,6 +9,7 @@ import '../../models/game_mode.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
+import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/review_service.dart';
@@ -195,18 +196,20 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
-                GlassPanel(
-                  padding: EdgeInsets.zero,
-                  child: SafeArea(
-                    top: false,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: bannerAdController.expectedAdHeight,
-                      child: bannerAdController.buildBannerAdWidget(),
+                if (AdsConfiguration.adsEnabled) ...<Widget>[
+                  const SizedBox(height: 10),
+                  GlassPanel(
+                    padding: EdgeInsets.zero,
+                    child: SafeArea(
+                      top: false,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: bannerAdController.expectedAdHeight,
+                        child: bannerAdController.buildBannerAdWidget(),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

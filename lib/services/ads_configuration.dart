@@ -5,7 +5,17 @@ enum AdsMode { off, test, real }
 class AdsConfiguration {
   static const String _adsModeDefineKey = 'ADS_MODE';
 
+  /// Conta AdMob suspensa até ~2026-08-07 ("Invalid activity"): com true, o app
+  /// não inicializa ads/consent e as áreas de banner somem da UI. Quando a
+  /// conta voltar, trocar para false e lançar nova versão.
+  static const bool adsSuspended = true;
+
+  static bool get adsEnabled => activeAdsMode != AdsMode.off;
+
   static AdsMode get activeAdsMode {
+    if (adsSuspended) {
+      return AdsMode.off;
+    }
     // An explicit --dart-define=ADS_MODE=... always wins (off / test / real).
     const String adsModeValue = String.fromEnvironment(_adsModeDefineKey);
     switch (adsModeValue.toLowerCase()) {

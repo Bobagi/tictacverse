@@ -131,6 +131,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get languageHindi => 'हिन्दी';
 
   @override
+  String get languageBengali => 'বাংলা';
+
+  @override
+  String get languageNepali => 'नेपाली';
+
+  @override
+  String get langSuggestTitle => '¡Ahora disponible en tu idioma!';
+
+  @override
+  String get langSuggestAccept => 'Cambiar idioma';
+
+  @override
+  String get langSuggestKeep => 'Seguir en español';
+
+  @override
   String get audioLabel => 'Audio';
 
   @override

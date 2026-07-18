@@ -41,6 +41,7 @@ class StorageService {
   static const String _mutedKey = 'settings.muted';
   static const String _volumeKey = 'settings.volume';
   static const String _localeKey = 'settings.locale';
+  static const String _langSuggestedKey = 'settings.langSuggested';
   static const String _difficultyKey = 'settings.cpuDifficulty';
   static const String _vsCpuKey = 'settings.playAgainstCpu';
   static const String _sessionsKey = 'meta.sessions';
@@ -169,6 +170,13 @@ class StorageService {
 
   Future<void> saveLocale(String languageCode) async {
     await _prefs?.setString(_localeKey, languageCode);
+  }
+
+  bool get languageSuggestionShown =>
+      _prefs?.getBool(_langSuggestedKey) ?? false;
+
+  Future<void> markLanguageSuggestionShown() async {
+    await _prefs?.setBool(_langSuggestedKey, true);
   }
 
   Future<void> saveCpuDifficulty(CpuDifficulty difficulty) async {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
+import 'services/ads_configuration.dart';
 import 'services/audio_service.dart';
 import 'services/consent_service.dart';
 import 'services/metrics_service.dart';
@@ -19,8 +20,9 @@ Future<void> main() async {
     volume: StorageService.instance.audioVolume,
   );
   // O plugin google_mobile_ads não existe na web — consent/ads só fora dela,
-  // senão o main() trava no splash.
-  if (!kIsWeb) {
+  // senão o main() trava no splash. Com ads desligados (suspensão AdMob),
+  // consent UMP e SDK nem inicializam.
+  if (!kIsWeb && AdsConfiguration.adsEnabled) {
     await ConsentService().gatherConsent();
     await MobileAdsInitializationService().initialize();
   }
@@ -62,7 +64,7 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      if (!kIsWeb) {
+      if (!kIsWeb && AdsConfiguration.adsEnabled) {
         MobileAds.instance.setAppMuted(false);
         MobileAds.instance.setAppVolume(1.0);
       }
@@ -71,7 +73,7 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
     }
 
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      if (!kIsWeb) {
+      if (!kIsWeb && AdsConfiguration.adsEnabled) {
         MobileAds.instance.setAppMuted(true);
         MobileAds.instance.setAppVolume(0.0);
       }

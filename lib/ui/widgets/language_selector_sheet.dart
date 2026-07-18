@@ -44,52 +44,38 @@ class LanguageSelectorSheet extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Text(localization.languageLabel, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            _LanguageTile(
-              title: localization.languageEnglish,
-              locale: const Locale('en'),
-              isSelected: selectedLocale.languageCode == 'en',
-              onTap: () {
-                AudioService.instance.playUiClick();
-                onLocaleSelected(const Locale('en'));
-              },
-              leading: const Text('🇺🇸', style: TextStyle(fontSize: 20)),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    for (final (String code, String title, String flag)
+                        in <(String, String, String)>[
+                      ('en', localization.languageEnglish, '🇺🇸'),
+                      ('pt', localization.languagePortuguese, '🇧🇷'),
+                      ('es', localization.languageSpanish, '🇪🇸'),
+                      ('hi', localization.languageHindi, '🇮🇳'),
+                      ('bn', localization.languageBengali, '🇧🇩'),
+                      ('ne', localization.languageNepali, '🇳🇵'),
+                    ]) ...<Widget>[
+                      _LanguageTile(
+                        title: title,
+                        locale: Locale(code),
+                        isSelected: selectedLocale.languageCode == code,
+                        onTap: () {
+                          AudioService.instance.playUiClick();
+                          onLocaleSelected(Locale(code));
+                        },
+                        leading:
+                            Text(flag, style: const TextStyle(fontSize: 20)),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            _LanguageTile(
-              title: localization.languagePortuguese,
-              locale: const Locale('pt'),
-              isSelected: selectedLocale.languageCode == 'pt',
-              onTap: () {
-                AudioService.instance.playUiClick();
-                onLocaleSelected(const Locale('pt'));
-              },
-              leading: const Text('🇧🇷', style: TextStyle(fontSize: 20)),
-            ),
-            const SizedBox(height: 8),
-            _LanguageTile(
-              title: localization.languageSpanish,
-              locale: const Locale('es'),
-              isSelected: selectedLocale.languageCode == 'es',
-              onTap: () {
-                AudioService.instance.playUiClick();
-                onLocaleSelected(const Locale('es'));
-              },
-              leading: const Text('🇪🇸', style: TextStyle(fontSize: 20)),
-            ),
-            const SizedBox(height: 8),
-            _LanguageTile(
-              title: localization.languageHindi,
-              locale: const Locale('hi'),
-              isSelected: selectedLocale.languageCode == 'hi',
-              onTap: () {
-                AudioService.instance.playUiClick();
-                onLocaleSelected(const Locale('hi'));
-              },
-              leading: const Text('🇮🇳', style: TextStyle(fontSize: 20)),
-            ),
-            const SizedBox(height: 8),
           ],
         ),
       ),

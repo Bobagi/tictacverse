@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
+import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
+import '../../services/language_suggestion.dart';
 import '../../services/metrics_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/update_service.dart';
@@ -44,7 +46,54 @@ class _HomeScreenState extends State<HomeScreen> {
         onAdFailed: _refreshBannerArea,
       );
       audioService.ensureBackgroundMusic();
+      _maybeSuggestLanguage();
     });
+  }
+
+  /// Se o aparelho é de um país/idioma coberto por uma língua nova (hi/bn/ne)
+  /// e o usuário nunca escolheu idioma manualmente, oferece a troca UMA vez.
+  void _maybeSuggestLanguage() {
+    final String? suggested = LanguageSuggestion.suggest(
+      deviceLocales: WidgetsBinding.instance.platformDispatcher.locales,
+      currentLanguage: widget.activeLocale.languageCode,
+      hasManualChoice: StorageService.instance.localeCode != null,
+      alreadySuggested: StorageService.instance.languageSuggestionShown,
+    );
+    if (suggested == null || !mounted) {
+      return;
+    }
+    StorageService.instance.markLanguageSuggestionShown();
+    final AppLocalizations target = lookupAppLocalizations(Locale(suggested));
+    final AppLocalizations current = AppLocalizations.of(context)!;
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF241048),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(target.langSuggestTitle),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                AudioService.instance.playUiClick();
+                Navigator.of(dialogContext).pop();
+              },
+              child: Text(current.langSuggestKeep),
+            ),
+            FilledButton(
+              onPressed: () {
+                AudioService.instance.playUiClick();
+                Navigator.of(dialogContext).pop();
+                widget.onLocaleSelected(Locale(suggested));
+              },
+              child: Text(target.langSuggestAccept),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -155,18 +204,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                GlassPanel(
-                  padding: EdgeInsets.zero,
-                  child: SafeArea(
-                    top: false,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: bannerAdController.expectedAdHeight,
-                      child: bannerAdController.buildBannerAdWidget(),
+                if (AdsConfiguration.adsEnabled) ...<Widget>[
+                  const SizedBox(height: 16),
+                  GlassPanel(
+                    padding: EdgeInsets.zero,
+                    child: SafeArea(
+                      top: false,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: bannerAdController.expectedAdHeight,
+                        child: bannerAdController.buildBannerAdWidget(),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

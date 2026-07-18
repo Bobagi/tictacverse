@@ -126,6 +126,21 @@ class AppLocalizationsHi extends AppLocalizations {
   String get languageHindi => 'हिन्दी';
 
   @override
+  String get languageBengali => 'বাংলা';
+
+  @override
+  String get languageNepali => 'नेपाली';
+
+  @override
+  String get langSuggestTitle => 'अब हिन्दी में उपलब्ध!';
+
+  @override
+  String get langSuggestAccept => 'हिन्दी में खेलें';
+
+  @override
+  String get langSuggestKeep => 'हिन्दी में जारी रखें';
+
+  @override
   String get audioLabel => 'ऑडियो';
 
   @override

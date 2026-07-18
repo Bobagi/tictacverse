@@ -5,9 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_bn.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 import 'app_localizations_hi.dart';
+import 'app_localizations_ne.dart';
 import 'app_localizations_pt.dart';
 
 // ignore_for_file: type=lint
@@ -96,9 +98,11 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('bn'),
     Locale('en'),
     Locale('es'),
     Locale('hi'),
+    Locale('ne'),
     Locale('pt')
   ];
 
@@ -330,6 +334,36 @@ abstract class AppLocalizations {
   /// **'हिन्दी'**
   String get languageHindi;
 
+  /// No description provided for @languageBengali.
+  ///
+  /// In en, this message translates to:
+  /// **'বাংলা'**
+  String get languageBengali;
+
+  /// No description provided for @languageNepali.
+  ///
+  /// In en, this message translates to:
+  /// **'नेपाली'**
+  String get languageNepali;
+
+  /// No description provided for @langSuggestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Now available in your language!'**
+  String get langSuggestTitle;
+
+  /// No description provided for @langSuggestAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch language'**
+  String get langSuggestAccept;
+
+  /// No description provided for @langSuggestKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep English'**
+  String get langSuggestKeep;
+
   /// No description provided for @audioLabel.
   ///
   /// In en, this message translates to:
@@ -515,8 +549,14 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'es', 'hi', 'pt'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+        'bn',
+        'en',
+        'es',
+        'hi',
+        'ne',
+        'pt'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -525,12 +565,16 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'bn':
+      return AppLocalizationsBn();
     case 'en':
       return AppLocalizationsEn();
     case 'es':
       return AppLocalizationsEs();
     case 'hi':
       return AppLocalizationsHi();
+    case 'ne':
+      return AppLocalizationsNe();
     case 'pt':
       return AppLocalizationsPt();
   }
