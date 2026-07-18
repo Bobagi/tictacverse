@@ -10,6 +10,7 @@ import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/storage_service.dart';
 import '../widgets/mode_card.dart';
+import '../widgets/mode_glyphs.dart';
 import '../widgets/modern_background.dart';
 import 'game_screen.dart';
 import 'ultimate2_screen.dart';
@@ -97,13 +98,13 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (BuildContext context, int index) {
                       final GameModeDefinition definition = modes[index];
-                      final (Color, IconData) look = _modeLook(definition.type);
+                      final Color accent = _modeAccent(definition.type);
                       final Widget card = ModeCard(
                         title: definition.title(localization),
                         subtitle: definition.subtitle(localization),
                         buttonLabel: localization.playLabel,
-                        accent: look.$1,
-                        icon: look.$2,
+                        accent: accent,
+                        glyph: ModeGlyph(type: definition.type, accent: accent),
                         onStart: () => _openGame(definition),
                       );
                       if (definition.type == GameModeType.ultimate2) {
@@ -199,18 +200,18 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
     }
   }
 
-  (Color, IconData) _modeLook(GameModeType type) {
+  Color _modeAccent(GameModeType type) {
     switch (type) {
       case GameModeType.ultimate2:
-        return (VerseColors.energy, Icons.grid_view_rounded);
+        return VerseColors.energy;
       case GameModeType.classic:
-        return (VerseColors.cross, Icons.grid_3x3_rounded);
+        return VerseColors.cross;
       case GameModeType.shift:
-        return (const Color(0xFF3EF0C4), Icons.autorenew_rounded);
+        return const Color(0xFF3EF0C4);
       case GameModeType.chaos:
-        return (VerseColors.nought, Icons.bolt_rounded);
+        return VerseColors.nought;
       case GameModeType.ultimateMini:
-        return (const Color(0xFFB98BFF), Icons.auto_awesome_rounded);
+        return const Color(0xFFB98BFF);
     }
   }
 

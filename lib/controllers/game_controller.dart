@@ -40,6 +40,25 @@ class GameController {
     }
   }
 
+  /// Aplica só a jogada do humano — a CPU NÃO responde aqui. A UI agenda a
+  /// resposta com [performPendingCpuMove] após a pausa de "pensamento".
+  void selectCellHumanOnly(int index) {
+    if (state.result.isFinal) {
+      return;
+    }
+    state = _engine.handlePlayerMove(state, index);
+  }
+
+  /// Há uma resposta da CPU aguardando ser executada?
+  bool get isCpuMovePending => _shouldTriggerCpuMove();
+
+  /// Executa a jogada pendente da CPU (no-op se não houver ou se acabou).
+  void performPendingCpuMove() {
+    if (_shouldTriggerCpuMove()) {
+      _performCpuMove();
+    }
+  }
+
   void resetMatch() {
     _engine = _buildEngine();
     state = _engine.start();

@@ -17,6 +17,7 @@ import '../../services/metrics_service.dart';
 import '../../services/review_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
+import '../widgets/board_shake.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_over_modal.dart';
 import '../widgets/modern_background.dart';
@@ -44,7 +45,19 @@ class _GameScreenState extends State<GameScreen> {
   final AdService adService = AdService();
   final AudioService audioService = AudioService.instance;
   Timer? _cpuHighlightTimer;
+  Timer? _cpuMoveTimer;
+  Timer? _gameOverTimer;
   int? _cpuMoveHighlightIndex;
+  bool _cpuThinking = false;
+  int _shakeTick = 0;
+
+  /// Pausa de "pensamento" antes da CPU responder — a jogada dela não pode
+  /// aparecer no mesmo frame do toque do jogador.
+  static const Duration _cpuThinkDelay = Duration(milliseconds: 550);
+
+  /// Tempo pra linha neon desenhar + pulsar antes do modal de fim subir.
+  static const Duration _winCelebration = Duration(milliseconds: 1650);
+  static const Duration _drawPause = Duration(milliseconds: 650);
 
   @override
   void initState() {
@@ -64,6 +77,8 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void dispose() {
     _cpuHighlightTimer?.cancel();
+    _cpuMoveTimer?.cancel();
+    _gameOverTimer?.cancel();
     bannerAdController.dispose();
     interstitialAdController.dispose();
     rewardedAdController.dispose();
@@ -115,17 +130,20 @@ class _GameScreenState extends State<GameScreen> {
                               child: SizedBox(
                                 width: boardSize,
                                 height: boardSize,
-                                child: GameBoard(
-                                  board: widget.controller.state.board,
-                                  blockedCells:
-                                      widget.controller.state.blockedCells,
-                                  onCellSelected: _handleCellTap,
-                                  winningLine: widget
-                                      .controller.state.result.winningLine,
-                                  winningPlayer:
-                                      widget.controller.state.result.winner,
-                                  visualAssetConfig: _visualAssets,
-                                  highlightIndex: _cpuMoveHighlightIndex,
+                                child: BoardShake(
+                                  trigger: _shakeTick,
+                                  child: GameBoard(
+                                    board: widget.controller.state.board,
+                                    blockedCells:
+                                        widget.controller.state.blockedCells,
+                                    onCellSelected: _handleCellTap,
+                                    winningLine: widget
+                                        .controller.state.result.winningLine,
+                                    winningPlayer:
+                                        widget.controller.state.result.winner,
+                                    visualAssetConfig: _visualAssets,
+                                    highlightIndex: _cpuMoveHighlightIndex,
+                                  ),
                                 ),
                               ),
                             );
@@ -281,17 +299,42 @@ class _GameScreenState extends State<GameScreen> {
   void _handleCellTap(int index) {
     // Partida encerrada: ignorar toques, senão a partida é re-contada nas
     // estatísticas e o modal/review/interstitial disparam de novo.
-    if (widget.controller.state.result.isFinal) {
+    // Durante a pausa da CPU, um toque moveria PELA CPU — bloquear também.
+    if (widget.controller.state.result.isFinal || _cpuThinking) {
       return;
     }
     final List<PlayerMarker?> previousBoard =
         List<PlayerMarker?>.from(widget.controller.state.board);
     setState(() {
-      widget.controller.selectCell(index);
+      widget.controller.selectCellHumanOnly(index);
     });
     final int newPlacements =
         _countNewPlacements(previousBoard, widget.controller.state.board);
     if (newPlacements > 0) {
+      audioService.playMoveSfx();
+    }
+    if (widget.controller.state.result.isFinal) {
+      _onMatchEnded();
+      return;
+    }
+    if (widget.controller.isCpuMovePending) {
+      _cpuThinking = true;
+      _cpuMoveTimer?.cancel();
+      _cpuMoveTimer = Timer(_cpuThinkDelay, _performDelayedCpuMove);
+    }
+  }
+
+  void _performDelayedCpuMove() {
+    if (!mounted) {
+      return;
+    }
+    final List<PlayerMarker?> previousBoard =
+        List<PlayerMarker?>.from(widget.controller.state.board);
+    setState(() {
+      widget.controller.performPendingCpuMove();
+      _cpuThinking = false;
+    });
+    if (_countNewPlacements(previousBoard, widget.controller.state.board) > 0) {
       audioService.playMoveSfx();
     }
     final int? cpuMoveIndex =
@@ -300,13 +343,39 @@ class _GameScreenState extends State<GameScreen> {
       _triggerCpuMoveHighlight(cpuMoveIndex);
     }
     if (widget.controller.state.result.isFinal) {
-      final GameResult finalResult = widget.controller.state.result;
-      widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
-      StorageService.instance.recordMatch(
-        mode: widget.controller.modeDefinition.type,
-        result: finalResult,
-        vsCpu: widget.controller.playAgainstCpu,
-      );
+      _onMatchEnded();
+    }
+  }
+
+  void _onMatchEnded() {
+    final GameResult finalResult = widget.controller.state.result;
+    widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
+    StorageService.instance.recordMatch(
+      mode: widget.controller.modeDefinition.type,
+      result: finalResult,
+      vsCpu: widget.controller.playAgainstCpu,
+    );
+    rewardedAdController.loadRewardedAd();
+
+    // Celebração antes do modal: tabuleiro travado (result.isFinal), shake de
+    // impacto e a linha neon desenhando por inteiro. Review/interstitial só
+    // depois, senão cobrem a animação.
+    final bool hasWinLine =
+        finalResult.winningLine != null && finalResult.winner != null;
+    if (hasWinLine) {
+      setState(() {
+        _shakeTick++;
+      });
+    }
+    final bool reduceMotion = MediaQuery.of(context).disableAnimations;
+    final Duration delay = reduceMotion
+        ? const Duration(milliseconds: 200)
+        : (hasWinLine ? _winCelebration : _drawPause);
+    _gameOverTimer?.cancel();
+    _gameOverTimer = Timer(delay, () {
+      if (!mounted) {
+        return;
+      }
       if (widget.controller.playAgainstCpu &&
           finalResult.winner == PlayerMarker.cross) {
         ReviewService.instance.maybeRequestReview();
@@ -316,9 +385,8 @@ class _GameScreenState extends State<GameScreen> {
       } else {
         interstitialAdController.loadInterstitialAd();
       }
-      rewardedAdController.loadRewardedAd();
       _showGameOverSheet();
-    }
+    });
   }
 
   Widget _buildPlayerAvatar(PlayerMarker marker) {
@@ -381,7 +449,13 @@ class _GameScreenState extends State<GameScreen> {
         subtitle: subtitle,
         onPlayAgain: () {
           Navigator.of(context).pop();
-          setState(widget.controller.resetMatch);
+          _cpuMoveTimer?.cancel();
+          _cpuHighlightTimer?.cancel();
+          setState(() {
+            widget.controller.resetMatch();
+            _cpuThinking = false;
+            _cpuMoveHighlightIndex = null;
+          });
         },
         onBackToMenu: () {
           Navigator.of(context)

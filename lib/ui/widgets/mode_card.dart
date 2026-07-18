@@ -10,8 +10,8 @@ class ModeCard extends StatelessWidget {
     required this.subtitle,
     required this.onStart,
     required this.buttonLabel,
+    required this.glyph,
     this.accent = VerseColors.cross,
-    this.icon = Icons.grid_3x3_rounded,
   });
 
   final String title;
@@ -19,7 +19,7 @@ class ModeCard extends StatelessWidget {
   final VoidCallback onStart;
   final String buttonLabel;
   final Color accent;
-  final IconData icon;
+  final Widget glyph;
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +49,14 @@ class ModeCard extends StatelessWidget {
           child: Row(
             children: <Widget>[
               Container(
-                width: 46,
-                height: 46,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: accent.withOpacity(0.16),
                   borderRadius: BorderRadius.circular(13),
                   border: Border.all(color: accent.withOpacity(0.5)),
                 ),
-                child: Icon(icon, color: accent, size: 26),
+                child: Center(child: glyph),
               ),
               const SizedBox(width: 12),
               Expanded(

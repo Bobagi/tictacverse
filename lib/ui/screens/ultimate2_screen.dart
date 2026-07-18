@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
@@ -15,9 +17,11 @@ import '../../services/metrics_service.dart';
 import '../../services/review_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
+import '../widgets/board_shake.dart';
 import '../widgets/game_over_modal.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/neon_win_line.dart';
+import '../widgets/pop_in.dart';
 
 class Ultimate2Screen extends StatefulWidget {
   const Ultimate2Screen({
@@ -44,6 +48,14 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   final AdService adService = AdService();
   final AudioService audioService = AudioService.instance;
   late Ultimate2State state;
+  Timer? _cpuMoveTimer;
+  Timer? _gameOverTimer;
+  bool _cpuThinking = false;
+  int _shakeTick = 0;
+
+  static const Duration _cpuThinkDelay = Duration(milliseconds: 550);
+  static const Duration _winCelebration = Duration(milliseconds: 1650);
+  static const Duration _drawPause = Duration(milliseconds: 650);
 
   @override
   void initState() {
@@ -62,6 +74,8 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
 
   @override
   void dispose() {
+    _cpuMoveTimer?.cancel();
+    _gameOverTimer?.cancel();
     bannerAdController.dispose();
     interstitialAdController.dispose();
     super.dispose();
@@ -74,19 +88,36 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   }
 
   void _handleTap(int board, int cell) {
-    if (!state.isCellPlayable(board, cell)) {
+    // Durante a pausa da CPU um toque jogaria PELA CPU — bloquear.
+    if (_cpuThinking || !state.isCellPlayable(board, cell)) {
       return;
     }
     setState(() {
       state = engine.handleMove(state, board, cell);
-      if (widget.playAgainstCpu &&
-          !state.result.isFinal &&
-          state.currentPlayer == PlayerMarker.nought) {
-        final (int, int)? move = cpu.chooseMove(state, widget.cpuDifficulty);
-        if (move != null) {
-          state = engine.handleMove(state, move.$1, move.$2);
-        }
+    });
+    audioService.playMoveSfx();
+    if (state.result.isFinal) {
+      _onMatchEnded();
+      return;
+    }
+    if (widget.playAgainstCpu &&
+        state.currentPlayer == PlayerMarker.nought) {
+      _cpuThinking = true;
+      _cpuMoveTimer?.cancel();
+      _cpuMoveTimer = Timer(_cpuThinkDelay, _performDelayedCpuMove);
+    }
+  }
+
+  void _performDelayedCpuMove() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      final (int, int)? move = cpu.chooseMove(state, widget.cpuDifficulty);
+      if (move != null) {
+        state = engine.handleMove(state, move.$1, move.$2);
       }
+      _cpuThinking = false;
     });
     audioService.playMoveSfx();
     if (state.result.isFinal) {
@@ -101,15 +132,35 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       result: state.result,
       vsCpu: widget.playAgainstCpu,
     );
-    if (widget.playAgainstCpu && state.result.winner == PlayerMarker.cross) {
-      ReviewService.instance.maybeRequestReview();
+    // Celebração antes do modal: shake + linha neon do macro-tabuleiro
+    // desenhando por inteiro; review/interstitial só depois.
+    final GameResult finalResult = state.result;
+    final bool hasWinLine =
+        finalResult.winningLine != null && finalResult.winner != null;
+    if (hasWinLine) {
+      setState(() {
+        _shakeTick++;
+      });
     }
-    if (adService.shouldShowInterstitialOnMatchEnd()) {
-      interstitialAdController.showInterstitialAdIfAvailable();
-    } else {
-      interstitialAdController.loadInterstitialAd();
-    }
-    _showGameOverSheet();
+    final bool reduceMotion = MediaQuery.of(context).disableAnimations;
+    final Duration delay = reduceMotion
+        ? const Duration(milliseconds: 200)
+        : (hasWinLine ? _winCelebration : _drawPause);
+    _gameOverTimer?.cancel();
+    _gameOverTimer = Timer(delay, () {
+      if (!mounted) {
+        return;
+      }
+      if (widget.playAgainstCpu && finalResult.winner == PlayerMarker.cross) {
+        ReviewService.instance.maybeRequestReview();
+      }
+      if (adService.shouldShowInterstitialOnMatchEnd()) {
+        interstitialAdController.showInterstitialAdIfAvailable();
+      } else {
+        interstitialAdController.loadInterstitialAd();
+      }
+      _showGameOverSheet();
+    });
   }
 
   void _showGameOverSheet() {
@@ -128,8 +179,10 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
             : result.winner?.symbol ?? '',
         onPlayAgain: () {
           Navigator.of(context).pop();
+          _cpuMoveTimer?.cancel();
           setState(() {
             state = engine.start();
+            _cpuThinking = false;
           });
         },
         onBackToMenu: () {
@@ -186,10 +239,13 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                         child: SizedBox(
                           width: size,
                           height: size,
-                          child: _MacroBoard(
-                            state: state,
-                            visualAssets: visualAssets,
-                            onCellTap: _handleTap,
+                          child: BoardShake(
+                            trigger: _shakeTick,
+                            child: _MacroBoard(
+                              state: state,
+                              visualAssets: visualAssets,
+                              onCellTap: _handleTap,
+                            ),
                           ),
                         ),
                       );
@@ -399,11 +455,15 @@ class _MacroBoard extends StatelessWidget {
                   child: FractionallySizedBox(
                     widthFactor: 0.72,
                     heightFactor: 0.72,
-                    child: Image.asset(
-                      owner == PlayerMarker.cross
-                          ? visualAssets.crossAssetPath
-                          : visualAssets.noughtAssetPath,
-                      fit: BoxFit.contain,
+                    child: PopIn(
+                      beginScale: 1.7,
+                      duration: const Duration(milliseconds: 380),
+                      child: Image.asset(
+                        owner == PlayerMarker.cross
+                            ? visualAssets.crossAssetPath
+                            : visualAssets.noughtAssetPath,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
@@ -431,11 +491,14 @@ class _MacroBoard extends StatelessWidget {
             ? null
             : Padding(
                 padding: const EdgeInsets.all(2),
-                child: Image.asset(
-                  marker == PlayerMarker.cross
-                      ? visualAssets.crossAssetPath
-                      : visualAssets.noughtAssetPath,
-                  fit: BoxFit.contain,
+                child: PopIn(
+                  duration: const Duration(milliseconds: 200),
+                  child: Image.asset(
+                    marker == PlayerMarker.cross
+                        ? visualAssets.crossAssetPath
+                        : visualAssets.noughtAssetPath,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
       ),

@@ -6,6 +6,7 @@ import '../../models/player_marker.dart';
 import '../../services/visual_assets.dart';
 import 'modern_background.dart';
 import 'neon_win_line.dart';
+import 'pop_in.dart';
 
 class GameBoard extends StatefulWidget {
   const GameBoard({
@@ -212,26 +213,28 @@ class _GameBoardState extends State<GameBoard>
     return Center(
       child: Transform.rotate(
         angle: rotationAngle,
-        child: Container(
-          width: cellExtent * 0.64,
-          height: cellExtent * 0.64,
-          decoration: BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: glowColor.withOpacity(0.48),
-                blurRadius: 36,
-                spreadRadius: 4,
-              ),
-              BoxShadow(
-                color: glowColor.withOpacity(0.22),
-                blurRadius: 18,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Image.asset(
-            assetPath,
-            fit: BoxFit.contain,
+        child: PopIn(
+          child: Container(
+            width: cellExtent * 0.64,
+            height: cellExtent * 0.64,
+            decoration: BoxDecoration(
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: glowColor.withOpacity(0.48),
+                  blurRadius: 36,
+                  spreadRadius: 4,
+                ),
+                BoxShadow(
+                  color: glowColor.withOpacity(0.22),
+                  blurRadius: 18,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: Image.asset(
+              assetPath,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ),
