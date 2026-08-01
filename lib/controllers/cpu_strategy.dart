@@ -121,7 +121,7 @@ class CpuStrategy {
     }
 
     // No Ultimate com "evite o centro", ocupar o centro invalida qualquer
-    // vitória futura (dos dois lados) — a CPU nunca se auto-sabota.
+    // vitória futura (dos dois lados) - a CPU nunca se auto-sabota.
     final bool avoidCenter = mode == GameModeType.ultimateMini &&
         state.activeUltimateCondition?.type == UltimateConditionType.avoidCenter;
     List<int> candidates =

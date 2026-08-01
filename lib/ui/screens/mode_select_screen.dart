@@ -281,7 +281,7 @@ class _FlagshipGlowState extends State<_FlagshipGlow>
         final Color glow =
             Color.lerp(VerseColors.cross, VerseColors.nought, t)!;
         // Preenchimento em gradiente (vira a "borda") + sombra: com fill
-        // sólido a sombra segue o raio arredondado — sem halo quadrado.
+        // sólido a sombra segue o raio arredondado - sem halo quadrado.
         return Container(
           padding: const EdgeInsets.all(2.4),
           decoration: BoxDecoration(

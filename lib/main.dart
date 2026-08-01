@@ -8,6 +8,7 @@ import 'services/audio_service.dart';
 import 'services/consent_service.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
+import 'services/progression_service.dart';
 import 'services/storage_service.dart';
 import 'services/update_service.dart';
 import 'ui/screens/home_screen.dart';
@@ -15,11 +16,14 @@ import 'ui/screens/home_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService.instance.load();
+  // Conquistas novas de uma atualização já nascem desbloqueadas para quem
+  // cumpre o requisito, em vez de exigir mais uma partida.
+  ProgressionService.instance.reconcileOnBoot();
   AudioService.instance.applyStoredSettings(
     muted: StorageService.instance.audioMuted,
     volume: StorageService.instance.audioVolume,
   );
-  // O plugin google_mobile_ads não existe na web — consent/ads só fora dela,
+  // O plugin google_mobile_ads não existe na web - consent/ads só fora dela,
   // senão o main() trava no splash. Com ads desligados (suspensão AdMob),
   // consent UMP e SDK nem inicializam.
   if (!kIsWeb && AdsConfiguration.adsEnabled) {

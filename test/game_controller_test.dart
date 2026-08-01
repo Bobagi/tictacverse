@@ -45,7 +45,7 @@ void main() {
       );
 
       controller.selectCellHumanOnly(0);
-      // Só a marca do humano no tabuleiro — a CPU ainda não respondeu.
+      // Só a marca do humano no tabuleiro - a CPU ainda não respondeu.
       expect(
         controller.state.board.where((PlayerMarker? m) => m != null).length,
         1,

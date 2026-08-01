@@ -23,7 +23,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get modeShiftSubtitle =>
-      'Solo 3 fichas por jugador — la más antigua desaparece.';
+      'Solo 3 fichas por jugador - la más antigua desaparece.';
 
   @override
   String get modeChaosTitle => 'Modo Caos';
@@ -224,7 +224,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ultimate2Help =>
-      'Cada casilla del tablero grande guarda un tres en raya pequeño. La casilla que marcas dentro de un tablero pequeño envía a tu rival al tablero correspondiente. Gana un tablero pequeño para conquistar su casilla en el grande — haz tres casillas conquistadas en línea para ganar. Si el destino está cerrado, la jugada es libre.';
+      'Cada casilla del tablero grande guarda un tres en raya pequeño. La casilla que marcas dentro de un tablero pequeño envía a tu rival al tablero correspondiente. Gana un tablero pequeño para conquistar su casilla en el grande - haz tres casillas conquistadas en línea para ganar. Si el destino está cerrado, la jugada es libre.';
 
   @override
   String get playVsCpuBig => 'Jugar contra la máquina';
@@ -234,4 +234,124 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get chooseModeTitle => 'Elige el modo';
+
+  @override
+  String get achievementsTitle => 'Logros';
+
+  @override
+  String achievementsProgress(int unlocked, int total) {
+    return '$unlocked de $total desbloqueados';
+  }
+
+  @override
+  String get achievementsEmpty =>
+      'Juega una partida para empezar a desbloquear logros.';
+
+  @override
+  String levelLabel(int level) {
+    return 'Nivel $level';
+  }
+
+  @override
+  String xpProgress(int into, int span) {
+    return '$into / $span XP';
+  }
+
+  @override
+  String xpGained(int amount) {
+    return '+$amount XP';
+  }
+
+  @override
+  String get achUnlockedToast => '¡Logro desbloqueado!';
+
+  @override
+  String levelUpToast(int level) {
+    return '¡Nivel $level alcanzado!';
+  }
+
+  @override
+  String get achFirstWinTitle => 'Primera victoria';
+
+  @override
+  String get achFirstWinDesc => 'Vence a la máquina por primera vez';
+
+  @override
+  String get achWins10Title => 'Ganador';
+
+  @override
+  String get achWins50Title => 'Dominante';
+
+  @override
+  String get achWins200Title => 'Leyenda';
+
+  @override
+  String achDescWins(int count) {
+    return 'Gana $count partidas contra la máquina';
+  }
+
+  @override
+  String get achStreak3Title => 'Calentando';
+
+  @override
+  String get achStreak7Title => 'En racha';
+
+  @override
+  String get achStreak15Title => 'Imparable';
+
+  @override
+  String achDescStreak(int count) {
+    return 'Gana $count partidas seguidas';
+  }
+
+  @override
+  String get achHardWinTitle => 'No tan imposible';
+
+  @override
+  String get achHardWinDesc => 'Vence a la máquina en Imposible';
+
+  @override
+  String get achAllModesTitle => 'Explorador';
+
+  @override
+  String get achAllModesDesc => 'Juega los 5 modos de juego';
+
+  @override
+  String get achUltimateWinsTitle => 'Maestro del tablero';
+
+  @override
+  String achDescUltimateWins(int count) {
+    return 'Gana $count partidas en Súper Tres en Raya';
+  }
+
+  @override
+  String get achDaily3Title => 'Rutina';
+
+  @override
+  String get achDaily7Title => 'Semana completa';
+
+  @override
+  String get achDaily30Title => 'Dedicado';
+
+  @override
+  String achDescDaily(int count) {
+    return 'Juega $count días seguidos';
+  }
+
+  @override
+  String get achFastWinTitle => 'Relámpago';
+
+  @override
+  String get achFastWinDesc => 'Gana el Clásico en solo 3 jugadas';
+
+  @override
+  String get achMatches50Title => 'Veterano';
+
+  @override
+  String get achMatches250Title => 'Maratonista';
+
+  @override
+  String achDescMatches(int count) {
+    return 'Juega $count partidas';
+  }
 }

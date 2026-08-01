@@ -8,12 +8,15 @@ import '../../controllers/game_controller.dart';
 import '../../controllers/interstitial_ad_controller.dart';
 import '../../controllers/rewarded_ad_controller.dart';
 import '../../models/chaos_event.dart';
+import '../../models/game_mode.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
 import '../../services/ad_service.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
+import '../../services/progression_engine.dart';
+import '../../services/progression_service.dart';
 import '../../services/review_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
@@ -51,7 +54,10 @@ class _GameScreenState extends State<GameScreen> {
   bool _cpuThinking = false;
   int _shakeTick = 0;
 
-  /// Pausa de "pensamento" antes da CPU responder — a jogada dela não pode
+  /// Recompensa da última partida, exibida dentro do modal de fim.
+  ProgressionResult? _progressionResult;
+
+  /// Pausa de "pensamento" antes da CPU responder - a jogada dela não pode
   /// aparecer no mesmo frame do toque do jogador.
   static const Duration _cpuThinkDelay = Duration(milliseconds: 550);
 
@@ -299,7 +305,7 @@ class _GameScreenState extends State<GameScreen> {
   void _handleCellTap(int index) {
     // Partida encerrada: ignorar toques, senão a partida é re-contada nas
     // estatísticas e o modal/review/interstitial disparam de novo.
-    // Durante a pausa da CPU, um toque moveria PELA CPU — bloquear também.
+    // Durante a pausa da CPU, um toque moveria PELA CPU - bloquear também.
     if (widget.controller.state.result.isFinal || _cpuThinking) {
       return;
     }
@@ -347,6 +353,31 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  /// Traduz o fim da partida para a progressão (XP, nível, conquistas).
+  ProgressionResult _registerProgression(GameResult result) {
+    final GameModeType mode = widget.controller.modeDefinition.type;
+    final bool vsCpu = widget.controller.playAgainstCpu;
+    return ProgressionService.instance.registerMatch(
+      MatchOutcome(
+        mode: mode,
+        vsCpu: vsCpu,
+        difficulty: widget.controller.cpuDifficulty,
+        humanWon: vsCpu &&
+            result.resolution == GameResolution.victory &&
+            result.winner == PlayerMarker.cross,
+        isDraw: result.resolution == GameResolution.draw,
+        // No Clássico nenhuma peça sai do tabuleiro, então contar os X é a
+        // contagem exata de jogadas do humano. Nos outros modos a contagem
+        // seria ambígua, e a conquista de vitória rápida não vale lá.
+        humanMoveCount: mode == GameModeType.classic
+            ? widget.controller.state.board
+                .where((PlayerMarker? cell) => cell == PlayerMarker.cross)
+                .length
+            : null,
+      ),
+    );
+  }
+
   void _onMatchEnded() {
     final GameResult finalResult = widget.controller.state.result;
     widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
@@ -355,6 +386,7 @@ class _GameScreenState extends State<GameScreen> {
       result: finalResult,
       vsCpu: widget.controller.playAgainstCpu,
     );
+    _progressionResult = _registerProgression(finalResult);
     rewardedAdController.loadRewardedAd();
 
     // Celebração antes do modal: tabuleiro travado (result.isFinal), shake de
@@ -447,6 +479,7 @@ class _GameScreenState extends State<GameScreen> {
       builder: (BuildContext context) => GameOverModal(
         title: title,
         subtitle: subtitle,
+        progression: _progressionResult,
         onPlayAgain: () {
           Navigator.of(context).pop();
           _cpuMoveTimer?.cancel();

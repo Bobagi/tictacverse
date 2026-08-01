@@ -1,13 +1,13 @@
 import 'dart:ui';
 
 /// Sugere um dos idiomas recém-adicionados a partir dos idiomas/país do
-/// aparelho. Só SUGERE (diálogo único, uma vez) — nunca troca sozinho: na
+/// aparelho. Só SUGERE (diálogo único, uma vez) - nunca troca sozinho: na
 /// Índia, por exemplo, boa parte dos usuários não fala hindi.
 class LanguageSuggestion {
   static const Map<String, String> countryToLanguage = <String, String>{
-    'IN': 'hi', // Índia — hindi
-    'BD': 'bn', // Bangladesh — bengali
-    'NP': 'ne', // Nepal — nepali
+    'IN': 'hi', // Índia - hindi
+    'BD': 'bn', // Bangladesh - bengali
+    'NP': 'ne', // Nepal - nepali
   };
 
   static const Set<String> suggestableLanguages = <String>{'hi', 'bn', 'ne'};

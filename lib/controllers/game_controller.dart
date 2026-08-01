@@ -40,7 +40,7 @@ class GameController {
     }
   }
 
-  /// Aplica só a jogada do humano — a CPU NÃO responde aqui. A UI agenda a
+  /// Aplica só a jogada do humano - a CPU NÃO responde aqui. A UI agenda a
   /// resposta com [performPendingCpuMove] após a pausa de "pensamento".
   void selectCellHumanOnly(int index) {
     if (state.result.isFinal) {

@@ -517,7 +517,7 @@ abstract class AppLocalizations {
   /// No description provided for @ultimate2Help.
   ///
   /// In en, this message translates to:
-  /// **'Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board — line up three claimed cells to win the match. If your destination board is closed, you play anywhere.'**
+  /// **'Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board - line up three claimed cells to win the match. If your destination board is closed, you play anywhere.'**
   String get ultimate2Help;
 
   /// No description provided for @playVsCpuBig.
@@ -537,6 +537,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose a mode'**
   String get chooseModeTitle;
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementsProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{unlocked} of {total} unlocked'**
+  String achievementsProgress(int unlocked, int total);
+
+  /// No description provided for @achievementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Play a match to start unlocking achievements.'**
+  String get achievementsEmpty;
+
+  /// No description provided for @levelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String levelLabel(int level);
+
+  /// No description provided for @xpProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{into} / {span} XP'**
+  String xpProgress(int into, int span);
+
+  /// No description provided for @xpGained.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} XP'**
+  String xpGained(int amount);
+
+  /// No description provided for @achUnlockedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement unlocked!'**
+  String get achUnlockedToast;
+
+  /// No description provided for @levelUpToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level} reached!'**
+  String levelUpToast(int level);
+
+  /// No description provided for @achFirstWinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'First Victory'**
+  String get achFirstWinTitle;
+
+  /// No description provided for @achFirstWinDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Beat the CPU for the first time'**
+  String get achFirstWinDesc;
+
+  /// No description provided for @achWins10Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Winner'**
+  String get achWins10Title;
+
+  /// No description provided for @achWins50Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Dominant'**
+  String get achWins50Title;
+
+  /// No description provided for @achWins200Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Legend'**
+  String get achWins200Title;
+
+  /// No description provided for @achDescWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Win {count} matches against the CPU'**
+  String achDescWins(int count);
+
+  /// No description provided for @achStreak3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Warming Up'**
+  String get achStreak3Title;
+
+  /// No description provided for @achStreak7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'On Fire'**
+  String get achStreak7Title;
+
+  /// No description provided for @achStreak15Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Unstoppable'**
+  String get achStreak15Title;
+
+  /// No description provided for @achDescStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Win {count} matches in a row'**
+  String achDescStreak(int count);
+
+  /// No description provided for @achHardWinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not So Impossible'**
+  String get achHardWinTitle;
+
+  /// No description provided for @achHardWinDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Beat the CPU on Impossible'**
+  String get achHardWinDesc;
+
+  /// No description provided for @achAllModesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explorer'**
+  String get achAllModesTitle;
+
+  /// No description provided for @achAllModesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play all 5 game modes'**
+  String get achAllModesDesc;
+
+  /// No description provided for @achUltimateWinsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid Master'**
+  String get achUltimateWinsTitle;
+
+  /// No description provided for @achDescUltimateWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Win {count} matches in Ultimate Tic Tac Toe'**
+  String achDescUltimateWins(int count);
+
+  /// No description provided for @achDaily3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Routine'**
+  String get achDaily3Title;
+
+  /// No description provided for @achDaily7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Week'**
+  String get achDaily7Title;
+
+  /// No description provided for @achDaily30Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Devoted'**
+  String get achDaily30Title;
+
+  /// No description provided for @achDescDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Play {count} days in a row'**
+  String achDescDaily(int count);
+
+  /// No description provided for @achFastWinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightning'**
+  String get achFastWinTitle;
+
+  /// No description provided for @achFastWinDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Win Classic in only 3 moves'**
+  String get achFastWinDesc;
+
+  /// No description provided for @achMatches50Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Veteran'**
+  String get achMatches50Title;
+
+  /// No description provided for @achMatches250Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Marathoner'**
+  String get achMatches250Title;
+
+  /// No description provided for @achDescMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Play {count} matches'**
+  String achDescMatches(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -14,6 +14,8 @@ import '../../services/ad_service.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
+import '../../services/progression_engine.dart';
+import '../../services/progression_service.dart';
 import '../../services/review_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
@@ -53,6 +55,9 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   bool _cpuThinking = false;
   int _shakeTick = 0;
 
+  /// Recompensa da última partida, exibida dentro do modal de fim.
+  ProgressionResult? _progressionResult;
+
   static const Duration _cpuThinkDelay = Duration(milliseconds: 550);
   static const Duration _winCelebration = Duration(milliseconds: 1650);
   static const Duration _drawPause = Duration(milliseconds: 650);
@@ -88,7 +93,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   }
 
   void _handleTap(int board, int cell) {
-    // Durante a pausa da CPU um toque jogaria PELA CPU — bloquear.
+    // Durante a pausa da CPU um toque jogaria PELA CPU - bloquear.
     if (_cpuThinking || !state.isCellPlayable(board, cell)) {
       return;
     }
@@ -132,6 +137,17 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       result: state.result,
       vsCpu: widget.playAgainstCpu,
     );
+    _progressionResult = ProgressionService.instance.registerMatch(
+      MatchOutcome(
+        mode: GameModeType.ultimate2,
+        vsCpu: widget.playAgainstCpu,
+        difficulty: widget.cpuDifficulty,
+        humanWon: widget.playAgainstCpu &&
+            state.result.resolution == GameResolution.victory &&
+            state.result.winner == PlayerMarker.cross,
+        isDraw: state.result.resolution == GameResolution.draw,
+      ),
+    );
     // Celebração antes do modal: shake + linha neon do macro-tabuleiro
     // desenhando por inteiro; review/interstitial só depois.
     final GameResult finalResult = state.result;
@@ -171,6 +187,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => GameOverModal(
+        progression: _progressionResult,
         title: result.resolution == GameResolution.draw
             ? localization.drawResult
             : localization.winnerResult,

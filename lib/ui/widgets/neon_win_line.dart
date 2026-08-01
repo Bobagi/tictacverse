@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 /// Linha vencedora desenhada progressivamente com glow neon e partículas
-/// saindo da ponta enquanto é revelada. Anima uma vez ao ser montada —
+/// saindo da ponta enquanto é revelada. Anima uma vez ao ser montada -
 /// use uma Key derivada da linha para reanimar em vitórias novas.
 class NeonWinLine extends StatefulWidget {
   const NeonWinLine({

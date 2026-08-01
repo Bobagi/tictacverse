@@ -219,7 +219,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get ultimate2Help =>
-      'বড় বোর্ডের প্রতিটি ঘরে একটি ছোট টিক ট্যাক টো আছে। ছোট বোর্ডে আপনি যে ঘরটি বেছে নেন, প্রতিপক্ষকে সেই নম্বরের বোর্ডে পাঠানো হয়। ছোট বোর্ড জিতে বড় বোর্ডে তার ঘর দখল করুন — দখল করা তিনটি ঘর এক লাইনে সাজিয়ে ম্যাচ জিতুন। আপনার গন্তব্য বোর্ড বন্ধ থাকলে যেকোনো জায়গায় খেলতে পারবেন।';
+      'বড় বোর্ডের প্রতিটি ঘরে একটি ছোট টিক ট্যাক টো আছে। ছোট বোর্ডে আপনি যে ঘরটি বেছে নেন, প্রতিপক্ষকে সেই নম্বরের বোর্ডে পাঠানো হয়। ছোট বোর্ড জিতে বড় বোর্ডে তার ঘর দখল করুন - দখল করা তিনটি ঘর এক লাইনে সাজিয়ে ম্যাচ জিতুন। আপনার গন্তব্য বোর্ড বন্ধ থাকলে যেকোনো জায়গায় খেলতে পারবেন।';
 
   @override
   String get playVsCpuBig => 'মেশিনের বিরুদ্ধে খেলুন';
@@ -229,4 +229,123 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get chooseModeTitle => 'একটি মোড বেছে নিন';
+
+  @override
+  String get achievementsTitle => 'অর্জন';
+
+  @override
+  String achievementsProgress(int unlocked, int total) {
+    return '$total-এর মধ্যে $unlockedটি আনলক';
+  }
+
+  @override
+  String get achievementsEmpty => 'অর্জন আনলক করতে একটি ম্যাচ খেলুন।';
+
+  @override
+  String levelLabel(int level) {
+    return 'লেভেল $level';
+  }
+
+  @override
+  String xpProgress(int into, int span) {
+    return '$into / $span XP';
+  }
+
+  @override
+  String xpGained(int amount) {
+    return '+$amount XP';
+  }
+
+  @override
+  String get achUnlockedToast => 'অর্জন আনলক হয়েছে!';
+
+  @override
+  String levelUpToast(int level) {
+    return 'লেভেল $level অর্জন হয়েছে!';
+  }
+
+  @override
+  String get achFirstWinTitle => 'প্রথম জয়';
+
+  @override
+  String get achFirstWinDesc => 'প্রথমবার CPU-কে হারান';
+
+  @override
+  String get achWins10Title => 'বিজয়ী';
+
+  @override
+  String get achWins50Title => 'আধিপত্য';
+
+  @override
+  String get achWins200Title => 'কিংবদন্তি';
+
+  @override
+  String achDescWins(int count) {
+    return 'CPU-এর বিরুদ্ধে $countটি ম্যাচ জিতুন';
+  }
+
+  @override
+  String get achStreak3Title => 'শুরু হলো';
+
+  @override
+  String get achStreak7Title => 'আগুন ঝরছে';
+
+  @override
+  String get achStreak15Title => 'অপ্রতিরোধ্য';
+
+  @override
+  String achDescStreak(int count) {
+    return 'টানা $countটি ম্যাচ জিতুন';
+  }
+
+  @override
+  String get achHardWinTitle => 'এত অসম্ভব নয়';
+
+  @override
+  String get achHardWinDesc => 'অসম্ভব লেভেলে CPU-কে হারান';
+
+  @override
+  String get achAllModesTitle => 'অভিযাত্রী';
+
+  @override
+  String get achAllModesDesc => 'পাঁচটি মোডেই খেলুন';
+
+  @override
+  String get achUltimateWinsTitle => 'বোর্ডের ওস্তাদ';
+
+  @override
+  String achDescUltimateWins(int count) {
+    return 'আলটিমেট টিক ট্যাক টো-তে $countটি ম্যাচ জিতুন';
+  }
+
+  @override
+  String get achDaily3Title => 'অভ্যাস';
+
+  @override
+  String get achDaily7Title => 'পুরো সপ্তাহ';
+
+  @override
+  String get achDaily30Title => 'নিবেদিত';
+
+  @override
+  String achDescDaily(int count) {
+    return 'টানা $count দিন খেলুন';
+  }
+
+  @override
+  String get achFastWinTitle => 'বিদ্যুৎ';
+
+  @override
+  String get achFastWinDesc => 'ক্লাসিক মাত্র ৩ চালে জিতুন';
+
+  @override
+  String get achMatches50Title => 'পোড়খাওয়া';
+
+  @override
+  String get achMatches250Title => 'ম্যারাথনার';
+
+  @override
+  String achDescMatches(int count) {
+    return '$countটি ম্যাচ খেলুন';
+  }
 }

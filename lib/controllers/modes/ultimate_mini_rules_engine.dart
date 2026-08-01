@@ -26,7 +26,7 @@ class UltimateMiniRulesEngine implements GameRulesEngine {
       activeUltimateCondition: selectedCondition,
       movesRemaining: movesRemaining,
       // "Evite o centro": o centro fica BLOQUEADO de verdade. Antes a regra só
-      // invalidava a vitória depois que alguém ocupasse o centro — o jogo
+      // invalidava a vitória depois que alguém ocupasse o centro - o jogo
       // ficava impossível de vencer e nunca terminava (bug relatado).
       blockedCells: selectedCondition.type == UltimateConditionType.avoidCenter
           ? const <int>[4]
@@ -56,7 +56,7 @@ class UltimateMiniRulesEngine implements GameRulesEngine {
       tentativeResult = GameResult(resolution: GameResolution.draw);
     }
 
-    // Com o centro bloqueado o tabuleiro nunca "enche" — empata quando não
+    // Com o centro bloqueado o tabuleiro nunca "enche" - empata quando não
     // resta célula jogável.
     if (tentativeResult.resolution == GameResolution.ongoing) {
       bool anyPlayable = false;

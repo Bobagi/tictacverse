@@ -216,7 +216,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ultimate2Help =>
-      'Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board — line up three claimed cells to win the match. If your destination board is closed, you play anywhere.';
+      'Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board - line up three claimed cells to win the match. If your destination board is closed, you play anywhere.';
 
   @override
   String get playVsCpuBig => 'Play vs the machine';
@@ -226,4 +226,124 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseModeTitle => 'Choose a mode';
+
+  @override
+  String get achievementsTitle => 'Achievements';
+
+  @override
+  String achievementsProgress(int unlocked, int total) {
+    return '$unlocked of $total unlocked';
+  }
+
+  @override
+  String get achievementsEmpty =>
+      'Play a match to start unlocking achievements.';
+
+  @override
+  String levelLabel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String xpProgress(int into, int span) {
+    return '$into / $span XP';
+  }
+
+  @override
+  String xpGained(int amount) {
+    return '+$amount XP';
+  }
+
+  @override
+  String get achUnlockedToast => 'Achievement unlocked!';
+
+  @override
+  String levelUpToast(int level) {
+    return 'Level $level reached!';
+  }
+
+  @override
+  String get achFirstWinTitle => 'First Victory';
+
+  @override
+  String get achFirstWinDesc => 'Beat the CPU for the first time';
+
+  @override
+  String get achWins10Title => 'Winner';
+
+  @override
+  String get achWins50Title => 'Dominant';
+
+  @override
+  String get achWins200Title => 'Legend';
+
+  @override
+  String achDescWins(int count) {
+    return 'Win $count matches against the CPU';
+  }
+
+  @override
+  String get achStreak3Title => 'Warming Up';
+
+  @override
+  String get achStreak7Title => 'On Fire';
+
+  @override
+  String get achStreak15Title => 'Unstoppable';
+
+  @override
+  String achDescStreak(int count) {
+    return 'Win $count matches in a row';
+  }
+
+  @override
+  String get achHardWinTitle => 'Not So Impossible';
+
+  @override
+  String get achHardWinDesc => 'Beat the CPU on Impossible';
+
+  @override
+  String get achAllModesTitle => 'Explorer';
+
+  @override
+  String get achAllModesDesc => 'Play all 5 game modes';
+
+  @override
+  String get achUltimateWinsTitle => 'Grid Master';
+
+  @override
+  String achDescUltimateWins(int count) {
+    return 'Win $count matches in Ultimate Tic Tac Toe';
+  }
+
+  @override
+  String get achDaily3Title => 'Routine';
+
+  @override
+  String get achDaily7Title => 'Full Week';
+
+  @override
+  String get achDaily30Title => 'Devoted';
+
+  @override
+  String achDescDaily(int count) {
+    return 'Play $count days in a row';
+  }
+
+  @override
+  String get achFastWinTitle => 'Lightning';
+
+  @override
+  String get achFastWinDesc => 'Win Classic in only 3 moves';
+
+  @override
+  String get achMatches50Title => 'Veteran';
+
+  @override
+  String get achMatches250Title => 'Marathoner';
+
+  @override
+  String achDescMatches(int count) {
+    return 'Play $count matches';
+  }
 }

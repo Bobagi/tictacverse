@@ -21,7 +21,7 @@ void main() {
     s = engine.handleMove(s, 0, 8); // O → destino 8
     s = engine.handleMove(s, 8, 0); // X → destino 0
     expect(s.activeBoard, 0);
-    s = engine.handleMove(s, 0, 1); // O no board 0?! casa 1 — O de olho
+    s = engine.handleMove(s, 0, 1); // O no board 0?! casa 1 - O de olho
     // agora X foi mandado pro board 1
     s = engine.handleMove(s, 1, 0); // X → destino 0
     s = engine.handleMove(s, 0, 7); // O

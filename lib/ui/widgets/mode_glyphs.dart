@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/game_mode.dart';
 
-/// Glifos neon desenhados à mão para os cards de modo — cada um retrata a
+/// Glifos neon desenhados à mão para os cards de modo - cada um retrata a
 /// REGRA do modo na mesma linguagem visual do tabuleiro (glow da cor do modo
 /// + núcleo branco-quente), em vez de um Material Icon genérico.
 class ModeGlyph extends StatelessWidget {
@@ -101,7 +101,7 @@ class _ModeGlyphPainter extends CustomPainter {
     canvas.drawLine(a, b, _stroke(_s * 0.07));
   }
 
-  /// Ultimate: tabuleiro dentro do tabuleiro — o macro com um mini-jogo
+  /// Ultimate: tabuleiro dentro do tabuleiro - o macro com um mini-jogo
   /// aceso na célula central.
   void _paintUltimate(Canvas canvas) {
     final Rect board = Rect.fromLTRB(_s * 0.08, _s * 0.08, _s * 0.92, _s * 0.92);
@@ -120,7 +120,7 @@ class _ModeGlyphPainter extends CustomPainter {
     _paintGrid(canvas, cell, _s * 0.045, Colors.white);
   }
 
-  /// Shift: peça girando na esteira — nó quadrado + seta circular.
+  /// Shift: peça girando na esteira - nó quadrado + seta circular.
   void _paintShift(Canvas canvas) {
     final Rect orbit = Rect.fromCircle(center: _p(0.5, 0.5), radius: _s * 0.34);
     const double startAngle = -pi / 2 + 0.5;

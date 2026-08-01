@@ -29,7 +29,7 @@ class AdsConfiguration {
         // No explicit override (e.g. building straight from the IDE):
         // release builds (the ones shipped to the Play Store) serve REAL ads,
         // every other build (debug/profile) serves TEST ads. This prevents
-        // accidentally shipping test ads — which never generate revenue.
+        // accidentally shipping test ads - which never generate revenue.
         return kReleaseMode ? AdsMode.real : AdsMode.test;
     }
   }

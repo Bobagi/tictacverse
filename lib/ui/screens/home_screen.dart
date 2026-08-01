@@ -6,8 +6,10 @@ import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/language_suggestion.dart';
 import '../../services/metrics_service.dart';
+import '../../services/progression_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/update_service.dart';
+import '../widgets/achievements_sheet.dart';
 import '../widgets/language_selector_sheet.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/settings_sheet.dart';
@@ -201,6 +203,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         accent: const Color(0xFFFF6BD9),
                         onTap: () => _openModes(playAgainstCpu: false),
                       ),
+                      const SizedBox(height: 22),
+                      // O nível é a porta de entrada das conquistas: fica no
+                      // corpo da home, e não num ícone da AppBar, para o
+                      // jogador ver o progresso sem procurar.
+                      ValueListenableBuilder<int>(
+                        valueListenable: ProgressionService.instance.revision,
+                        builder: (BuildContext context, int _, Widget? __) {
+                          return Semantics(
+                            button: true,
+                            label: localization.achievementsTitle,
+                            child: GestureDetector(
+                              onTap: () {
+                                audioService.playUiClick();
+                                _openAchievements(localization);
+                              },
+                              child: LevelPanel(localization: localization),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -243,6 +265,19 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _openAchievements(AppLocalizations localization) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      // Sem isto o sheet fica preso em 9/16 da tela e a lista de 16 conquistas
+      // é cortada no meio de um card mesmo sobrando espaço.
+      isScrollControlled: true,
+      builder: (BuildContext context) =>
+          AchievementsSheet(localization: localization),
+    );
   }
 
   void _openStats(AppLocalizations localization) {

@@ -6,6 +6,7 @@ import '../models/cpu_difficulty.dart';
 import '../models/game_mode.dart';
 import '../models/game_result.dart';
 import '../models/player_marker.dart';
+import '../models/progress_state.dart';
 
 class ModeStats {
   ModeStats({this.matches = 0, this.xWins = 0, this.oWins = 0, this.draws = 0});
@@ -46,6 +47,7 @@ class StorageService {
   static const String _vsCpuKey = 'settings.playAgainstCpu';
   static const String _sessionsKey = 'meta.sessions';
   static const String _reviewAskedKey = 'meta.reviewAsked.v1';
+  static const String _progressKey = 'progress.v1';
 
   SharedPreferences? _prefs;
 
@@ -58,6 +60,10 @@ class StorageService {
   int winStreak = 0;
   int bestWinStreak = 0;
   int sessions = 0;
+
+  /// Progressão (XP, nível e conquistas). Guardada numa chave própria para que
+  /// um dado de estatística corrompido não leve a progressão junto.
+  ProgressState progress = ProgressState();
 
   bool get isLoaded => _prefs != null;
 
@@ -78,8 +84,26 @@ class StorageService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     _prefs = prefs;
     _parseStats(prefs.getString(_statsKey));
+    _parseProgress(prefs.getString(_progressKey));
     sessions = (prefs.getInt(_sessionsKey) ?? 0) + 1;
     await prefs.setInt(_sessionsKey, sessions);
+  }
+
+  void _parseProgress(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      return;
+    }
+    try {
+      progress =
+          ProgressState.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (_) {
+      // Dados corrompidos: recomeça a progressão em vez de quebrar o app.
+      progress = ProgressState();
+    }
+  }
+
+  Future<void> saveProgress() async {
+    await _prefs?.setString(_progressKey, jsonEncode(progress.toJson()));
   }
 
   void _parseStats(String? raw) {

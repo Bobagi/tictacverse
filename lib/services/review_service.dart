@@ -4,7 +4,7 @@ import 'storage_service.dart';
 
 /// Pede a avaliação nativa da Play no momento certo: depois de uma vitória
 /// contra a CPU, com pelo menos 5 partidas jogadas e a partir da 2ª sessão.
-/// Pergunta uma única vez (flag persistida) — a Play ainda aplica cota própria.
+/// Pergunta uma única vez (flag persistida) - a Play ainda aplica cota própria.
 class ReviewService {
   ReviewService._();
 
@@ -28,7 +28,7 @@ class ReviewService {
         await inAppReview.requestReview();
       }
     } catch (_) {
-      // Sem loja disponível (ex.: build de desenvolvimento) — ignora.
+      // Sem loja disponível (ex.: build de desenvolvimento) - ignora.
     }
   }
 }

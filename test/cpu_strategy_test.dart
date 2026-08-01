@@ -96,7 +96,7 @@ void main() {
 
   group('CpuStrategy mode awareness', () {
     test('shift: sees the win opened by its own oldest piece leaving', () {
-      // O tem 3 peças (0,1,4 — 0 é a mais antiga). Jogar em 2 remove a peça 0:
+      // O tem 3 peças (0,1,4 - 0 é a mais antiga). Jogar em 2 remove a peça 0:
       // tabuleiro vira _ O O com O em 2 → linha 0-1-2 NÃO fecha (0 esvaziou).
       // Mas jogar em 7 remove 0 e fecha 1-4-7 (coluna).
       final GameState state = _stateFromBoard(

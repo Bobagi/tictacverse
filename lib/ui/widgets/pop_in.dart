@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Entrada com escala + fade (overshoot de easeOutBack) — usada nas marcas
+/// Entrada com escala + fade (overshoot de easeOutBack) - usada nas marcas
 /// recém-colocadas no tabuleiro. Anima uma vez ao montar; com
 /// `MediaQuery.disableAnimations` renderiza direto.
 ///

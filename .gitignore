@@ -121,3 +121,6 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 # build artifacts da VPS (aab/apk assinados)
 dist/
+
+# Relatórios locais das skills (screenshots, varreduras)
+.claude/

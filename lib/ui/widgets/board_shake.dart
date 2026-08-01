@@ -12,7 +12,7 @@ class BoardShake extends StatefulWidget {
     required this.child,
   });
 
-  /// Contador de disparos — incremente para tremer de novo.
+  /// Contador de disparos - incremente para tremer de novo.
   final int trigger;
   final Widget child;
 

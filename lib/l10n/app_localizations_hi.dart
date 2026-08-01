@@ -219,7 +219,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get ultimate2Help =>
-      'बड़े बोर्ड के हर खाने में एक छोटा टिक टैक टो है। छोटे बोर्ड में आप जो खाना चुनते हैं, विरोधी को उसी नंबर वाले बोर्ड में भेजा जाता है। छोटा बोर्ड जीतकर बड़े बोर्ड पर उसका खाना अपना बनाएँ — अपने तीन खाने एक लाइन में लगाकर मैच जीतें। अगर आपका अगला बोर्ड बंद है, तो आप कहीं भी खेल सकते हैं।';
+      'बड़े बोर्ड के हर खाने में एक छोटा टिक टैक टो है। छोटे बोर्ड में आप जो खाना चुनते हैं, विरोधी को उसी नंबर वाले बोर्ड में भेजा जाता है। छोटा बोर्ड जीतकर बड़े बोर्ड पर उसका खाना अपना बनाएँ - अपने तीन खाने एक लाइन में लगाकर मैच जीतें। अगर आपका अगला बोर्ड बंद है, तो आप कहीं भी खेल सकते हैं।';
 
   @override
   String get playVsCpuBig => 'मशीन के खिलाफ़ खेलें';
@@ -229,4 +229,123 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get chooseModeTitle => 'एक मोड चुनें';
+
+  @override
+  String get achievementsTitle => 'उपलब्धियाँ';
+
+  @override
+  String achievementsProgress(int unlocked, int total) {
+    return '$total में से $unlocked अनलॉक';
+  }
+
+  @override
+  String get achievementsEmpty => 'उपलब्धियाँ अनलॉक करने के लिए एक मैच खेलें।';
+
+  @override
+  String levelLabel(int level) {
+    return 'लेवल $level';
+  }
+
+  @override
+  String xpProgress(int into, int span) {
+    return '$into / $span XP';
+  }
+
+  @override
+  String xpGained(int amount) {
+    return '+$amount XP';
+  }
+
+  @override
+  String get achUnlockedToast => 'उपलब्धि अनलॉक हुई!';
+
+  @override
+  String levelUpToast(int level) {
+    return 'लेवल $level पूरा हुआ!';
+  }
+
+  @override
+  String get achFirstWinTitle => 'पहली जीत';
+
+  @override
+  String get achFirstWinDesc => 'पहली बार CPU को हराएँ';
+
+  @override
+  String get achWins10Title => 'विजेता';
+
+  @override
+  String get achWins50Title => 'दबदबा';
+
+  @override
+  String get achWins200Title => 'दिग्गज';
+
+  @override
+  String achDescWins(int count) {
+    return 'CPU के खिलाफ़ $count मैच जीतें';
+  }
+
+  @override
+  String get achStreak3Title => 'शुरुआत';
+
+  @override
+  String get achStreak7Title => 'आग लगी है';
+
+  @override
+  String get achStreak15Title => 'अजेय';
+
+  @override
+  String achDescStreak(int count) {
+    return 'लगातार $count मैच जीतें';
+  }
+
+  @override
+  String get achHardWinTitle => 'इतना नामुमकिन भी नहीं';
+
+  @override
+  String get achHardWinDesc => 'नामुमकिन लेवल पर CPU को हराएँ';
+
+  @override
+  String get achAllModesTitle => 'खोजी';
+
+  @override
+  String get achAllModesDesc => 'पाँचों गेम मोड खेलें';
+
+  @override
+  String get achUltimateWinsTitle => 'बोर्ड का उस्ताद';
+
+  @override
+  String achDescUltimateWins(int count) {
+    return 'अल्टीमेट टिक टैक टो में $count मैच जीतें';
+  }
+
+  @override
+  String get achDaily3Title => 'आदत';
+
+  @override
+  String get achDaily7Title => 'पूरा हफ़्ता';
+
+  @override
+  String get achDaily30Title => 'समर्पित';
+
+  @override
+  String achDescDaily(int count) {
+    return 'लगातार $count दिन खेलें';
+  }
+
+  @override
+  String get achFastWinTitle => 'बिजली';
+
+  @override
+  String get achFastWinDesc => 'क्लासिक को सिर्फ़ 3 चालों में जीतें';
+
+  @override
+  String get achMatches50Title => 'अनुभवी';
+
+  @override
+  String get achMatches250Title => 'मैराथनर';
+
+  @override
+  String achDescMatches(int count) {
+    return '$count मैच खेलें';
+  }
 }
