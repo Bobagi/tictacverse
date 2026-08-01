@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../models/achievement.dart';
 import '../../models/progress_state.dart';
+import '../../services/game_services_bridge.dart';
 import '../../services/progression_service.dart';
 import 'modern_background.dart';
 
@@ -82,6 +86,7 @@ class AchievementsSheet extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         LevelPanel(localization: localization),
+        _PlayGamesRow(localization: localization),
         const SizedBox(height: 14),
         Text(
           localization.achievementsProgress(
@@ -134,6 +139,87 @@ class AchievementsSheet extends StatelessWidget {
       return ratioB.compareTo(ratioA);
     });
     return <AchievementDefinition>[...unlocked, ...locked];
+  }
+}
+
+/// Apelido e foto do Play Games, mais o atalho para a tela nativa.
+///
+/// Some por completo quando o jogador não está autenticado ou quando a
+/// integração ainda não foi configurada, que é o estado de hoje. A progressão
+/// mostrada acima é sempre a local, então esta linha é só um extra.
+class _PlayGamesRow extends StatelessWidget {
+  const _PlayGamesRow({required this.localization});
+
+  final AppLocalizations localization;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<PlayerIdentity?>(
+      valueListenable: GameServicesBridge.instance.player,
+      builder: (BuildContext context, PlayerIdentity? identity, Widget? _) {
+        if (identity == null) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            children: <Widget>[
+              _PlayerAvatar(identity: identity),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  identity.displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: VerseColors.mutedText),
+                ),
+              ),
+              TextButton(
+                onPressed: () =>
+                    GameServicesBridge.instance.showAchievementsUi(),
+                child: Text(localization.playGamesOpen),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PlayerAvatar extends StatelessWidget {
+  const _PlayerAvatar({required this.identity});
+
+  final PlayerIdentity identity;
+
+  @override
+  Widget build(BuildContext context) {
+    final String? encoded = identity.iconImageBase64;
+    Uint8List? bytes;
+    if (encoded != null && encoded.isNotEmpty) {
+      try {
+        bytes = base64Decode(encoded);
+      } catch (_) {
+        // Foto ilegível não pode derrubar o painel: cai no ícone genérico.
+        bytes = null;
+      }
+    }
+    return ClipOval(
+      child: SizedBox(
+        width: 24,
+        height: 24,
+        child: bytes == null
+            ? const ColoredBox(
+                color: VerseColors.surfaceDeep,
+                child: Icon(Icons.person_rounded,
+                    size: 16, color: VerseColors.mutedText),
+              )
+            : Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true),
+      ),
+    );
   }
 }
 

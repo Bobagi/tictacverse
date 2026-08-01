@@ -346,4 +346,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String achDescMatches(int count) {
     return 'Play $count matches';
   }
+
+  @override
+  String get playGamesOpen => 'View on Play Games';
 }

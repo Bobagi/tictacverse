@@ -103,5 +103,6 @@
   "achFastWinDesc": "क्लासिक को सिर्फ़ 3 चालों में जीतें",
   "achMatches50Title": "अनुभवी",
   "achMatches250Title": "मैराथनर",
-  "achDescMatches": "{count} मैच खेलें"
+  "achDescMatches": "{count} मैच खेलें",
+  "playGamesOpen": "Play Games में देखें"
 }

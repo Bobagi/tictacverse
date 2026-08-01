@@ -735,6 +735,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play {count} matches'**
   String achDescMatches(int count);
+
+  /// No description provided for @playGamesOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'View on Play Games'**
+  String get playGamesOpen;
 }
 
 class _AppLocalizationsDelegate

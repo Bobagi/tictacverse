@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -6,6 +8,7 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 import 'services/ads_configuration.dart';
 import 'services/audio_service.dart';
 import 'services/consent_service.dart';
+import 'services/game_services_bridge.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
 import 'services/progression_service.dart';
@@ -19,6 +22,12 @@ Future<void> main() async {
   // Conquistas novas de uma atualização já nascem desbloqueadas para quem
   // cumpre o requisito, em vez de exigir mais uma partida.
   ProgressionService.instance.reconcileOnBoot();
+  // Login silencioso do Play Games (a v2 não tem botão nem pop-up). Quando ele
+  // retorna, o reconcile roda de novo só para espelhar o que já está
+  // desbloqueado. Ambos viram no-op enquanto os ids do PGS não existirem.
+  unawaited(GameServicesBridge.instance
+      .initialize()
+      .then((_) => ProgressionService.instance.reconcileOnBoot()));
   AudioService.instance.applyStoredSettings(
     muted: StorageService.instance.audioMuted,
     volume: StorageService.instance.audioVolume,

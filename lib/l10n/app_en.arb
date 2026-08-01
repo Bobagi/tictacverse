@@ -179,5 +179,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "playGamesOpen": "View on Play Games"
 }

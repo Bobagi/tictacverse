@@ -103,5 +103,6 @@
   "achFastWinDesc": "Vença o Clássico em apenas 3 jogadas",
   "achMatches50Title": "Veterano",
   "achMatches250Title": "Maratonista",
-  "achDescMatches": "Jogue {count} partidas"
+  "achDescMatches": "Jogue {count} partidas",
+  "playGamesOpen": "Ver no Play Games"
 }

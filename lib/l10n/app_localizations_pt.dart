@@ -352,4 +352,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String achDescMatches(int count) {
     return 'Jogue $count partidas';
   }
+
+  @override
+  String get playGamesOpen => 'Ver no Play Games';
 }

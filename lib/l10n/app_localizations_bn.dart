@@ -348,4 +348,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String achDescMatches(int count) {
     return '$countটি ম্যাচ খেলুন';
   }
+
+  @override
+  String get playGamesOpen => 'Play Games-এ দেখুন';
 }

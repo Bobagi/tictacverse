@@ -17,6 +17,7 @@ dependencies:
   in_app_review: ^2.0.9
   in_app_update: ^4.2.3
   url_launcher: ^6.3.0
+  games_services: ^5.1.0
 
 dev_dependencies:
   flutter_test:

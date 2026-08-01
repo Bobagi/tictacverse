@@ -349,4 +349,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String achDescMatches(int count) {
     return '$count खेल खेल्नुहोस्';
   }
+
+  @override
+  String get playGamesOpen => 'Play Games मा हेर्नुहोस्';
 }

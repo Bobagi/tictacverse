@@ -103,5 +103,6 @@
   "achFastWinDesc": "ক্লাসিক মাত্র ৩ চালে জিতুন",
   "achMatches50Title": "পোড়খাওয়া",
   "achMatches250Title": "ম্যারাথনার",
-  "achDescMatches": "{count}টি ম্যাচ খেলুন"
+  "achDescMatches": "{count}টি ম্যাচ খেলুন",
+  "playGamesOpen": "Play Games-এ দেখুন"
 }

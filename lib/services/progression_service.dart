@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/achievement.dart';
 import '../models/progress_state.dart';
+import 'game_services_bridge.dart';
 import 'progression_engine.dart';
 import 'storage_service.dart';
 
@@ -38,11 +41,14 @@ class ProgressionService {
   /// ter de jogar mais uma partida para o desbloqueio disparar.
   void reconcileOnBoot() {
     final List<AchievementDefinition> unlocked = engine.reconcile(state);
-    if (unlocked.isEmpty) {
-      return;
+    if (unlocked.isNotEmpty) {
+      StorageService.instance.saveProgress();
+      revision.value += 1;
     }
-    StorageService.instance.saveProgress();
-    revision.value += 1;
+    // Manda o conjunto INTEIRO, não só o que acabou de cair: quem jogou offline
+    // ou antes de a integração existir sincroniza tudo no primeiro boot com
+    // login. Desbloquear no Play Games o que já está desbloqueado é no-op.
+    _syncToPlayGames(state.unlockedAchievements);
   }
 
   /// Registra o fim de uma partida e devolve o que mudou (XP, nível, medalhas).
@@ -51,6 +57,26 @@ class ProgressionService {
         engine.applyMatch(state, outcome, DateTime.now());
     StorageService.instance.saveProgress();
     revision.value += 1;
+    _syncToPlayGames(
+      result.newlyUnlocked.map((AchievementDefinition a) => a.id),
+      levelIfChanged: result.leveledUp ? result.levelAfter : null,
+    );
     return result;
+  }
+
+  /// Espelho no Play Games, sempre "fire and forget": o estado local já foi
+  /// gravado antes, então uma falha lá não pode segurar nem desfazer nada aqui.
+  void _syncToPlayGames(Iterable<String> unlockedIds, {int? levelIfChanged}) {
+    final GameServicesBridge bridge = GameServicesBridge.instance;
+    if (!bridge.isAvailable) {
+      return;
+    }
+    final List<String> ids = unlockedIds.toList(growable: false);
+    if (ids.isNotEmpty) {
+      unawaited(bridge.mirrorUnlocked(ids));
+    }
+    if (levelIfChanged != null) {
+      unawaited(bridge.submitLevel(levelIfChanged));
+    }
   }
 }
