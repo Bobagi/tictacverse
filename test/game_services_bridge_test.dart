@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tictacverse/models/achievement.dart';
 import 'package:tictacverse/models/cpu_difficulty.dart';
 import 'package:tictacverse/models/game_mode.dart';
 import 'package:tictacverse/services/game_services_bridge.dart';
@@ -9,10 +10,10 @@ import 'package:tictacverse/services/progression_engine.dart';
 import 'package:tictacverse/services/progression_service.dart';
 import 'package:tictacverse/services/storage_service.dart';
 
-/// A garantia que sustenta publicar com o Play Games ainda não configurado é
-/// simples: enquanto não houver id mapeado, NADA da ponte pode tocar o canal
-/// nativo. Estes testes falham se alguém remover um guard e o app passar a
-/// chamar o SDK sem configuração (que é onde mora o crash no aparelho).
+/// O risco desta integração não é o caminho feliz: é o app tocar o SDK nativo
+/// numa situação em que não devia (jogador não autenticado, conquista sem id
+/// mapeado), porque é lá que mora crash em aparelho real, que não dá para
+/// reproduzir aqui. Estes testes travam justamente os guards.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -21,7 +22,6 @@ void main() {
   setUp(() {
     nativeCalls.clear();
     GameServicesBridge.instance.disposeForTest();
-    // Qualquer canal do plugin que for chamado fica registrado aqui.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('games_services'),
@@ -39,68 +39,91 @@ void main() {
     GameServicesBridge.instance.disposeForTest();
   });
 
-  test('sem ids mapeados a integração se declara indisponível', () {
-    expect(playGamesAchievementIds, isEmpty,
-        reason: 'este teste descreve o estado "ainda não configurado"');
-    expect(playGamesConfigured, isFalse);
-    expect(GameServicesBridge.instance.isAvailable, isFalse);
-    expect(GameServicesBridge.instance.isSignedIn, isFalse);
+  group('mapa de ids do Play Games', () {
+    test('toda conquista do catálogo tem um id do Play Games', () {
+      final Iterable<String> catalogIds =
+          createAchievements().map((AchievementDefinition a) => a.id);
+      for (final String id in catalogIds) {
+        expect(playGamesAchievementIds, contains(id),
+            reason: 'a conquista "$id" não seria espelhada. Rode '
+                'tool/play_games_setup.py para regerar o mapa.');
+      }
+    });
+
+    test('não há id do Play Games órfão nem repetido', () {
+      final Set<String> catalogIds = createAchievements()
+          .map((AchievementDefinition a) => a.id)
+          .toSet();
+      expect(playGamesAchievementIds.keys.toSet().difference(catalogIds),
+          isEmpty,
+          reason: 'id mapeado que não existe mais no catálogo');
+      expect(playGamesAchievementIds.values.toSet(),
+          hasLength(playGamesAchievementIds.length),
+          reason: 'duas conquistas apontando para o mesmo id do Play Games');
+    });
+
+    test('a integração se declara configurada', () {
+      expect(playGamesConfigured, isTrue);
+    });
   });
 
-  test('initialize não chama o nativo nem lança quando indisponível', () async {
-    await GameServicesBridge.instance.initialize();
-    expect(nativeCalls, isEmpty);
-    expect(GameServicesBridge.instance.player.value, isNull);
-  });
+  group('guards: nada vai para o nativo antes da hora', () {
+    test('sem jogador autenticado, nada sobe', () async {
+      final GameServicesBridge bridge = GameServicesBridge.instance;
+      expect(bridge.isSignedIn, isFalse);
 
-  test('espelhar, pontuar e abrir a UI viram no-op silencioso', () async {
-    await GameServicesBridge.instance
-        .mirrorUnlocked(<String>['first_win', 'wins_10']);
-    await GameServicesBridge.instance.submitLevel(7);
-    final bool opened = await GameServicesBridge.instance.showAchievementsUi();
+      await bridge.mirrorUnlocked(<String>['first_win', 'wins_10']);
+      await bridge.submitLevel(7);
+      final bool opened = await bridge.showAchievementsUi();
 
-    expect(opened, isFalse, reason: 'a UI nativa não existe sem configuração');
-    expect(nativeCalls, isEmpty);
-  });
+      expect(opened, isFalse);
+      expect(nativeCalls, isEmpty,
+          reason: 'espelhar/pontuar/abrir exigem login');
+    });
 
-  test('com ids mapeados mas sem login, ainda não fala com o nativo', () async {
-    // Este é o cenário que prova o guard de login. No teste acima os ids estão
-    // vazios, então o `continue` do laço já barraria tudo e o guard poderia ser
-    // removido sem ninguém notar.
-    final GameServicesBridge bridge = GameServicesBridge.instance;
-    bridge.achievementIds = <String, String>{'first_win': 'CgkI_fake_ach'};
-    bridge.leaderboardId = 'CgkI_fake_lb';
+    test('sem ids mapeados, a ponte se desliga inteira', () async {
+      final GameServicesBridge bridge = GameServicesBridge.instance;
+      bridge.achievementIds = <String, String>{};
 
-    expect(bridge.isAvailable, isTrue, reason: 'configurado, mas deslogado');
-    expect(bridge.isSignedIn, isFalse);
+      expect(bridge.isAvailable, isFalse);
+      await bridge.mirrorUnlocked(<String>['first_win']);
+      await bridge.submitLevel(3);
 
-    await bridge.mirrorUnlocked(<String>['first_win']);
-    await bridge.submitLevel(7);
-    final bool opened = await bridge.showAchievementsUi();
+      expect(nativeCalls, isEmpty);
+    });
 
-    expect(opened, isFalse);
-    expect(nativeCalls, isEmpty,
-        reason: 'sem jogador autenticado nada pode subir');
-  });
+    test('placar sem id não envia pontuação', () async {
+      // Injeta o id vazio em vez de depender da configuração atual: assim o
+      // teste continua exercitando o guard mesmo depois de o placar existir.
+      final GameServicesBridge bridge = GameServicesBridge.instance;
+      bridge.leaderboardId = '';
+      await bridge.submitLevel(12);
+      expect(nativeCalls, isEmpty);
+    });
 
-  test('o fim de partida real não toca no nativo com a ponte desligada',
-      () async {
-    // Caminho de verdade (ProgressionService, não só o engine): é ele que
-    // chama o espelho. Sem configuração tem de morrer no guard, não no canal.
-    SharedPreferences.setMockInitialValues(<String, Object>{});
-    await StorageService.instance.load();
+    test('o placar de nível está configurado', () {
+      expect(playGamesLevelLeaderboardId, isNotEmpty,
+          reason: 'submitLevel vira no-op sem o id do placar');
+    });
 
-    final ProgressionResult result = ProgressionService.instance.registerMatch(
-      const MatchOutcome(
-        mode: GameModeType.ultimate2,
-        vsCpu: true,
-        difficulty: CpuDifficulty.hard,
-        humanWon: true,
-        isDraw: false,
-      ),
-    );
+    test('o fim de partida real não estoura sem login', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await StorageService.instance.load();
 
-    expect(result.xpGained, greaterThan(0), reason: 'a partida foi computada');
-    expect(nativeCalls, isEmpty, reason: 'mas nada subiu para o Play Games');
+      final ProgressionResult result = ProgressionService.instance.registerMatch(
+        const MatchOutcome(
+          mode: GameModeType.ultimate2,
+          vsCpu: true,
+          difficulty: CpuDifficulty.hard,
+          humanWon: true,
+          isDraw: false,
+        ),
+      );
+
+      expect(result.xpGained, greaterThan(0),
+          reason: 'a progressão local acontece de qualquer jeito');
+      expect(nativeCalls, isEmpty,
+          reason: 'e nada tenta subir enquanto não há jogador');
+    });
   });
 }

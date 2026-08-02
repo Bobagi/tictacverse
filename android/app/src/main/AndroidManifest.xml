@@ -9,6 +9,13 @@
       android:value="ca-app-pub-5349785075769585~3194000272"
     />
 
+    <!-- Play Games Services. O valor vem de um recurso (e não literal aqui)
+         porque o SDK exige uma string de recurso; ver res/values/strings.xml. -->
+    <meta-data
+      android:name="com.google.android.gms.games.APP_ID"
+      android:value="@string/game_services_app_id"
+    />
+
     <activity
       android:name=".MainActivity"
       android:exported="true"

@@ -1,27 +1,36 @@
 /// Ids do Play Games Services.
 ///
-/// O Play Games gera ids opacos próprios (algo como `CgkI8...EAIQAQ`) para cada
-/// conquista e placar, diferentes dos nossos ids estáveis do catálogo. Este
-/// arquivo é a tradução entre os dois mundos e é a **única** peça que falta para
-/// ligar a integração.
+/// GERADO por `tool/play_games_setup.py` a partir do catalogo em
+/// `lib/models/achievement.dart` e das traducoes das ARB. Nao editar a mao:
+/// rode a ferramenta de novo depois de acrescentar uma conquista.
 ///
-/// Enquanto os mapas estiverem vazios, [playGamesConfigured] é falso e toda a
-/// ponte vira no-op: o app se comporta exatamente como antes, com a progressão
-/// funcionando 100% local. Ou seja, publicar assim é seguro.
-///
-/// Para preencher: depois que o jogo existir no Play Console (Serviços de jogos
-/// do Play), as conquistas podem ser criadas pela Publishing API do PGS, que
-/// devolve o id de cada uma. Ver o passo a passo em `docs/play-games.md`.
+/// Com os mapas vazios a integracao inteira vira no-op e o app se comporta
+/// como se o Play Games nao existisse, o que torna seguro publicar antes de
+/// o projeto do PGS estar pronto.
 library;
 
-/// Nosso id do catálogo (`lib/models/achievement.dart`) -> id no Play Games.
-///
-/// Uma conquista ausente daqui simplesmente não é espelhada, então dá para
-/// ligar o mapa aos poucos sem quebrar nada.
-const Map<String, String> playGamesAchievementIds = <String, String>{};
+/// Nosso id do catalogo -> id no Play Games.
+const Map<String, String> playGamesAchievementIds = <String, String>{
+  'first_win': 'CgkI-6LP3ckeEAIQAQ',
+  'wins_10': 'CgkI-6LP3ckeEAIQAg',
+  'wins_50': 'CgkI-6LP3ckeEAIQAw',
+  'wins_200': 'CgkI-6LP3ckeEAIQBA',
+  'streak_3': 'CgkI-6LP3ckeEAIQBQ',
+  'streak_7': 'CgkI-6LP3ckeEAIQBg',
+  'streak_15': 'CgkI-6LP3ckeEAIQBw',
+  'hard_win': 'CgkI-6LP3ckeEAIQCA',
+  'all_modes': 'CgkI-6LP3ckeEAIQCQ',
+  'ultimate_wins_10': 'CgkI-6LP3ckeEAIQCg',
+  'daily_3': 'CgkI-6LP3ckeEAIQCw',
+  'daily_7': 'CgkI-6LP3ckeEAIQDA',
+  'daily_30': 'CgkI-6LP3ckeEAIQDQ',
+  'fast_win': 'CgkI-6LP3ckeEAIQDg',
+  'matches_50': 'CgkI-6LP3ckeEAIQDw',
+  'matches_250': 'CgkI-6LP3ckeEAIQEA',
+};
 
-/// Placar de nível. Vazio = não envia pontuação.
-const String playGamesLevelLeaderboardId = '';
+/// Placar de nivel. Vazio = nao envia pontuacao.
+const String playGamesLevelLeaderboardId = 'CgkI-6LP3ckeEAIQEQ';
 
-/// A integração só liga quando existe pelo menos uma conquista mapeada.
+/// A integracao so liga quando existe pelo menos uma conquista mapeada.
 bool get playGamesConfigured => playGamesAchievementIds.isNotEmpty;

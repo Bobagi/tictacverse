@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Tic Tac Verse</string>
+  <!--
+    ID do aplicativo no Play Games Services (o prefixo numérico do client ID
+    OAuth do jogo). O SDK lê este recurso no boot: se o valor estiver errado ou
+    ausente com o SDK presente, o app derruba na inicialização.
+    "translatable=false" impede que uma tradução acidental o substitua.
+  -->
+  <string name="game_services_app_id" translatable="false">1050584273275</string>
 </resources>
