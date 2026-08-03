@@ -206,6 +206,8 @@ def main():
           f'({len(existing)} reconhecidas como nossas)')
 
     if args.sync_translations:
+        if args.dry_run:
+            die('--sync-translations nao tem dry-run: rode sem --dry-run')
         sync_translations(base, token, arb, existing)
         return
 
@@ -319,6 +321,7 @@ def sync_translations(base, token, arb, existing):
             continue
         body = {
             'kind': 'gamesConfiguration#achievementConfiguration',
+            'id': remote,  # o update exige o id tambem no corpo, nao so na URL
             'achievementType': 'STANDARD',
             'initialState': 'REVEALED',
             'token': local_id,
@@ -330,7 +333,10 @@ def sync_translations(base, token, arb, existing):
                 'sortRank': rank,
             },
         }
-        url = f'{base}/{remote}'
+        # Update NAO e aninhado em applications/: PUT /achievements/{id}.
+        url = f'{API}/achievements/{remote}'
+        # O Google troca nosso token por um opaco; o update exige o vigente.
+        body['token'] = request('GET', url, token).get('token', '')
         while True:
             result = request('PUT', url, token, body, tolerate=True)
             if '_error' not in result:

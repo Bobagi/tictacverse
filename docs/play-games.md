@@ -1,7 +1,8 @@
 # Play Games Services (conquistas, placar e identidade)
 
-Estado: **ligado e funcionando**. Faltam dois passos manuais no Console
-(ícones e publicar), listados no fim.
+Estado: **ligado e funcionando**, com as 16 conquistas e o placar criados via
+API, os 6 idiomas no ar e os dois SHA-1 cadastrados. Faltam dois passos manuais
+no Console (subir os ícones, que já estão prontos, e publicar).
 
 ## O que o Play Games resolve, e o que ele não resolve
 
@@ -82,23 +83,49 @@ falhar tudo ou fingir sucesso.
 
 ## Pendências no Console
 
-### 1. Habilitar os outros 5 idiomas (opcional, mas recomendado)
+### 1. Idiomas: FEITO
 
-Hoje as 16 conquistas e o placar existem **só em inglês**, porque o projeto do
-PGS só aceita `en-US`. Para ter pt-BR, es-ES, hi-IN, bn-BD e ne-NP:
+Os 5 idiomas (pt-BR, es-ES, hi-IN, bn-BD, ne-NP) foram habilitados em
+Propriedades -> Gerenciar traduções, e o `--sync-translations` já subiu os
+textos. Conferido na API: **as 16 conquistas e o placar têm os 6 idiomas**.
 
-Play Console → Serviços de jogos do Play → Configuração → seção de **idiomas /
-traduções** → adicionar os 5. Depois, aqui:
+Se um dia acrescentar conquista ou mexer em texto nas ARB, é só rodar de novo:
 
 ```bash
 python3 tool/play_games_setup.py --app-id 1050584273275 --sync-translations
 ```
 
-Os textos já estão traduzidos nas ARB, então é só rodar.
+**Armadilha do update** (custou 3 tentativas): o `PUT` **não** é aninhado em
+`applications/` (é `PUT /achievements/{id}`), o corpo exige o `id` também, e
+exige o **token opaco vigente** (pego com um `GET` antes), não o nosso
+`first_win`. Além disso `--sync-translations` **escreve de verdade**, então
+combiná-lo com `--dry-run` é recusado.
 
 ### 2. Ícone de cada conquista (obrigatório para publicar)
 
-512x512 por conquista. O Console exige, e não há API para subir isso em lote.
+**Os 16 já estão prontos** em `docs/achievement-icons/`, 512x512, gerados no
+estilo neon do app por `tool/make_achievement_icons.py` (determinístico, sem
+asset externo: SVG por código rasterizado com `rsvg-convert`).
+
+Subir é **manual, um por um**, em Serviços de jogos do Play -> Conquistas ->
+abrir a conquista -> ícone. A tabela em `docs/achievement-icons/README.md` diz
+qual arquivo é de qual conquista.
+
+> **Por que não automatizei:** existe um endpoint de upload de imagem na
+> Publishing API (`/upload/games/v1configuration/images/{id}/ACHIEVEMENT_ICON`),
+> mas ele responde **503 em todas as variantes** (host `googleapis.com` e
+> `gamesconfiguration.googleapis.com`, com e sem `uploadType=media`), enquanto a
+> leitura da mesma API responde 200 com a mesma credencial. Ou seja, não é
+> permissão nem quota: a própria doc do Google marca esse endpoint como
+> descontinuado. `tool/upload_achievement_icons.py` fica no repo caso o Google
+> reative, e falha alto se continuar morto.
+
+**Regra de desenho aprendida aqui:** o ícone é visto em ~48 px na lista do Play
+Games. Detalhe fino some. As duas primeiras versões falharam por isso: um
+tabuleiro 3x3 com marcas dentro virou mancha, e nove grades aninhadas (a ideia
+óbvia para "9 tabuleiros em um") viraram borrão. O que sobrevive é silhueta
+cheia e poucos elementos grandes. Sempre revise o PNG **reduzido a 48 px**, não
+só em tamanho cheio.
 
 ### 3. Publicar os Serviços de jogos (obrigatório)
 
