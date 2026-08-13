@@ -5,10 +5,10 @@ enum AdsMode { off, test, real }
 class AdsConfiguration {
   static const String _adsModeDefineKey = 'ADS_MODE';
 
-  /// Conta AdMob suspensa até ~2026-08-07 ("Invalid activity"): com true, o app
-  /// não inicializa ads/consent e as áreas de banner somem da UI. Quando a
-  /// conta voltar, trocar para false e lançar nova versão.
-  static const bool adsSuspended = true;
+  /// Kill switch dos anúncios: com true, o app não inicializa ads/consent e as
+  /// áreas de banner somem da UI (usado durante a suspensão do AdMob de
+  /// jul-ago/2026, reativada em 2026-08-13).
+  static const bool adsSuspended = false;
 
   static bool get adsEnabled => activeAdsMode != AdsMode.off;
 
