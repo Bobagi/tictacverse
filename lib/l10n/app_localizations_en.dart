@@ -258,6 +258,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achUnlockedToast => 'Achievement unlocked!';
 
   @override
+  String get doubleXpCta => 'Watch an ad, double your XP';
+
+  @override
+  String get doubleXpDone => 'XP doubled!';
+
+  @override
+  String get doubleXpUnavailable =>
+      'The ad didn\'t load. Try again next match.';
+
+  @override
   String levelUpToast(int level) {
     return 'Level $level reached!';
   }

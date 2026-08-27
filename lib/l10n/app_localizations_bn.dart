@@ -260,6 +260,16 @@ class AppLocalizationsBn extends AppLocalizations {
   String get achUnlockedToast => 'অর্জন আনলক হয়েছে!';
 
   @override
+  String get doubleXpCta => 'বিজ্ঞাপন দেখুন, XP দ্বিগুণ করুন';
+
+  @override
+  String get doubleXpDone => 'XP দ্বিগুণ হয়েছে!';
+
+  @override
+  String get doubleXpUnavailable =>
+      'বিজ্ঞাপন লোড হয়নি। পরের ম্যাচে চেষ্টা করুন।';
+
+  @override
   String levelUpToast(int level) {
     return 'লেভেল $level অর্জন হয়েছে!';
   }

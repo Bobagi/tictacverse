@@ -57,6 +57,12 @@ class _GameScreenState extends State<GameScreen> {
   /// Recompensa da última partida, exibida dentro do modal de fim.
   ProgressionResult? _progressionResult;
 
+  /// O intersticial foi realmente exibido no fim desta partida. Quando foi, a
+  /// oferta de anúncio premiado é suprimida: encadear "anúncio, agora quer ver
+  /// outro?" queima o jogador e é o tipo de padrão que chama atenção da
+  /// política do AdMob. Vale um convite a menos.
+  bool _interstitialShownThisMatch = false;
+
   /// Pausa de "pensamento" antes da CPU responder - a jogada dela não pode
   /// aparecer no mesmo frame do toque do jogador.
   static const Duration _cpuThinkDelay = Duration(milliseconds: 550);
@@ -387,6 +393,7 @@ class _GameScreenState extends State<GameScreen> {
       vsCpu: widget.controller.playAgainstCpu,
     );
     _progressionResult = _registerProgression(finalResult);
+    _interstitialShownThisMatch = false;
     rewardedAdController.loadRewardedAd();
 
     // Celebração antes do modal: tabuleiro travado (result.isFinal), shake de
@@ -413,7 +420,8 @@ class _GameScreenState extends State<GameScreen> {
         ReviewService.instance.maybeRequestReview();
       }
       if (adService.shouldShowInterstitialOnMatchEnd()) {
-        interstitialAdController.showInterstitialAdIfAvailable();
+        _interstitialShownThisMatch =
+            interstitialAdController.showInterstitialAdIfAvailable();
       } else {
         interstitialAdController.loadInterstitialAd();
       }
@@ -460,6 +468,45 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  /// A oferta de dobrar o XP, ou `null` quando não há o que oferecer.
+  ///
+  /// Só convida com anúncio JÁ carregado: prometer o bônus e depois não ter o
+  /// que exibir é pior do que ficar calado.
+  Future<ProgressionResult?> Function()? _doubleXpOffer() {
+    if (!AdsConfiguration.adsEnabled) {
+      return null;
+    }
+    if (_interstitialShownThisMatch) {
+      return null;
+    }
+    if (!rewardedAdController.isReady) {
+      return null;
+    }
+    final ProgressionResult? earned = _progressionResult;
+    if (earned == null || earned.xpGained <= 0) {
+      return null;
+    }
+    return _watchAdForDoubleXp;
+  }
+
+  /// Exibe o anúncio premiado e credita o bônus, devolvendo o que mudou.
+  ///
+  /// O valor do bônus é fixado ANTES de abrir o anúncio (o XP da partida que
+  /// acabou), então dobrar é sempre dobrar aquele número - e o crédito só
+  /// acontece se o SDK confirmar que o jogador assistiu até o fim.
+  Future<ProgressionResult?> _watchAdForDoubleXp() async {
+    final ProgressionResult? earned = _progressionResult;
+    if (earned == null || earned.xpGained <= 0) {
+      return null;
+    }
+    final int bonusXp = earned.xpGained;
+    final bool rewarded = await rewardedAdController.showForReward();
+    if (!rewarded) {
+      return null;
+    }
+    return ProgressionService.instance.grantBonusXp(bonusXp);
+  }
+
   void _showGameOverSheet() {
     final AppLocalizations localization = AppLocalizations.of(context)!;
     final GameResult result = widget.controller.state.result;
@@ -480,6 +527,7 @@ class _GameScreenState extends State<GameScreen> {
         title: title,
         subtitle: subtitle,
         progression: _progressionResult,
+        onWatchAdForDoubleXp: _doubleXpOffer(),
         onPlayAgain: () {
           Navigator.of(context).pop();
           _cpuMoveTimer?.cancel();

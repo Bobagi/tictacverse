@@ -472,4 +472,181 @@ void main() {
       expect(state.modesPlayed, isEmpty);
     });
   });
+  group('bônus de XP do anúncio premiado', () {
+    test('dobrar significa dobrar: o bônus iguala o XP que a partida rendeu',
+        () {
+      final ProgressionEngine engine = bareEngine();
+      final ProgressState state = ProgressState();
+      final ProgressionResult match = engine.applyMatch(
+        state,
+        outcome(humanWon: true, difficulty: CpuDifficulty.hard),
+        DateTime(2026, 8, 27),
+      );
+      final int xpAfterMatch = state.xp;
+
+      final ProgressionResult bonus = engine.applyBonusXp(state, match.xpGained);
+
+      expect(bonus.xpGained, match.xpGained);
+      expect(state.xp, xpAfterMatch * 2,
+          reason: 'o total precisa ser exatamente o dobro do XP da partida');
+    });
+
+    test('o bônus paga XP e NÃO reescreve o histórico da partida', () {
+      final ProgressionEngine engine = bareEngine();
+      final ProgressState state = ProgressState();
+      engine.applyMatch(
+        state,
+        outcome(humanWon: true),
+        DateTime(2026, 8, 27),
+      );
+      final int matches = state.matches;
+      final int cpuWins = state.cpuWins;
+      final int streak = state.currentWinStreak;
+      final int modes = state.modesPlayed.length;
+      final String? lastDay = state.lastPlayedDay;
+      final int dailyStreak = state.dailyStreak;
+
+      engine.applyBonusXp(state, 500);
+
+      expect(state.matches, matches, reason: 'bônus não conta como partida');
+      expect(state.cpuWins, cpuWins);
+      expect(state.currentWinStreak, streak);
+      expect(state.modesPlayed.length, modes);
+      expect(state.lastPlayedDay, lastDay);
+      expect(state.dailyStreak, dailyStreak);
+    });
+
+    test('bônus não-positivo não credita nada', () {
+      final ProgressionEngine engine = bareEngine();
+      final ProgressState state = ProgressState();
+      state.xp = 200;
+
+      for (final int amount in <int>[0, -1, -999]) {
+        final ProgressionResult result = engine.applyBonusXp(state, amount);
+        expect(result.xpGained, 0, reason: 'bônus $amount não pode creditar');
+        expect(state.xp, 200);
+        expect(result.leveledUp, isFalse);
+      }
+    });
+
+    test('bônus que atravessa o limiar reporta a subida de nível', () {
+      final ProgressionEngine engine = bareEngine();
+      final ProgressState state = ProgressState();
+      // Um XP abaixo do nível 2: o bônus tem de ser o que vira a chave.
+      state.xp = ProgressionEngine.xpToReachLevel(2) - 1;
+
+      final ProgressionResult result = engine.applyBonusXp(state, 1);
+
+      expect(result.levelBefore, 1);
+      expect(result.levelAfter, 2);
+      expect(result.leveledUp, isTrue);
+    });
+
+    test('conquista destravada PELO bônus entra no resultado, com o XP dela',
+        () {
+      final AchievementDefinition xpMilestone = AchievementDefinition(
+        id: 'xp_500',
+        tier: AchievementTier.silver,
+        target: 500,
+        titleBuilder: (_) => 'XP 500',
+        descriptionBuilder: (_) => 'Acumule 500 XP',
+        progressOf: (ProgressState state) => state.xp,
+      );
+      final ProgressionEngine engine =
+          ProgressionEngine(catalog: <AchievementDefinition>[xpMilestone]);
+      final ProgressState state = ProgressState();
+      state.xp = 400;
+
+      final ProgressionResult result = engine.applyBonusXp(state, 100);
+
+      expect(result.newlyUnlocked.map((AchievementDefinition a) => a.id),
+          <String>['xp_500']);
+      expect(state.unlockedAchievements, contains('xp_500'));
+      // 100 do bônus + 120 da faixa prata.
+      expect(result.xpGained, 220);
+      expect(state.xp, 620);
+    });
+
+    test('o bônus não desbloqueia duas vezes a mesma conquista', () {
+      final AchievementDefinition xpMilestone = AchievementDefinition(
+        id: 'xp_100',
+        tier: AchievementTier.bronze,
+        target: 100,
+        titleBuilder: (_) => 'XP 100',
+        descriptionBuilder: (_) => 'Acumule 100 XP',
+        progressOf: (ProgressState state) => state.xp,
+      );
+      final ProgressionEngine engine =
+          ProgressionEngine(catalog: <AchievementDefinition>[xpMilestone]);
+      final ProgressState state = ProgressState();
+
+      final ProgressionResult first = engine.applyBonusXp(state, 100);
+      final ProgressionResult second = engine.applyBonusXp(state, 100);
+
+      expect(first.newlyUnlocked, hasLength(1));
+      expect(second.newlyUnlocked, isEmpty,
+          reason: 'a conquista já estava desbloqueada');
+      expect(second.xpGained, 100, reason: 'sem o XP da faixa de novo');
+    });
+  });
+
+  group('mergedWith (partida + bônus viram um aviso só)', () {
+    ProgressionResult resultOf({
+      required int xpGained,
+      required int levelBefore,
+      required int levelAfter,
+      List<AchievementDefinition> unlocked = const <AchievementDefinition>[],
+    }) {
+      return ProgressionResult(
+        xpGained: xpGained,
+        levelBefore: levelBefore,
+        levelAfter: levelAfter,
+        newlyUnlocked: unlocked,
+      );
+    }
+
+    AchievementDefinition medal(String id) => AchievementDefinition(
+          id: id,
+          tier: AchievementTier.bronze,
+          target: 1,
+          titleBuilder: (_) => id,
+          descriptionBuilder: (_) => id,
+          progressOf: (_) => 1,
+        );
+
+    test('soma o XP e concatena as conquistas na ordem em que caíram', () {
+      final ProgressionResult match = resultOf(
+        xpGained: 35,
+        levelBefore: 3,
+        levelAfter: 3,
+        unlocked: <AchievementDefinition>[medal('da_partida')],
+      );
+      final ProgressionResult bonus = resultOf(
+        xpGained: 35,
+        levelBefore: 3,
+        levelAfter: 4,
+        unlocked: <AchievementDefinition>[medal('do_bonus')],
+      );
+
+      final ProgressionResult merged = match.mergedWith(bonus);
+
+      expect(merged.xpGained, 70);
+      expect(merged.newlyUnlocked.map((AchievementDefinition a) => a.id),
+          <String>['da_partida', 'do_bonus']);
+    });
+
+    test('acusa a subida de nível que só aconteceu graças ao bônus', () {
+      final ProgressionResult match =
+          resultOf(xpGained: 35, levelBefore: 3, levelAfter: 3);
+      final ProgressionResult bonus =
+          resultOf(xpGained: 35, levelBefore: 3, levelAfter: 4);
+
+      final ProgressionResult merged = match.mergedWith(bonus);
+
+      expect(merged.levelBefore, 3);
+      expect(merged.levelAfter, 4);
+      expect(merged.leveledUp, isTrue,
+          reason: 'a partida sozinha não subiu, o bônus subiu');
+    });
+  });
 }

@@ -48,6 +48,24 @@ class ProgressionResult {
 
   bool get leveledUp => levelAfter > levelBefore;
   bool get hasNews => leveledUp || newlyUnlocked.isNotEmpty;
+
+  /// Junta este resultado com um que veio DEPOIS dele (o bônus do anúncio
+  /// premiado), para a UI mostrar um total só em vez de dois avisos.
+  ///
+  /// O nível de partida é o desta, o de chegada é o do outro: se o jogador
+  /// subiu de nível só graças ao bônus, o resultado combinado ainda acusa a
+  /// subida.
+  ProgressionResult mergedWith(ProgressionResult later) {
+    return ProgressionResult(
+      xpGained: xpGained + later.xpGained,
+      levelBefore: levelBefore,
+      levelAfter: later.levelAfter,
+      newlyUnlocked: <AchievementDefinition>[
+        ...newlyUnlocked,
+        ...later.newlyUnlocked,
+      ],
+    );
+  }
 }
 
 /// Regras de XP, nível e desbloqueio de conquistas.
@@ -178,6 +196,32 @@ class ProgressionEngine {
       state.xp += achievement.tier.xpReward;
     }
 
+    return ProgressionResult(
+      xpGained: state.xp - xpBefore,
+      levelBefore: levelBefore,
+      levelAfter: levelForXp(state.xp),
+      newlyUnlocked: unlocked,
+    );
+  }
+
+  /// Credita um bônus de XP sem registrar partida - hoje, o dobro de XP que o
+  /// jogador escolhe ganhar assistindo a um anúncio premiado.
+  ///
+  /// Não mexe em nenhum contador de partida (matches, sequências, modos): o
+  /// bônus paga XP, não reescreve o histórico. Como XP pode ser o que faltava
+  /// para uma conquista de nível, o catálogo é reavaliado igual ao fim de
+  /// partida.
+  ProgressionResult applyBonusXp(ProgressState state, int bonusXp) {
+    final int levelBefore = levelForXp(state.xp);
+    final int xpBefore = state.xp;
+    if (bonusXp > 0) {
+      state.xp += bonusXp;
+    }
+    final List<AchievementDefinition> unlocked = _collectNewlyUnlocked(state);
+    for (final AchievementDefinition achievement in unlocked) {
+      state.unlockedAchievements.add(achievement.id);
+      state.xp += achievement.tier.xpReward;
+    }
     return ProgressionResult(
       xpGained: state.xp - xpBefore,
       levelBefore: levelBefore,

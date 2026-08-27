@@ -31,10 +31,13 @@ class InterstitialAdController {
     );
   }
 
-  void showInterstitialAdIfAvailable() {
+  /// Exibe o intersticial se houver um carregado. Devolve `true` só quando ele
+  /// realmente foi para a tela - a tela de jogo usa isso para não emendar a
+  /// oferta de anúncio premiado logo depois de um intersticial.
+  bool showInterstitialAdIfAvailable() {
     if (_interstitialAd == null) {
       loadInterstitialAd();
-      return;
+      return false;
     }
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (Ad ad) {
@@ -49,6 +52,8 @@ class InterstitialAdController {
       },
     );
     _interstitialAd!.show();
+    _interstitialAd = null;
+    return true;
   }
 
   void dispose() {

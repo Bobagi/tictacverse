@@ -260,6 +260,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get achUnlockedToast => 'उपलब्धि अनलॉक हुई!';
 
   @override
+  String get doubleXpCta => 'विज्ञापन देखें, XP दोगुना करें';
+
+  @override
+  String get doubleXpDone => 'XP दोगुना हुआ!';
+
+  @override
+  String get doubleXpUnavailable =>
+      'विज्ञापन लोड नहीं हुआ. अगली बार कोशिश करें.';
+
+  @override
   String levelUpToast(int level) {
     return 'लेवल $level पूरा हुआ!';
   }

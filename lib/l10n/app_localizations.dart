@@ -580,6 +580,24 @@ abstract class AppLocalizations {
   /// **'Achievement unlocked!'**
   String get achUnlockedToast;
 
+  /// No description provided for @doubleXpCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad, double your XP'**
+  String get doubleXpCta;
+
+  /// No description provided for @doubleXpDone.
+  ///
+  /// In en, this message translates to:
+  /// **'XP doubled!'**
+  String get doubleXpDone;
+
+  /// No description provided for @doubleXpUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The ad didn\'t load. Try again next match.'**
+  String get doubleXpUnavailable;
+
   /// No description provided for @levelUpToast.
   ///
   /// In en, this message translates to:

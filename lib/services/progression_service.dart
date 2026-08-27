@@ -64,6 +64,21 @@ class ProgressionService {
     return result;
   }
 
+  /// Credita o bônus do anúncio premiado e devolve o que mudou.
+  ///
+  /// Só deve ser chamado depois que o SDK confirmou a recompensa
+  /// ([RewardedAdController.showForReward] resolvendo `true`).
+  ProgressionResult grantBonusXp(int bonusXp) {
+    final ProgressionResult result = engine.applyBonusXp(state, bonusXp);
+    StorageService.instance.saveProgress();
+    revision.value += 1;
+    _syncToPlayGames(
+      result.newlyUnlocked.map((AchievementDefinition a) => a.id),
+      levelIfChanged: result.leveledUp ? result.levelAfter : null,
+    );
+    return result;
+  }
+
   /// Espelho no Play Games, sempre "fire and forget": o estado local já foi
   /// gravado antes, então uma falha lá não pode segurar nem desfazer nada aqui.
   void _syncToPlayGames(Iterable<String> unlockedIds, {int? levelIfChanged}) {

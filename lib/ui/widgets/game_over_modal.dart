@@ -9,7 +9,7 @@ import '../../services/visual_assets.dart';
 import 'achievements_sheet.dart';
 import 'modern_background.dart';
 
-class GameOverModal extends StatelessWidget {
+class GameOverModal extends StatefulWidget {
   const GameOverModal({
     super.key,
     required this.title,
@@ -19,6 +19,7 @@ class GameOverModal extends StatelessWidget {
     this.winner,
     this.visualAssets,
     this.progression,
+    this.onWatchAdForDoubleXp,
   });
 
   final String title;
@@ -32,6 +33,60 @@ class GameOverModal extends StatelessWidget {
   /// aqui apareceria atrás dele (é o bug já conhecido do sheet de ajustes).
   final ProgressionResult? progression;
 
+  /// Exibe o anúncio premiado e devolve a recompensa JÁ CREDITADA, ou `null` se
+  /// o jogador não assistiu até o fim. Quando é `null`, a oferta não aparece -
+  /// é assim que a tela desliga o convite (anúncios off, nada carregado, ou
+  /// logo depois de um intersticial).
+  final Future<ProgressionResult?> Function()? onWatchAdForDoubleXp;
+
+  @override
+  State<GameOverModal> createState() => _GameOverModalState();
+}
+
+class _GameOverModalState extends State<GameOverModal> {
+  /// Progressão exibida: começa na da partida e passa a incluir o bônus depois
+  /// que o anúncio é assistido.
+  ProgressionResult? _progression;
+  bool _isWatchingAd = false;
+  bool _claimed = false;
+  bool _adFailed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _progression = widget.progression;
+  }
+
+  /// Uma oferta por partida: depois de creditada, o botão sai de cena. O
+  /// `_claimed` é travado ANTES do `await` para que um toque duplo rápido não
+  /// dispare dois anúncios.
+  Future<void> _handleWatchAd() async {
+    final Future<ProgressionResult?> Function()? request =
+        widget.onWatchAdForDoubleXp;
+    if (request == null || _isWatchingAd || _claimed) {
+      return;
+    }
+    AudioService.instance.playUiClick();
+    setState(() {
+      _isWatchingAd = true;
+      _adFailed = false;
+    });
+    final ProgressionResult? bonus = await request();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isWatchingAd = false;
+      if (bonus == null) {
+        _adFailed = true;
+        return;
+      }
+      _claimed = true;
+      final ProgressionResult? current = _progression;
+      _progression = current == null ? bonus : current.mergedWith(bonus);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localization = AppLocalizations.of(context)!;
@@ -42,13 +97,18 @@ class GameOverModal extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(title, style: Theme.of(context).textTheme.headlineSmall),
+              Text(widget.title, style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 8),
               _buildWinnerDetails(context),
               _buildProgressionRewards(context, localization),
+              _buildDoubleXpOffer(context, localization),
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              // Wrap, não Row: em 360x640 os dois botões não cabem lado a lado
+              // em inglês (estourava 85px), e menos ainda em hindi/bengali.
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 12,
+                runSpacing: 4,
                 children: <Widget>[
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -58,14 +118,14 @@ class GameOverModal extends StatelessWidget {
                     ),
                     onPressed: () {
                       AudioService.instance.playUiClick();
-                      onPlayAgain();
+                      widget.onPlayAgain();
                     },
                     child: Text(localization.playAgain),
                   ),
                   TextButton(
                     onPressed: () {
                       AudioService.instance.playUiClick();
-                      onBackToMenu();
+                      widget.onBackToMenu();
                     },
                     child: Text(localization.backToMenu),
                   ),
@@ -83,7 +143,7 @@ class GameOverModal extends StatelessWidget {
     BuildContext context,
     AppLocalizations localization,
   ) {
-    final ProgressionResult? result = progression;
+    final ProgressionResult? result = _progression;
     if (result == null || result.xpGained <= 0) {
       return const SizedBox.shrink();
     }
@@ -116,15 +176,81 @@ class GameOverModal extends StatelessWidget {
     );
   }
 
+  /// Convite para dobrar o XP assistindo a um anúncio premiado.
+  ///
+  /// Fica **abaixo** dos chips e separado da linha de ações por um respiro
+  /// maior, com estilo de contorno em vez do verde sólido do "jogar de novo":
+  /// clique acidental em anúncio é justamente o que derrubou a conta do AdMob
+  /// em 2026-07, então a oferta nunca imita o botão primário nem encosta nele.
+  Widget _buildDoubleXpOffer(
+    BuildContext context,
+    AppLocalizations localization,
+  ) {
+    if (widget.onWatchAdForDoubleXp == null) {
+      return const SizedBox.shrink();
+    }
+    final ProgressionResult? result = _progression;
+    if (result == null || result.xpGained <= 0) {
+      return const SizedBox.shrink();
+    }
+    if (_claimed) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 14),
+        child: _RewardChip(
+          icon: Icons.check_circle_rounded,
+          label: localization.doubleXpDone,
+          tint: VerseColors.energy,
+        ),
+      );
+    }
+    if (_adFailed) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 14),
+        child: Text(
+          localization.doubleXpUnavailable,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.white70,
+              ),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: OutlinedButton.icon(
+        onPressed: _isWatchingAd ? null : _handleWatchAd,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: VerseColors.energy,
+          side: BorderSide(color: VerseColors.energy.withOpacity(0.7)),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        ),
+        icon: _isWatchingAd
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.play_circle_outline_rounded, size: 20),
+        label: Text(
+          localization.doubleXpCta,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
   Widget _buildWinnerDetails(BuildContext context) {
-    if (winner == null || visualAssets == null) {
-      return Text(subtitle, style: Theme.of(context).textTheme.bodyMedium);
+    if (widget.winner == null || widget.visualAssets == null) {
+      return Text(widget.subtitle,
+          style: Theme.of(context).textTheme.bodyMedium);
     }
 
-    final String assetPath = winner == PlayerMarker.cross
-        ? visualAssets!.crossAssetPath
-        : visualAssets!.noughtAssetPath;
-    final Color accentColor = winner == PlayerMarker.cross ? const Color(0xFF6BE0FF) : const Color(0xFFFF6BD9);
+    final String assetPath = widget.winner == PlayerMarker.cross
+        ? widget.visualAssets!.crossAssetPath
+        : widget.visualAssets!.noughtAssetPath;
+    final Color accentColor = widget.winner == PlayerMarker.cross
+        ? const Color(0xFF6BE0FF)
+        : const Color(0xFFFF6BD9);
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -176,12 +302,14 @@ class _RewardChip extends StatelessWidget {
         children: <Widget>[
           Icon(icon, size: 16, color: tint),
           const SizedBox(width: 6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+          Flexible(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
           ),
         ],
       ),

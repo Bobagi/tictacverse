@@ -264,6 +264,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get achUnlockedToast => 'Conquista desbloqueada!';
 
   @override
+  String get doubleXpCta => 'Ver anúncio e dobrar o XP';
+
+  @override
+  String get doubleXpDone => 'XP dobrado!';
+
+  @override
+  String get doubleXpUnavailable =>
+      'O anúncio não carregou. Tente na próxima partida.';
+
+  @override
   String levelUpToast(int level) {
     return 'Nível $level alcançado!';
   }

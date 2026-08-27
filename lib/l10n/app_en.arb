@@ -112,6 +112,9 @@
     }
   },
   "achUnlockedToast": "Achievement unlocked!",
+  "doubleXpCta": "Watch an ad, double your XP",
+  "doubleXpDone": "XP doubled!",
+  "doubleXpUnavailable": "The ad didn't load. Try again next match.",
   "levelUpToast": "Level {level} reached!",
   "@levelUpToast": {
     "placeholders": {
