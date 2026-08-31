@@ -45,7 +45,7 @@ class _GameScreenState extends State<GameScreen> {
   final InterstitialAdController interstitialAdController =
       InterstitialAdController();
   final RewardedAdController rewardedAdController = RewardedAdController();
-  final AdService adService = AdService();
+  final AdService adService = AdService.instance;
   final AudioService audioService = AudioService.instance;
   Timer? _cpuHighlightTimer;
   Timer? _cpuMoveTimer;
@@ -62,6 +62,11 @@ class _GameScreenState extends State<GameScreen> {
   /// outro?" queima o jogador e é o tipo de padrão que chama atenção da
   /// política do AdMob. Vale um convite a menos.
   bool _interstitialShownThisMatch = false;
+
+  /// O convite de dobrar o XP caiu no intervalo desta partida. Contado uma vez
+  /// em `_onMatchEnded`, nunca dentro do `builder` do modal - o `builder` pode
+  /// rodar de novo num rebuild e adiantaria o intervalo.
+  bool _rewardedOfferDueThisMatch = false;
 
   /// Pausa de "pensamento" antes da CPU responder - a jogada dela não pode
   /// aparecer no mesmo frame do toque do jogador.
@@ -394,6 +399,7 @@ class _GameScreenState extends State<GameScreen> {
     );
     _progressionResult = _registerProgression(finalResult);
     _interstitialShownThisMatch = false;
+    _rewardedOfferDueThisMatch = false;
     rewardedAdController.loadRewardedAd();
 
     // Celebração antes do modal: tabuleiro travado (result.isFinal), shake de
@@ -425,6 +431,7 @@ class _GameScreenState extends State<GameScreen> {
       } else {
         interstitialAdController.loadInterstitialAd();
       }
+      _rewardedOfferDueThisMatch = adService.shouldOfferRewardedOnMatchEnd();
       _showGameOverSheet();
     });
   }
@@ -477,6 +484,9 @@ class _GameScreenState extends State<GameScreen> {
       return null;
     }
     if (_interstitialShownThisMatch) {
+      return null;
+    }
+    if (!_rewardedOfferDueThisMatch) {
       return null;
     }
     if (!rewardedAdController.isReady) {

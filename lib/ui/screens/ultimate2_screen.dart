@@ -47,7 +47,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   final VisualAssetConfig visualAssets = VisualAssetConfig();
   final BannerAdController bannerAdController = BannerAdController();
   final InterstitialAdController interstitialAdController = InterstitialAdController();
-  final AdService adService = AdService();
+  final AdService adService = AdService.instance;
   final AudioService audioService = AudioService.instance;
   late Ultimate2State state;
   Timer? _cpuMoveTimer;

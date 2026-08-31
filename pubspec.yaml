@@ -1,5 +1,5 @@
 name: tictacverse
-version: 1.10.0+21
+version: 1.10.1+22
 publish_to: 'none'
 
 environment:
