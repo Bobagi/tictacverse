@@ -111,6 +111,17 @@ class SettingsSheet extends StatelessWidget {
                 );
               },
             ),
+            const SizedBox(height: 4),
+            // CC BY 4.0 (Tomasz Kucza) exige crédito visível no app; os outros
+            // são CC0 e entram por cortesia. Tabela completa: CREDITS.md.
+            Text(
+              '${localization.audioCreditsLabel}: Juhani Junkala (CC0), '
+              'Tomasz Kucza (CC BY 4.0), Kenney (CC0)',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: VerseColors.mutedText),
+            ),
             const SizedBox(height: 12),
             Text(
               localization.updatesLabel,

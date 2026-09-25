@@ -485,7 +485,25 @@ class _GameOverModalState extends State<GameOverModal> {
   }
 
   Widget _buildWinnerDetails(BuildContext context) {
-    if (widget.winner == null || widget.visualAssets == null) {
+    if (widget.winner == null) {
+      // Empate: selo neutro. Antes aparecia o texto "Jogar novamente" aqui,
+      // repetindo o botão logo abaixo.
+      return PopIn(
+        beginScale: 1.6,
+        duration: const Duration(milliseconds: 380),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: VerseColors.mutedText.withOpacity(0.7), width: 2),
+            color: Colors.white.withOpacity(0.06),
+          ),
+          child: const Icon(Icons.handshake_rounded,
+              size: 34, color: VerseColors.mutedText),
+        ),
+      );
+    }
+    if (widget.visualAssets == null) {
       return Text(widget.subtitle,
           style: Theme.of(context).textTheme.bodyMedium);
     }

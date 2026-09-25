@@ -297,7 +297,13 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(localization.modeUltimate2Title),
+          // Bengali/hindi não cabem inteiros ao lado de dois ícones em 360px:
+          // encolhe em vez de cortar com reticências.
+          title: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(localization.modeUltimate2Title),
+          ),
           actions: <Widget>[
             ValueListenableBuilder<bool>(
               valueListenable: audioService.isMutedListenable,

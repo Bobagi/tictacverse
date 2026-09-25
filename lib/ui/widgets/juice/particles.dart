@@ -105,21 +105,23 @@ class ParticleController extends ChangeNotifier {
       // Ângulo: para cima e inclinado para o centro.
       final double base = fromLeft ? -pi / 2 + 0.55 : -pi / 2 - 0.55;
       final double angle = base + (_random.nextDouble() - 0.5) * 0.9;
-      final double magnitude = size.height * (0.9 + _random.nextDouble() * 0.9);
+      // Forte o bastante para cruzar o tabuleiro e chover de volta: com
+      // arrasto baixo o ápice fica entre 70% e 150% da altura da tela.
+      final double magnitude = size.height * (1.3 + _random.nextDouble() * 0.9);
       final int shapeRoll = _random.nextInt(3);
       _particles.add(Particle(
         position: origin,
         velocity: Offset(cos(angle), sin(angle)) * magnitude,
         color: colors[_random.nextInt(colors.length)],
         size: 5 + _random.nextDouble() * 6,
-        life: 1.6 + _random.nextDouble() * 1.0,
+        life: 2.2 + _random.nextDouble() * 1.2,
         shape: shapeRoll == 0
             ? ParticleShape.circle
             : (shapeRoll == 1 ? ParticleShape.square : ParticleShape.strip),
         rotation: _random.nextDouble() * pi,
         spin: (_random.nextDouble() - 0.5) * 14,
-        gravity: size.height * 1.4,
-        drag: 1.1,
+        gravity: size.height * 1.1,
+        drag: 0.55,
       ));
     }
     notifyListeners();

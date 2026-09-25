@@ -99,7 +99,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get closeLabel => 'বন্ধ করুন';
 
   @override
-  String get winInstruction => 'তিনটি এক লাইনে সাজিয়ে নিয়ন জয় ছিনিয়ে নিন।';
+  String get winInstruction => 'তিনটি সারিতে সাজিয়ে জিতুন';
 
   @override
   String get takeTurnCta => 'আপনার চাল দিন, বোর্ড আলোকিত করুন';
@@ -212,10 +212,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'একটিতে ৯টি বোর্ড। আপনার চালই ঠিক করে প্রতিপক্ষ কোথায় খেলবে।';
 
   @override
-  String get ultimate2FreeMove => 'ফ্রি চাল: যেকোনো বোর্ডে খেলুন';
+  String get ultimate2FreeMove => 'মুক্ত চাল: যেকোনো বোর্ড';
 
   @override
-  String get ultimate2PlayIn => 'হাইলাইট করা বোর্ডে খেলুন';
+  String get ultimate2PlayIn => 'আলোকিত বোর্ডে খেলুন';
 
   @override
   String get ultimate2Help =>
@@ -394,4 +394,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get yourTurn => 'আপনার পালা';
+
+  @override
+  String get audioCreditsLabel => 'অডিও কৃতিত্ব';
 }

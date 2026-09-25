@@ -28,7 +28,7 @@
   "helpTitle": "Help",
   "tapToClaim": "Tap any cell to claim it",
   "closeLabel": "Close",
-  "winInstruction": "Line up three to win the neon run.",
+  "winInstruction": "Line up three to win.",
   "takeTurnCta": "Make your move and light the board",
   "playLabel": "Play",
   "settingsTitle": "Settings",
@@ -65,8 +65,8 @@
   "updateFailedMessage": "Could not check for updates. Try again later.",
   "modeUltimate2Title": "Ultimate Tic Tac Toe",
   "modeUltimate2Subtitle": "9 boards in one. Your move picks where your rival plays.",
-  "ultimate2FreeMove": "Free move: play in any board",
-  "ultimate2PlayIn": "Play in the highlighted board",
+  "ultimate2FreeMove": "Free move: any board",
+  "ultimate2PlayIn": "Play in the lit board",
   "ultimate2Help": "Each cell of the big board holds a small tic tac toe. The cell you pick inside a small board sends your opponent to the matching board. Win a small board to claim its cell on the big board - line up three claimed cells to win the match. If your destination board is closed, you play anywhere.",
   "playVsCpuBig": "Play vs the machine",
   "playWithFriend": "Play with a friend",
@@ -213,5 +213,6 @@
   },
   "newRecordChip": "New record!",
   "cpuThinking": "Thinking...",
-  "yourTurn": "Your turn"
+  "yourTurn": "Your turn",
+  "audioCreditsLabel": "Audio credits"
 }

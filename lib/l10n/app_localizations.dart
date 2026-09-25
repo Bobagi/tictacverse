@@ -283,7 +283,7 @@ abstract class AppLocalizations {
   /// No description provided for @winInstruction.
   ///
   /// In en, this message translates to:
-  /// **'Line up three to win the neon run.'**
+  /// **'Line up three to win.'**
   String get winInstruction;
 
   /// No description provided for @takeTurnCta.
@@ -505,13 +505,13 @@ abstract class AppLocalizations {
   /// No description provided for @ultimate2FreeMove.
   ///
   /// In en, this message translates to:
-  /// **'Free move: play in any board'**
+  /// **'Free move: any board'**
   String get ultimate2FreeMove;
 
   /// No description provided for @ultimate2PlayIn.
   ///
   /// In en, this message translates to:
-  /// **'Play in the highlighted board'**
+  /// **'Play in the lit board'**
   String get ultimate2PlayIn;
 
   /// No description provided for @ultimate2Help.
@@ -813,6 +813,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your turn'**
   String get yourTurn;
+
+  /// No description provided for @audioCreditsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio credits'**
+  String get audioCreditsLabel;
 }
 
 class _AppLocalizationsDelegate

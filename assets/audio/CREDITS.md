@@ -25,5 +25,12 @@ normalizados em loudness (-16 LUFS) e renomeados:
 
 ## Música (`music/`)
 
-`background_loop.mp3`: trilha original do projeto, reencodada a 128 kbps
-(era 320 kbps / 7,9 MB) para reduzir o tamanho do APK.
+A playlist embaralha as faixas e toca todas antes de repetir (`music_playlist.dart`).
+Todas normalizadas em loudness (-17 LUFS) e encodadas em OGG Vorbis q3 (loop sem
+"gap", ao contrário do MP3).
+
+| Arquivo | Origem | Licença |
+|---|---|---|
+| `background_loop.mp3` | trilha original do projeto (128 kbps; era 320 kbps / 7,9 MB) | própria |
+| `junkala_level1.ogg`, `junkala_level2.ogg`, `junkala_level3.ogg` | Juhani Junkala, "5 Chiptunes (Action)" / Retro Game Music Pack (opengameart.org/content/5-chiptunes-action) | CC0 1.0 |
+| `kucza_deadly_contracts.ogg`, `kucza_price_of_freedom.ogg`, `kucza_hostile_territory.ogg` | Tomasz Kucza, "Retro Synthwave Loops" (opengameart.org/content/retro-synthwave-loops) | **CC BY 4.0**: crédito obrigatório, exibido na tela de configurações do app |

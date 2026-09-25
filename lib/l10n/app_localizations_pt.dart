@@ -102,8 +102,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get closeLabel => 'Fechar';
 
   @override
-  String get winInstruction =>
-      'Forme uma linha de três para vencer a corrida neon.';
+  String get winInstruction => 'Alinhe três para vencer.';
 
   @override
   String get takeTurnCta => 'Faça sua jogada e ilumine o tabuleiro';
@@ -216,10 +215,10 @@ class AppLocalizationsPt extends AppLocalizations {
       '9 tabuleiros em um. Sua jogada define onde o rival joga.';
 
   @override
-  String get ultimate2FreeMove => 'Jogada livre: jogue em qualquer tabuleiro';
+  String get ultimate2FreeMove => 'Jogada livre: qualquer tabuleiro';
 
   @override
-  String get ultimate2PlayIn => 'Jogue no tabuleiro destacado';
+  String get ultimate2PlayIn => 'Jogue no tabuleiro aceso';
 
   @override
   String get ultimate2Help =>
@@ -399,4 +398,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get yourTurn => 'Sua vez';
+
+  @override
+  String get audioCreditsLabel => 'Créditos de áudio';
 }

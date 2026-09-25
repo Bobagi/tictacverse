@@ -96,7 +96,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeLabel => 'Close';
 
   @override
-  String get winInstruction => 'Line up three to win the neon run.';
+  String get winInstruction => 'Line up three to win.';
 
   @override
   String get takeTurnCta => 'Make your move and light the board';
@@ -209,10 +209,10 @@ class AppLocalizationsEn extends AppLocalizations {
       '9 boards in one. Your move picks where your rival plays.';
 
   @override
-  String get ultimate2FreeMove => 'Free move: play in any board';
+  String get ultimate2FreeMove => 'Free move: any board';
 
   @override
-  String get ultimate2PlayIn => 'Play in the highlighted board';
+  String get ultimate2PlayIn => 'Play in the lit board';
 
   @override
   String get ultimate2Help =>
@@ -392,4 +392,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yourTurn => 'Your turn';
+
+  @override
+  String get audioCreditsLabel => 'Audio credits';
 }

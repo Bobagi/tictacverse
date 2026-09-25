@@ -99,8 +99,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String get closeLabel => 'बन्द गर्नुहोस्';
 
   @override
-  String get winInstruction =>
-      'तीनवटा एक लाइनमा मिलाएर नियोन जित हात पार्नुहोस्।';
+  String get winInstruction => 'तीन लाइनमा मिलाएर जित्नुहोस्';
 
   @override
   String get takeTurnCta => 'आफ्नो चाल चल्नुहोस् र बोर्ड उज्यालो पार्नुहोस्';
@@ -213,10 +212,10 @@ class AppLocalizationsNe extends AppLocalizations {
       'एउटैमा ९ बोर्ड। तपाईंको चालले प्रतिद्वन्द्वी कहाँ खेल्छ भन्ने तय गर्छ।';
 
   @override
-  String get ultimate2FreeMove => 'फ्री चाल: जुनसुकै बोर्डमा खेल्नुहोस्';
+  String get ultimate2FreeMove => 'खुला चाल: जुनसुकै बोर्ड';
 
   @override
-  String get ultimate2PlayIn => 'हाइलाइट गरिएको बोर्डमा खेल्नुहोस्';
+  String get ultimate2PlayIn => 'बलेको बोर्डमा खेल्नुहोस्';
 
   @override
   String get ultimate2Help =>
@@ -395,4 +394,7 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get yourTurn => 'तपाईंको पालो';
+
+  @override
+  String get audioCreditsLabel => 'अडियो श्रेय';
 }

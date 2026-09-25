@@ -377,10 +377,13 @@ class _WinningCellPulseState extends State<_WinningCellPulse>
     duration: const Duration(milliseconds: 520),
   );
 
+  bool get _reduceMotion =>
+      MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+
   @override
-  void initState() {
-    super.initState();
-    if (widget.active) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.active && !_reduceMotion && !_controller.isAnimating) {
       _controller.repeat(reverse: true);
     }
   }
@@ -388,7 +391,7 @@ class _WinningCellPulseState extends State<_WinningCellPulse>
   @override
   void didUpdateWidget(_WinningCellPulse oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.active && !oldWidget.active) {
+    if (widget.active && !oldWidget.active && !_reduceMotion) {
       _controller.repeat(reverse: true);
     } else if (!widget.active && oldWidget.active) {
       _controller.stop();
@@ -404,11 +407,8 @@ class _WinningCellPulseState extends State<_WinningCellPulse>
 
   @override
   Widget build(BuildContext context) {
-    final bool reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    if (!widget.active || reduceMotion) {
-      return widget.child;
-    }
+    // Mesma forma de árvore ativo ou não: trocar entre `child` puro e
+    // AnimatedBuilder remontaria a peça (pop-in de novo) na hora da vitória.
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, Widget? child) {

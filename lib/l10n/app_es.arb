@@ -28,7 +28,7 @@
   "helpTitle": "Ayuda",
   "tapToClaim": "Toca cualquier celda para capturarla",
   "closeLabel": "Cerrar",
-  "winInstruction": "Forma una línea de tres para ganar la carrera neón.",
+  "winInstruction": "Alinea tres para ganar.",
   "takeTurnCta": "Haz tu jugada e ilumina el tablero",
   "playLabel": "Jugar",
   "settingsTitle": "Configuración",
@@ -65,8 +65,8 @@
   "updateFailedMessage": "No se pudo comprobar si hay actualizaciones. Inténtalo más tarde.",
   "modeUltimate2Title": "Súper Tres en Raya",
   "modeUltimate2Subtitle": "9 tableros en uno. Tu jugada decide dónde juega el rival.",
-  "ultimate2FreeMove": "Jugada libre: juega en cualquier tablero",
-  "ultimate2PlayIn": "Juega en el tablero resaltado",
+  "ultimate2FreeMove": "Jugada libre: cualquier tablero",
+  "ultimate2PlayIn": "Juega en el tablero iluminado",
   "ultimate2Help": "Cada casilla del tablero grande guarda un tres en raya pequeño. La casilla que marcas dentro de un tablero pequeño envía a tu rival al tablero correspondiente. Gana un tablero pequeño para conquistar su casilla en el grande - haz tres casillas conquistadas en línea para ganar. Si el destino está cerrado, la jugada es libre.",
   "playVsCpuBig": "Jugar contra la máquina",
   "playWithFriend": "Jugar con un amigo",
@@ -116,5 +116,6 @@
   "dailyStreakChip": "{count} días seguidos",
   "newRecordChip": "¡Nuevo récord!",
   "cpuThinking": "Pensando...",
-  "yourTurn": "Tu turno"
+  "yourTurn": "Tu turno",
+  "audioCreditsLabel": "Créditos de audio"
 }

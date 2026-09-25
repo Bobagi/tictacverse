@@ -53,10 +53,13 @@ class _BoardShakeState extends State<BoardShake>
       animation: _controller,
       builder: (BuildContext context, Widget? child) {
         final double t = _controller.value;
-        if (t == 0 || t == 1) {
-          return child!;
-        }
-        final double decay = (1 - t) * (1 - t);
+        // SEMPRE devolve a mesma forma de árvore (Transform > Transform >
+        // child), mesmo parado. Devolver `child` puro fora da tremida trocava a
+        // estrutura no primeiro e no último frame, e o Flutter REMONTAVA o
+        // tabuleiro: a linha neon da vitória recomeçava do zero no meio, as
+        // peças faziam pop-in de novo e sorteavam outra rotação (bug relatado
+        // pelo operador em 2026-09-25).
+        final double decay = (t == 0 || t == 1) ? 0 : (1 - t) * (1 - t);
         final double wave = sin(t * _oscillations * 2 * pi);
         final double dx = wave * _amplitude * decay;
         final double dy =

@@ -114,7 +114,11 @@ class _GameScreenState extends State<GameScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(widget.controller.modeDefinition.title(localization)),
+          title: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(widget.controller.modeDefinition.title(localization)),
+          ),
           actions: <Widget>[
             ValueListenableBuilder<bool>(
               valueListenable: audioService.isMutedListenable,

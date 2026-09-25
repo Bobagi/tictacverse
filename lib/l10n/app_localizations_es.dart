@@ -103,8 +103,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get closeLabel => 'Cerrar';
 
   @override
-  String get winInstruction =>
-      'Forma una línea de tres para ganar la carrera neón.';
+  String get winInstruction => 'Alinea tres para ganar.';
 
   @override
   String get takeTurnCta => 'Haz tu jugada e ilumina el tablero';
@@ -217,10 +216,10 @@ class AppLocalizationsEs extends AppLocalizations {
       '9 tableros en uno. Tu jugada decide dónde juega el rival.';
 
   @override
-  String get ultimate2FreeMove => 'Jugada libre: juega en cualquier tablero';
+  String get ultimate2FreeMove => 'Jugada libre: cualquier tablero';
 
   @override
-  String get ultimate2PlayIn => 'Juega en el tablero resaltado';
+  String get ultimate2PlayIn => 'Juega en el tablero iluminado';
 
   @override
   String get ultimate2Help =>
@@ -400,4 +399,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get yourTurn => 'Tu turno';
+
+  @override
+  String get audioCreditsLabel => 'Créditos de audio';
 }

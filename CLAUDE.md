@@ -47,7 +47,7 @@ screenshot giram em torno dele, e ele rende 50% mais XP de propósito.
 
 ## Game feel ("juice"): o que existe e como estender
 
-Passe de 2026-09-25 (v1.11.0+23). Tudo respeita `MediaQuery.disableAnimations`
+Passe de 2026-09-25 (v1.11.0+23, refinado na v1.11.1+24). Tudo respeita `MediaQuery.disableAnimations`
 (vira no-op) e o custo em repouso é zero (ticker de partículas só roda com
 partícula viva).
 
@@ -55,6 +55,19 @@ partícula viva).
   `assets/audio/sfx/*.ogg` (Kenney, CC0; tabela em `assets/audio/CREDITS.md`).
   Pool de 4 tocadores em rodízio; `Sfx.xpTick` tem throttle. Som novo = arquivo
   ogg mono normalizado + entrada no enum + linha no CREDITS.
+- **Música:** 7 trilhas em `assets/audio/music/` tocadas por `MusicPlaylist`
+  (embaralha, toca todas antes de repetir, nunca emenda a mesma). Três são
+  **CC BY 4.0 (Tomasz Kucza)**: o crédito na tela de configurações é
+  obrigação de licença, não enfeite; não remova. Trilha nova = OGG (loop sem
+  gap; MP3 tem silêncio no fim), loudnorm -17 LUFS, entrada em
+  `backgroundTracks` + linha no CREDITS.
+- **Árvore estável em animação:** todo widget que anima por
+  `AnimatedBuilder`/`Transform` DEVE devolver a MESMA forma de árvore parado e
+  animando (`BoardShake`, `_WinningCellPulse`). Devolver `child` puro fora da
+  animação remonta o subtree: a linha neon recomeçava do zero no meio, as peças
+  faziam pop-in de novo (bug relatado 2026-09-25; `board_shake_test.dart`
+  trava). Exceção aceitável: ramificar por `disableAnimations`, que não muda em
+  tempo de execução.
 - **Vibração:** `HapticsService.play(HapticCue.x)`; só `HapticFeedback` do
   Flutter (sem permissão VIBRATE, nada sai do aparelho, Data safety não muda).
   Ligável nas configurações (`settings.haptics`, padrão ligado).

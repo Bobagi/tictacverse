@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
+import 'music_playlist.dart';
 import 'storage_service.dart';
 
 /// Efeitos sonoros do jogo. Os arquivos vivem em `assets/audio/sfx/` (origem e
@@ -45,6 +46,7 @@ class AudioService {
   static const Duration _tickThrottle = Duration(milliseconds: 45);
 
   final AudioPlayer _musicPlayer = AudioPlayer();
+  final MusicPlaylist _playlist = MusicPlaylist();
   final List<AudioPlayer> _sfxPool = <AudioPlayer>[];
   int _nextSfxSlot = 0;
   final ValueNotifier<bool> _isMuted = ValueNotifier<bool>(false);
@@ -73,7 +75,8 @@ class AudioService {
     );
 
     _musicPlayer.setAudioContext(sharedContext);
-    _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    // `stop`, não `loop`: ao terminar uma faixa a próxima da playlist entra.
+    _musicPlayer.setReleaseMode(ReleaseMode.stop);
     _musicPlayer.setVolume(_volume.value);
     for (int i = 0; i < _sfxPoolSize; i++) {
       final AudioPlayer player = AudioPlayer();
@@ -86,12 +89,20 @@ class AudioService {
     _musicLoopSubscription?.cancel();
     _musicLoopSubscription = _musicPlayer.onPlayerComplete.listen((_) {
       if (!_isMuted.value) {
-        _musicPlayer.play(
-          AssetSource('audio/music/background_loop.mp3'),
-          volume: _volume.value,
-        );
+        _playNextTrack();
       }
     });
+  }
+
+  Future<void> _playNextTrack() async {
+    try {
+      await _musicPlayer.play(
+        AssetSource(_playlist.next()),
+        volume: _volume.value,
+      );
+    } catch (_) {
+      // Sem música não se derruba o jogo.
+    }
   }
 
   /// Aplica preferências persistidas sem tocar música (chamado no startup).
@@ -141,10 +152,7 @@ class AudioService {
     try {
       if (!_hasStartedMusic) {
         _hasStartedMusic = true;
-        await _musicPlayer.play(
-          AssetSource('audio/music/background_loop.mp3'),
-          volume: _volume.value,
-        );
+        await _playNextTrack();
       } else if (_musicPlayer.state == PlayerState.paused ||
           _musicPlayer.state == PlayerState.stopped) {
         await _musicPlayer.resume();
