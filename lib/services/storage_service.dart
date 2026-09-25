@@ -41,6 +41,7 @@ class StorageService {
   static const String _statsKey = 'stats.v1';
   static const String _mutedKey = 'settings.muted';
   static const String _volumeKey = 'settings.volume';
+  static const String _hapticsKey = 'settings.haptics';
   static const String _localeKey = 'settings.locale';
   static const String _langSuggestedKey = 'settings.langSuggested';
   static const String _difficultyKey = 'settings.cpuDifficulty';
@@ -67,15 +68,19 @@ class StorageService {
 
   bool get isLoaded => _prefs != null;
 
-  int get totalMatches =>
-      statsByMode.values.fold(0, (int sum, ModeStats stats) => sum + stats.matches);
+  int get totalMatches => statsByMode.values
+      .fold(0, (int sum, ModeStats stats) => sum + stats.matches);
 
   bool get reviewAsked => _prefs?.getBool(_reviewAskedKey) ?? false;
   bool get audioMuted => _prefs?.getBool(_mutedKey) ?? false;
   double get audioVolume => _prefs?.getDouble(_volumeKey) ?? 1.0;
+
+  /// Vibração de resposta (haptics). Ligada por padrão: é parte do "juice".
+  bool get hapticsEnabled => _prefs?.getBool(_hapticsKey) ?? true;
   String? get localeCode => _prefs?.getString(_localeKey);
   bool get playAgainstCpu => _prefs?.getBool(_vsCpuKey) ?? false;
-  CpuDifficulty get cpuDifficulty => cpuDifficultyFromName(_prefs?.getString(_difficultyKey));
+  CpuDifficulty get cpuDifficulty =>
+      cpuDifficultyFromName(_prefs?.getString(_difficultyKey));
 
   Future<void> load() async {
     if (isLoaded) {
@@ -112,7 +117,8 @@ class StorageService {
     }
     try {
       final Map<String, dynamic> data = jsonDecode(raw) as Map<String, dynamic>;
-      final Map<String, dynamic>? modes = data['modes'] as Map<String, dynamic>?;
+      final Map<String, dynamic>? modes =
+          data['modes'] as Map<String, dynamic>?;
       for (final GameModeType mode in GameModeType.values) {
         statsByMode[mode] =
             ModeStats.fromJson(modes?[mode.name] as Map<String, dynamic>?);
@@ -136,7 +142,8 @@ class StorageService {
       _statsKey,
       jsonEncode(<String, dynamic>{
         'modes': <String, dynamic>{
-          for (final MapEntry<GameModeType, ModeStats> entry in statsByMode.entries)
+          for (final MapEntry<GameModeType, ModeStats> entry
+              in statsByMode.entries)
             entry.key.name: entry.value.toJson(),
         },
         'cpuWins': cpuWins,
@@ -187,9 +194,14 @@ class StorageService {
     await _prefs?.setBool(_reviewAskedKey, true);
   }
 
-  Future<void> saveAudioSettings({required bool muted, required double volume}) async {
+  Future<void> saveAudioSettings(
+      {required bool muted, required double volume}) async {
     await _prefs?.setBool(_mutedKey, muted);
     await _prefs?.setDouble(_volumeKey, volume);
+  }
+
+  Future<void> saveHapticsEnabled(bool value) async {
+    await _prefs?.setBool(_hapticsKey, value);
   }
 
   Future<void> saveLocale(String languageCode) async {

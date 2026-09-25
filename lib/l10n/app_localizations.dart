@@ -759,6 +759,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View on Play Games'**
   String get playGamesOpen;
+
+  /// No description provided for @hapticsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration'**
+  String get hapticsLabel;
+
+  /// No description provided for @youWinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You win!'**
+  String get youWinTitle;
+
+  /// No description provided for @cpuWinsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The machine wins'**
+  String get cpuWinsTitle;
+
+  /// No description provided for @playerWinsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{symbol} wins!'**
+  String playerWinsTitle(String symbol);
+
+  /// No description provided for @winStreakChip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} wins in a row!'**
+  String winStreakChip(int count);
+
+  /// No description provided for @dailyStreakChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {count} streak'**
+  String dailyStreakChip(int count);
+
+  /// No description provided for @newRecordChip.
+  ///
+  /// In en, this message translates to:
+  /// **'New record!'**
+  String get newRecordChip;
+
+  /// No description provided for @cpuThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking...'**
+  String get cpuThinking;
+
+  /// No description provided for @yourTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your turn'**
+  String get yourTurn;
 }
 
 class _AppLocalizationsDelegate

@@ -5,6 +5,30 @@ import 'package:flutter/foundation.dart';
 
 import 'storage_service.dart';
 
+/// Efeitos sonoros do jogo. Os arquivos vivem em `assets/audio/sfx/` (origem e
+/// licença em `assets/audio/CREDITS.md`).
+enum Sfx {
+  moveX('move_x.ogg'),
+  moveO('move_o.ogg'),
+  uiClick('ui_click.ogg'),
+  capture('capture.ogg'),
+  win('win.ogg'),
+  lose('lose.ogg'),
+  draw('draw.ogg'),
+  levelUp('level_up.ogg'),
+  achievement('achievement.ogg'),
+  xpTick('xp_tick.ogg'),
+  chaos('chaos.ogg'),
+  streak('streak.ogg'),
+  winLine('win_line.ogg');
+
+  const Sfx(this.fileName);
+
+  final String fileName;
+
+  String get assetPath => 'audio/sfx/$fileName';
+}
+
 class AudioService {
   AudioService._() {
     _configurePlayers();
@@ -12,14 +36,23 @@ class AudioService {
 
   static final AudioService instance = AudioService._();
 
+  /// Tocadores reutilizados em rodízio: criar um `AudioPlayer` por efeito
+  /// vazava instâncias e atrasava o som na primeira jogada.
+  static const int _sfxPoolSize = 4;
+
+  /// Intervalo mínimo entre dois ticks do contador de XP, para o rajado do
+  /// contador não virar ruído nem esgotar o pool.
+  static const Duration _tickThrottle = Duration(milliseconds: 45);
+
   final AudioPlayer _musicPlayer = AudioPlayer();
-  final AudioPlayer _sfxPlayer = AudioPlayer();
-  final AudioPlayer _uiClickPlayer = AudioPlayer();
+  final List<AudioPlayer> _sfxPool = <AudioPlayer>[];
+  int _nextSfxSlot = 0;
   final ValueNotifier<bool> _isMuted = ValueNotifier<bool>(false);
   final ValueNotifier<double> _volume = ValueNotifier<double>(1.0);
   bool _hasStartedMusic = false;
   StreamSubscription<void>? _musicLoopSubscription;
-  AudioContext? _sharedContext;
+
+  DateTime? _lastTickAt;
 
   ValueListenable<bool> get isMutedListenable => _isMuted;
   ValueListenable<double> get volumeListenable => _volume;
@@ -38,16 +71,18 @@ class AudioService {
         options: <AVAudioSessionOptions>{AVAudioSessionOptions.mixWithOthers},
       ),
     );
-    _sharedContext = sharedContext;
+
     _musicPlayer.setAudioContext(sharedContext);
-    _sfxPlayer.setAudioContext(sharedContext);
-    _uiClickPlayer.setAudioContext(sharedContext);
     _musicPlayer.setReleaseMode(ReleaseMode.loop);
     _musicPlayer.setVolume(_volume.value);
-    _sfxPlayer.setReleaseMode(ReleaseMode.stop);
-    _sfxPlayer.setVolume(_volume.value);
-    _uiClickPlayer.setReleaseMode(ReleaseMode.stop);
-    _uiClickPlayer.setVolume(_volume.value);
+    for (int i = 0; i < _sfxPoolSize; i++) {
+      final AudioPlayer player = AudioPlayer();
+      player.setAudioContext(sharedContext);
+      player.setReleaseMode(ReleaseMode.stop);
+      player.setPlayerMode(PlayerMode.lowLatency);
+      player.setVolume(_volume.value);
+      _sfxPool.add(player);
+    }
     _musicLoopSubscription?.cancel();
     _musicLoopSubscription = _musicPlayer.onPlayerComplete.listen((_) {
       if (!_isMuted.value) {
@@ -63,9 +98,14 @@ class AudioService {
   void applyStoredSettings({required bool muted, required double volume}) {
     _isMuted.value = muted;
     _volume.value = volume.clamp(0.0, 1.0);
-    _musicPlayer.setVolume(muted ? 0 : _volume.value);
-    _sfxPlayer.setVolume(muted ? 0 : _volume.value);
-    _uiClickPlayer.setVolume(muted ? 0 : _volume.value);
+    _applyVolume(muted ? 0 : _volume.value);
+  }
+
+  void _applyVolume(double value) {
+    _musicPlayer.setVolume(value);
+    for (final AudioPlayer player in _sfxPool) {
+      player.setVolume(value);
+    }
   }
 
   void _persistSettings() {
@@ -78,13 +118,9 @@ class AudioService {
     _persistSettings();
     if (value) {
       await _musicPlayer.pause();
-      await _musicPlayer.setVolume(0);
-      await _sfxPlayer.setVolume(0);
-      await _uiClickPlayer.setVolume(0);
+      _applyVolume(0);
     } else {
-      await _musicPlayer.setVolume(_volume.value);
-      await _sfxPlayer.setVolume(_volume.value);
-      await _uiClickPlayer.setVolume(_volume.value);
+      _applyVolume(_volume.value);
       await ensureBackgroundMusic();
     }
   }
@@ -94,9 +130,7 @@ class AudioService {
     _volume.value = clamped;
     _persistSettings();
     if (!_isMuted.value) {
-      await _musicPlayer.setVolume(clamped);
-      await _sfxPlayer.setVolume(clamped);
-      await _uiClickPlayer.setVolume(clamped);
+      _applyVolume(clamped);
     }
   }
 
@@ -116,52 +150,49 @@ class AudioService {
         await _musicPlayer.resume();
       }
     } catch (_) {
-      // Ignore missing asset errors until audio files are swapped.
+      // Sem música não se derruba o jogo.
     }
   }
 
-  Future<void> playMoveSfx() async {
-    if (_isMuted.value) {
+  /// Toca um efeito. Efeitos são curtos e se sobrepõem (pool em rodízio), então
+  /// uma rajada de eventos não corta o anterior no meio.
+  Future<void> play(Sfx sfx) async {
+    if (_isMuted.value || _sfxPool.isEmpty) {
       return;
     }
-    try {
-      final AudioPlayer player = AudioPlayer();
-      final AudioContext? sharedContext = _sharedContext;
-      if (sharedContext != null) {
-        await player.setAudioContext(sharedContext);
+    if (sfx == Sfx.xpTick) {
+      final DateTime now = DateTime.now();
+      final DateTime? last = _lastTickAt;
+      if (last != null && now.difference(last) < _tickThrottle) {
+        return;
       }
-      await player.setReleaseMode(ReleaseMode.stop);
-      await player.setVolume(_volume.value);
+      _lastTickAt = now;
+    }
+    final AudioPlayer player = _sfxPool[_nextSfxSlot];
+    _nextSfxSlot = (_nextSfxSlot + 1) % _sfxPool.length;
+    try {
+      await player.stop();
       await player.play(
-        AssetSource('audio/sfx/move_click.wav'),
+        AssetSource(sfx.assetPath),
         volume: _volume.value,
       );
-      player.onPlayerComplete.listen((_) => player.dispose());
     } catch (_) {
-      // Ignore missing asset errors until audio files are swapped.
+      // Asset ausente ou tocador ocupado: silêncio, nunca exceção.
     }
   }
 
-  Future<void> playUiClick() async {
-    if (_isMuted.value) {
-      return;
-    }
-    try {
-      await _uiClickPlayer.stop();
-      await _uiClickPlayer.setVolume(_volume.value);
-      await _uiClickPlayer.play(
-        AssetSource('audio/sfx/pen_click.mp3'),
-        volume: _volume.value,
-      );
-    } catch (_) {
-      // Ignore missing asset errors until audio files are swapped.
-    }
-  }
+  /// Som da peça sendo colocada. O O tem um timbre um pouco mais grave que o
+  /// X, então dá para "ouvir" de quem foi a jogada sem olhar.
+  Future<void> playMoveSfx({bool isNought = false}) =>
+      play(isNought ? Sfx.moveO : Sfx.moveX);
+
+  Future<void> playUiClick() => play(Sfx.uiClick);
 
   Future<void> pauseAll() async {
     await _musicPlayer.pause();
-    await _sfxPlayer.stop();
-    await _uiClickPlayer.stop();
+    for (final AudioPlayer player in _sfxPool) {
+      await player.stop();
+    }
   }
 
   Future<void> resumeBackgroundMusic() async {

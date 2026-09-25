@@ -183,5 +183,35 @@
       }
     }
   },
-  "playGamesOpen": "View on Play Games"
+  "playGamesOpen": "View on Play Games",
+  "hapticsLabel": "Vibration",
+  "youWinTitle": "You win!",
+  "cpuWinsTitle": "The machine wins",
+  "playerWinsTitle": "{symbol} wins!",
+  "@playerWinsTitle": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "winStreakChip": "{count} wins in a row!",
+  "@winStreakChip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyStreakChip": "Day {count} streak",
+  "@dailyStreakChip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "newRecordChip": "New record!",
+  "cpuThinking": "Thinking...",
+  "yourTurn": "Your turn"
 }

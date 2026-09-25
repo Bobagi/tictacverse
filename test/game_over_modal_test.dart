@@ -25,6 +25,11 @@ Widget host({
   ProgressionResult? progression,
   Future<ProgressionResult?> Function()? onWatchAdForDoubleXp,
   String languageCode = 'en',
+  int? xpAfter,
+  int winStreak = 0,
+  bool isNewBestStreak = false,
+  int dailyStreak = 0,
+  bool celebrate = false,
 }) {
   return MaterialApp(
     locale: Locale(languageCode),
@@ -38,9 +43,23 @@ Widget host({
         onBackToMenu: () {},
         progression: progression,
         onWatchAdForDoubleXp: onWatchAdForDoubleXp,
+        xpAfter: xpAfter,
+        winStreak: winStreak,
+        isNewBestStreak: isNewBestStreak,
+        dailyStreak: dailyStreak,
+        celebrate: celebrate,
       ),
     ),
   );
+}
+
+/// O modal tem animações que não param (pulso da sequência, do nível), então
+/// `pumpAndSettle` nunca resolve: avança o tempo o bastante para a entrada
+/// escalonada dos chips, o contador de XP e a barra de nível terminarem.
+Future<void> settle(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(seconds: 2));
+  await tester.pump(const Duration(seconds: 2));
 }
 
 void main() {
@@ -49,7 +68,7 @@ void main() {
   group('oferta de dobrar o XP', () {
     testWidgets('sem callback a oferta não aparece', (WidgetTester tester) async {
       await tester.pumpWidget(host(progression: matchResult()));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(offerButton(), findsNothing);
       expect(find.text('+35 XP'), findsOneWidget);
@@ -60,7 +79,7 @@ void main() {
         progression: matchResult(),
         onWatchAdForDoubleXp: () async => null,
       ));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(offerButton(), findsOneWidget);
       expect(find.text('Watch an ad, double your XP'), findsOneWidget);
@@ -71,7 +90,7 @@ void main() {
         progression: matchResult(xpGained: 0),
         onWatchAdForDoubleXp: () async => matchResult(),
       ));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(offerButton(), findsNothing);
     });
@@ -85,10 +104,10 @@ void main() {
           return null; // jogador fechou antes do fim
         },
       ));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.tap(offerButton());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(calls, 1);
       expect(find.text('+35 XP'), findsOneWidget,
@@ -106,10 +125,10 @@ void main() {
         onWatchAdForDoubleXp: () async =>
             matchResult(xpGained: 35, levelBefore: 1, levelAfter: 2),
       ));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.tap(offerButton());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('+70 XP'), findsOneWidget);
       expect(find.text('Level 2 reached!'), findsOneWidget,
@@ -130,7 +149,7 @@ void main() {
           return pending.future;
         },
       ));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       await tester.tap(offerButton(), warnIfMissed: false);
       await tester.pump();
@@ -141,7 +160,7 @@ void main() {
       expect(calls, 1, reason: 'dois toques não podem virar dois anúncios');
 
       pending.complete(matchResult());
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       expect(find.text('+70 XP'), findsOneWidget);
       expect(find.text('+105 XP'), findsNothing,
@@ -167,7 +186,7 @@ void main() {
           progression: matchResult(levelBefore: 4, levelAfter: 5),
           onWatchAdForDoubleXp: () async => matchResult(),
         ));
-        await tester.pumpAndSettle();
+        await settle(tester);
 
         expect(tester.takeException(), isNull);
         expect(offerButton(), findsOneWidget);
@@ -186,7 +205,7 @@ void main() {
         progression: matchResult(),
         onWatchAdForDoubleXp: () async => matchResult(),
       ));
-      await tester.pumpAndSettle();
+      await settle(tester);
 
       final Rect offer = tester.getRect(offerButton());
       final Rect playAgain = tester.getRect(find.text('Play Again'));
@@ -211,7 +230,76 @@ void main() {
           progression: matchResult(levelBefore: 4, levelAfter: 5),
           onWatchAdForDoubleXp: () async => matchResult(),
         ));
-        await tester.pumpAndSettle();
+        await settle(tester);
+
+        expect(tester.takeException(), isNull);
+        expect(offerButton(), findsOneWidget);
+      });
+    }
+  });
+
+  group('sequências (o gancho de retorno)', () {
+    testWidgets('sequência de vitórias a partir de 2, com "novo recorde"',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(host(
+        progression: matchResult(),
+        winStreak: 3,
+        isNewBestStreak: true,
+      ));
+      await settle(tester);
+      expect(find.textContaining('3 wins in a row!'), findsOneWidget);
+      expect(find.textContaining('New record!'), findsOneWidget);
+    });
+
+    testWidgets('uma vitória só ainda não é sequência', (WidgetTester tester) async {
+      await tester.pumpWidget(host(progression: matchResult(), winStreak: 1));
+      await settle(tester);
+      expect(find.textContaining('in a row'), findsNothing);
+    });
+
+    testWidgets('dias seguidos aparecem a partir de 2', (WidgetTester tester) async {
+      await tester.pumpWidget(host(progression: matchResult(), dailyStreak: 5));
+      await settle(tester);
+      expect(find.text('Day 5 streak'), findsOneWidget);
+    });
+
+    testWidgets('barra de nível aparece com xpAfter e mostra o nível final',
+        (WidgetTester tester) async {
+      // 35 XP ganhos levando de 60 para 95: cruza o nível 2 (que custa 80).
+      await tester.pumpWidget(host(
+        progression: matchResult(xpGained: 35, levelBefore: 1, levelAfter: 2),
+        xpAfter: 95,
+      ));
+      await settle(tester);
+      expect(find.text('15 / 120 XP'), findsOneWidget,
+          reason: 'no nível 2, 95 XP são 15 dentro de um nível que custa 120');
+    });
+  });
+
+  group('tudo junto na menor tela, em cada idioma', () {
+    for (final String language in <String>['en', 'pt', 'es', 'hi', 'bn', 'ne']) {
+      testWidgets('sem overflow em $language com streaks, nível, conquista, barra e oferta',
+          (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(host(
+          languageCode: language,
+          progression: ProgressionResult(
+            xpGained: 85,
+            levelBefore: 4,
+            levelAfter: 5,
+            newlyUnlocked: <AchievementDefinition>[createAchievements().first],
+          ),
+          xpAfter: 420,
+          winStreak: 7,
+          isNewBestStreak: true,
+          dailyStreak: 12,
+          celebrate: true,
+          onWatchAdForDoubleXp: () async => matchResult(),
+        ));
+        await settle(tester);
 
         expect(tester.takeException(), isNull);
         expect(offerButton(), findsOneWidget);

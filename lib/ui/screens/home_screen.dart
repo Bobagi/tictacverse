@@ -4,12 +4,15 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 import '../../controllers/banner_ad_controller.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
+import '../../services/haptics_service.dart';
 import '../../services/language_suggestion.dart';
 import '../../services/metrics_service.dart';
 import '../../services/progression_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/update_service.dart';
 import '../widgets/achievements_sheet.dart';
+import '../widgets/juice/press_scale.dart';
+import '../widgets/juice/pulse.dart';
 import '../widgets/language_selector_sheet.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/settings_sheet.dart';
@@ -171,14 +174,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(26),
-                        child: Image.asset(
-                          'assets/icon/app_icon.png',
-                          width: 104,
-                          height: 104,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      // O ícone "respira" devagar: a home nunca fica parada.
+                      Pulse(
+                        maxScale: 1.04,
+                        period: const Duration(milliseconds: 2400),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(26),
+                          child: Image.asset(
+                            'assets/icon/app_icon.png',
+                            width: 104,
+                            height: 104,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -213,12 +222,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Semantics(
                             button: true,
                             label: localization.achievementsTitle,
-                            child: GestureDetector(
-                              onTap: () {
-                                audioService.playUiClick();
-                                _openAchievements(localization);
-                              },
-                              child: LevelPanel(localization: localization),
+                            child: PressScale(
+                              pressedScale: 0.97,
+                              child: GestureDetector(
+                                onTap: () {
+                                  audioService.playUiClick();
+                                  HapticsService.instance.play(HapticCue.tap);
+                                  _openAchievements(localization);
+                                },
+                                child: LevelPanel(localization: localization),
+                              ),
                             ),
                           );
                         },
@@ -250,6 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openModes({required bool playAgainstCpu}) {
     audioService.playUiClick();
+    HapticsService.instance.play(HapticCue.tap);
     StorageService.instance.savePlayAgainstCpu(playAgainstCpu);
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -334,45 +348,48 @@ class _OpponentButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: <Color>[
-              accent.withOpacity(0.16),
-              Colors.white.withOpacity(0.05),
-            ]),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: accent.withOpacity(0.65), width: 1.6),
-            boxShadow: <BoxShadow>[
-              BoxShadow(color: accent.withOpacity(0.28), blurRadius: 18),
-            ],
-          ),
-          child: Row(
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(0.18),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: accent.withOpacity(0.5)),
+      child: PressScale(
+        pressedScale: 0.96,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: <Color>[
+                accent.withOpacity(0.16),
+                Colors.white.withOpacity(0.05),
+              ]),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: accent.withOpacity(0.65), width: 1.6),
+              boxShadow: <BoxShadow>[
+                BoxShadow(color: accent.withOpacity(0.28), blurRadius: 18),
+              ],
+            ),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: accent.withOpacity(0.18),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: accent.withOpacity(0.5)),
+                  ),
+                  child: Icon(icon, color: accent, size: 30),
                 ),
-                child: Icon(icon, color: accent, size: 30),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
                 ),
-              ),
-              Icon(Icons.chevron_right_rounded,
-                  color: Colors.white.withOpacity(0.7)),
-            ],
+                Icon(Icons.chevron_right_rounded,
+                    color: Colors.white.withOpacity(0.7)),
+              ],
+            ),
           ),
         ),
       ),

@@ -9,9 +9,13 @@ import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/metrics_service.dart';
 import '../../services/storage_service.dart';
+import '../../services/haptics_service.dart';
+import '../widgets/fading_edge.dart';
+import '../widgets/juice/press_scale.dart';
 import '../widgets/mode_card.dart';
 import '../widgets/mode_glyphs.dart';
 import '../widgets/modern_background.dart';
+import '../widgets/pop_in.dart';
 import 'game_screen.dart';
 import 'ultimate2_screen.dart';
 
@@ -93,25 +97,39 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
                   const SizedBox(height: 14),
                 ],
                 Expanded(
-                  child: ListView.separated(
-                    itemCount: modes.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (BuildContext context, int index) {
-                      final GameModeDefinition definition = modes[index];
-                      final Color accent = _modeAccent(definition.type);
-                      final Widget card = ModeCard(
-                        title: definition.title(localization),
-                        subtitle: definition.subtitle(localization),
-                        buttonLabel: localization.playLabel,
-                        accent: accent,
-                        glyph: ModeGlyph(type: definition.type, accent: accent),
-                        onStart: () => _openGame(definition),
-                      );
-                      if (definition.type == GameModeType.ultimate2) {
-                        return _FlagshipGlow(child: card);
-                      }
-                      return card;
-                    },
+                  // Esmaecimento na borda de baixo + respiro final: em 360x640
+                  // o último card saía fatiado no limite da lista e parecia
+                  // bug de layout, não convite a rolar (P2 do frontend-review).
+                  child: FadingEdge(
+                    fraction: 0.9,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 28),
+                      itemCount: modes.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (BuildContext context, int index) {
+                        final GameModeDefinition definition = modes[index];
+                        final Color accent = _modeAccent(definition.type);
+                        Widget card = ModeCard(
+                          title: definition.title(localization),
+                          subtitle: definition.subtitle(localization),
+                          buttonLabel: localization.playLabel,
+                          accent: accent,
+                          glyph:
+                              ModeGlyph(type: definition.type, accent: accent),
+                          onStart: () => _openGame(definition),
+                        );
+                        if (definition.type == GameModeType.ultimate2) {
+                          card = _FlagshipGlow(child: card);
+                        }
+                        // Cards entram um a um, de cima para baixo.
+                        return PopIn(
+                          delay: Duration(milliseconds: 60 * index),
+                          beginScale: 0.92,
+                          duration: const Duration(milliseconds: 260),
+                          child: PressScale(pressedScale: 0.97, child: card),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 if (AdsConfiguration.adsEnabled) ...<Widget>[
@@ -152,7 +170,8 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
           const SizedBox(height: 8),
           Row(
             children: <Widget>[
-              for (final CpuDifficulty difficulty in CpuDifficulty.values) ...<Widget>[
+              for (final CpuDifficulty difficulty
+                  in CpuDifficulty.values) ...<Widget>[
                 if (difficulty != CpuDifficulty.values.first)
                   const SizedBox(width: 8),
                 Expanded(
@@ -162,6 +181,7 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
                     isActive: cpuDifficulty == difficulty,
                     onTap: () {
                       audioService.playUiClick();
+                      HapticsService.instance.play(HapticCue.tap);
                       setState(() {
                         cpuDifficulty = difficulty;
                       });
@@ -216,6 +236,7 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
   }
 
   void _openGame(GameModeDefinition definition) {
+    HapticsService.instance.play(HapticCue.tap);
     if (definition.type == GameModeType.ultimate2) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(

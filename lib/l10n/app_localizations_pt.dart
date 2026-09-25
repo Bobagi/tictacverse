@@ -29,7 +29,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get modeChaosTitle => 'Modo Caos';
 
   @override
-  String get modeChaosSubtitle => 'A cada rodadas, um evento muda as regras.';
+  String get modeChaosSubtitle =>
+      'A cada poucas rodadas, um evento muda as regras.';
 
   @override
   String get modeUltimateTitle => 'Mini Supremo';
@@ -365,4 +366,37 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get playGamesOpen => 'Ver no Play Games';
+
+  @override
+  String get hapticsLabel => 'Vibração';
+
+  @override
+  String get youWinTitle => 'Você venceu!';
+
+  @override
+  String get cpuWinsTitle => 'A máquina venceu';
+
+  @override
+  String playerWinsTitle(String symbol) {
+    return '$symbol venceu!';
+  }
+
+  @override
+  String winStreakChip(int count) {
+    return '$count vitórias seguidas!';
+  }
+
+  @override
+  String dailyStreakChip(int count) {
+    return '$count dias seguidos';
+  }
+
+  @override
+  String get newRecordChip => 'Novo recorde!';
+
+  @override
+  String get cpuThinking => 'Pensando...';
+
+  @override
+  String get yourTurn => 'Sua vez';
 }

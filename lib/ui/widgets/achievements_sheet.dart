@@ -7,7 +7,10 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 import '../../models/achievement.dart';
 import '../../models/progress_state.dart';
 import '../../services/game_services_bridge.dart';
+import '../../services/progression_engine.dart';
 import '../../services/progression_service.dart';
+import 'fading_edge.dart';
+import 'juice/pulse.dart';
 import 'modern_background.dart';
 
 /// Cor do selo por faixa.
@@ -98,7 +101,7 @@ class AchievementsSheet extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Flexible(
-          child: _FadingEdge(
+          child: FadingEdge(
             child: ListView.separated(
               shrinkWrap: true,
               padding: const EdgeInsets.only(bottom: 6),
@@ -223,32 +226,6 @@ class _PlayerAvatar extends StatelessWidget {
   }
 }
 
-/// Esmaece a borda de baixo da lista, sinalizando que há mais conteúdo.
-///
-/// Sem isso o último item aparece fatiado no limite do painel e parece um bug
-/// de layout, não um convite a rolar.
-class _FadingEdge extends StatelessWidget {
-  const _FadingEdge({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ShaderMask(
-      shaderCallback: (Rect bounds) {
-        return const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: <Color>[Colors.white, Colors.white, Colors.transparent],
-          stops: <double>[0, 0.92, 1],
-        ).createShader(bounds);
-      },
-      blendMode: BlendMode.dstIn,
-      child: child,
-    );
-  }
-}
-
 /// Cartão de nível com a barra de XP. Reaproveitado na home.
 class LevelPanel extends StatelessWidget {
   const LevelPanel({super.key, required this.localization});
@@ -260,6 +237,8 @@ class LevelPanel extends StatelessWidget {
     final ProgressionService progression = ProgressionService.instance;
     final (int into, int span) = progression.levelBar;
     final double fraction = span == 0 ? 0 : (into / span).clamp(0.0, 1.0);
+    final int dailyStreak = ProgressionEngine.effectiveDailyStreak(
+        progression.state, DateTime.now());
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -295,22 +274,72 @@ class LevelPanel extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  localization.levelLabel(progression.level),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        localization.levelLabel(progression.level),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    // Dias seguidos: o gancho de "volta amanhã" fica visível
+                    // já na home, com fogo, enquanto a sequência estiver viva.
+                    if (dailyStreak >= 2)
+                      Pulse(
+                        maxScale: 1.06,
+                        period: const Duration(milliseconds: 1200),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            color: VerseColors.danger.withOpacity(0.18),
+                            border: Border.all(
+                                color: VerseColors.danger.withOpacity(0.7)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              const Icon(Icons.local_fire_department_rounded,
+                                  size: 14, color: VerseColors.danger),
+                              const SizedBox(width: 3),
+                              Text(
+                                '$dailyStreak',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 6),
+                // A barra ANIMA até o valor atual: ao voltar de uma partida o
+                // jogador vê o ganho encher, não um número que já mudou.
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: fraction,
-                    minHeight: 8,
-                    backgroundColor: Colors.white.withOpacity(0.10),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                        VerseColors.energy),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0, end: fraction),
+                    duration: const Duration(milliseconds: 900),
+                    curve: Curves.easeOutCubic,
+                    builder: (BuildContext context, double value, Widget? _) {
+                      return LinearProgressIndicator(
+                        value: value,
+                        minHeight: 8,
+                        backgroundColor: Colors.white.withOpacity(0.10),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            VerseColors.energy),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -415,8 +444,7 @@ class _AchievementTile extends StatelessWidget {
                                 value: progress / achievement.target,
                                 minHeight: 6,
                                 backgroundColor: Colors.white.withOpacity(0.10),
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(tint),
+                                valueColor: AlwaysStoppedAnimation<Color>(tint),
                               ),
                             ),
                           ),
@@ -437,7 +465,8 @@ class _AchievementTile extends StatelessWidget {
               if (unlocked)
                 Padding(
                   padding: const EdgeInsets.only(left: 8, top: 2),
-                  child: Icon(Icons.check_circle_rounded, size: 20, color: tint),
+                  child:
+                      Icon(Icons.check_circle_rounded, size: 20, color: tint),
                 ),
             ],
           ),

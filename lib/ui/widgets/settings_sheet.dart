@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../services/audio_service.dart';
+import '../../services/haptics_service.dart';
 import '../../services/update_service.dart';
 import 'modern_background.dart';
 
@@ -52,7 +53,7 @@ class SettingsSheet extends StatelessWidget {
                 return SwitchListTile.adaptive(
                   value: isMuted,
                   onChanged: (bool value) => audioService.setMuted(value),
-                  activeColor: Colors.cyanAccent,
+                  activeThumbColor: Colors.cyanAccent,
                   title: Text(localization.muteLabel),
                   contentPadding: EdgeInsets.zero,
                 );
@@ -79,8 +80,7 @@ class SettingsSheet extends StatelessWidget {
                           value: volume,
                           onChanged: isMuted
                               ? null
-                              : (double value) =>
-                                  audioService.setVolume(value),
+                              : (double value) => audioService.setVolume(value),
                           min: 0,
                           max: 1,
                           divisions: 10,
@@ -90,6 +90,24 @@ class SettingsSheet extends StatelessWidget {
                       ],
                     );
                   },
+                );
+              },
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: HapticsService.instance.isEnabledListenable,
+              builder: (BuildContext context, bool enabled, Widget? child) {
+                return SwitchListTile.adaptive(
+                  value: enabled,
+                  onChanged: (bool value) {
+                    HapticsService.instance.setEnabled(value);
+                    // Demonstra na hora o que o jogador acabou de ligar.
+                    HapticsService.instance.play(HapticCue.capture);
+                  },
+                  activeThumbColor: Colors.cyanAccent,
+                  title: Text(localization.hapticsLabel),
+                  secondary: const Icon(Icons.vibration_rounded,
+                      color: Colors.white70),
+                  contentPadding: EdgeInsets.zero,
                 );
               },
             ),
@@ -119,25 +137,32 @@ class _UpdateCheckButton extends StatefulWidget {
 class _UpdateCheckButtonState extends State<_UpdateCheckButton> {
   bool _checking = false;
 
+  /// Resultado da última checagem, mostrado INLINE abaixo do botão. Um
+  /// SnackBar aqui usava o ScaffoldMessenger da tela de baixo e aparecia
+  /// ATRÁS deste sheet (bug do backlog de 05/07).
+  String? _message;
+  bool _messageIsError = false;
+
   Future<void> _check() async {
+    AudioService.instance.playUiClick();
     setState(() {
       _checking = true;
+      _message = null;
     });
-    final UpdateCheckOutcome outcome = await UpdateService.instance.checkForUpdate();
+    final UpdateCheckOutcome outcome =
+        await UpdateService.instance.checkForUpdate();
     if (!mounted) {
       return;
     }
     setState(() {
       _checking = false;
+      _message = switch (outcome) {
+        UpdateCheckOutcome.upToDate => widget.localization.upToDateMessage,
+        UpdateCheckOutcome.failed => widget.localization.updateFailedMessage,
+        _ => null,
+      };
+      _messageIsError = outcome == UpdateCheckOutcome.failed;
     });
-    final String? message = switch (outcome) {
-      UpdateCheckOutcome.upToDate => widget.localization.upToDateMessage,
-      UpdateCheckOutcome.failed => widget.localization.updateFailedMessage,
-      _ => null,
-    };
-    if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    }
   }
 
   @override
@@ -145,26 +170,68 @@ class _UpdateCheckButtonState extends State<_UpdateCheckButton> {
     return ValueListenableBuilder<bool>(
       valueListenable: UpdateService.instance.updateAvailable,
       builder: (BuildContext context, bool hasUpdate, Widget? _) {
-        return FilledButton.tonalIcon(
-          onPressed: _checking ? null : _check,
-          icon: _checking
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Badge(
-                  isLabelVisible: hasUpdate,
-                  smallSize: 9,
-                  backgroundColor: Colors.redAccent,
-                  child: const Icon(Icons.system_update_rounded),
-                ),
-          label: Text(widget.localization.checkUpdatesLabel),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(46),
-          ),
+        final String? message = _message;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            _buildButton(hasUpdate),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 220),
+              alignment: Alignment.topCenter,
+              child: message == null
+                  ? const SizedBox(width: double.infinity)
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            _messageIsError
+                                ? Icons.error_outline_rounded
+                                : Icons.check_circle_outline_rounded,
+                            size: 18,
+                            color: _messageIsError
+                                ? VerseColors.danger
+                                : Colors.greenAccent,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              message,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
         );
       },
+    );
+  }
+
+  Widget _buildButton(bool hasUpdate) {
+    return FilledButton.tonalIcon(
+      onPressed: _checking ? null : _check,
+      icon: _checking
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Badge(
+              isLabelVisible: hasUpdate,
+              smallSize: 9,
+              backgroundColor: Colors.redAccent,
+              child: const Icon(Icons.system_update_rounded),
+            ),
+      label: Text(widget.localization.checkUpdatesLabel),
+      style: FilledButton.styleFrom(
+        minimumSize: const Size.fromHeight(46),
+      ),
     );
   }
 }

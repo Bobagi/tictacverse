@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/audio_service.dart';
+import '../../services/haptics_service.dart';
 import 'modern_background.dart';
 
 class ModeCard extends StatelessWidget {
@@ -30,6 +31,7 @@ class ModeCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           AudioService.instance.playUiClick();
+          HapticsService.instance.play(HapticCue.tap);
           onStart();
         },
         child: Container(

@@ -107,5 +107,14 @@
   "achMatches50Title": "अनुभवी",
   "achMatches250Title": "मैराथनर",
   "achDescMatches": "{count} मैच खेलें",
-  "playGamesOpen": "Play Games में देखें"
+  "playGamesOpen": "Play Games में देखें",
+  "hapticsLabel": "कंपन",
+  "youWinTitle": "आप जीत गए!",
+  "cpuWinsTitle": "मशीन जीत गई",
+  "playerWinsTitle": "{symbol} जीत गया!",
+  "winStreakChip": "लगातार {count} जीत!",
+  "dailyStreakChip": "लगातार {count} दिन",
+  "newRecordChip": "नया रिकॉर्ड!",
+  "cpuThinking": "सोच रहा है...",
+  "yourTurn": "आपकी बारी"
 }

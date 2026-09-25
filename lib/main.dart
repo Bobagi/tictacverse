@@ -9,6 +9,7 @@ import 'services/ads_configuration.dart';
 import 'services/audio_service.dart';
 import 'services/consent_service.dart';
 import 'services/game_services_bridge.dart';
+import 'services/haptics_service.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
 import 'services/progression_service.dart';
@@ -32,6 +33,9 @@ Future<void> main() async {
     muted: StorageService.instance.audioMuted,
     volume: StorageService.instance.audioVolume,
   );
+  HapticsService.instance.applyStoredSettings(
+    enabled: StorageService.instance.hapticsEnabled,
+  );
   // O plugin google_mobile_ads não existe na web - consent/ads só fora dela,
   // senão o main() trava no splash. Com ads desligados (suspensão AdMob),
   // consent UMP e SDK nem inicializam.
@@ -51,7 +55,8 @@ class TicTacVerseApp extends StatefulWidget {
   State<TicTacVerseApp> createState() => _TicTacVerseAppState();
 }
 
-class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObserver {
+class _TicTacVerseAppState extends State<TicTacVerseApp>
+    with WidgetsBindingObserver {
   final MetricsService metricsService = MetricsService();
   late Locale _resolvedStartupLocale;
   Locale? _userSelectedLocale;
@@ -61,7 +66,8 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     metricsService.recordSessionStart();
-    _resolvedStartupLocale = _resolveSupportedLocale(WidgetsBinding.instance.platformDispatcher.locale);
+    _resolvedStartupLocale = _resolveSupportedLocale(
+        WidgetsBinding.instance.platformDispatcher.locale);
     final String? storedLocaleCode = StorageService.instance.localeCode;
     if (storedLocaleCode != null) {
       _userSelectedLocale = _resolveSupportedLocale(Locale(storedLocaleCode));
@@ -85,7 +91,8 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
       return;
     }
 
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       if (!kIsWeb && AdsConfiguration.adsEnabled) {
         MobileAds.instance.setAppMuted(true);
         MobileAds.instance.setAppVolume(0.0);
@@ -98,13 +105,16 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      onGenerateTitle: (BuildContext context) => AppLocalizations.of(context)?.appTitle ?? '',
+      onGenerateTitle: (BuildContext context) =>
+          AppLocalizations.of(context)?.appTitle ?? '',
       locale: _userSelectedLocale ?? _resolvedStartupLocale,
-      localeListResolutionCallback: (List<Locale>? locales, Iterable<Locale> supported) {
+      localeListResolutionCallback:
+          (List<Locale>? locales, Iterable<Locale> supported) {
         if (_userSelectedLocale != null) {
           return _userSelectedLocale;
         }
-        final Locale? deviceLocale = locales != null && locales.isNotEmpty ? locales.first : null;
+        final Locale? deviceLocale =
+            locales != null && locales.isNotEmpty ? locales.first : null;
         return _resolveSupportedLocale(deviceLocale ?? _resolvedStartupLocale);
       },
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -126,23 +136,24 @@ class _TicTacVerseAppState extends State<TicTacVerseApp> with WidgetsBindingObse
             color: Colors.white,
           ),
         ),
-        textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Roboto').copyWith(
-              headlineMedium: const TextStyle(
-                  fontFamily: 'Fredoka',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 30,
-                  color: Colors.white),
-              titleLarge: const TextStyle(
-                  fontFamily: 'Fredoka',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 22,
-                  color: Colors.white),
-              titleMedium: const TextStyle(
-                  fontFamily: 'Fredoka',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 17,
-                  color: Colors.white),
-            ),
+        textTheme:
+            ThemeData.dark().textTheme.apply(fontFamily: 'Roboto').copyWith(
+                  headlineMedium: const TextStyle(
+                      fontFamily: 'Fredoka',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 30,
+                      color: Colors.white),
+                  titleLarge: const TextStyle(
+                      fontFamily: 'Fredoka',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 22,
+                      color: Colors.white),
+                  titleMedium: const TextStyle(
+                      fontFamily: 'Fredoka',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+                      color: Colors.white),
+                ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: HomeScreen(

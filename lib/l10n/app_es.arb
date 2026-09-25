@@ -107,5 +107,14 @@
   "achMatches50Title": "Veterano",
   "achMatches250Title": "Maratonista",
   "achDescMatches": "Juega {count} partidas",
-  "playGamesOpen": "Ver en Play Games"
+  "playGamesOpen": "Ver en Play Games",
+  "hapticsLabel": "Vibración",
+  "youWinTitle": "¡Ganaste!",
+  "cpuWinsTitle": "La máquina ganó",
+  "playerWinsTitle": "¡Ganó {symbol}!",
+  "winStreakChip": "¡{count} victorias seguidas!",
+  "dailyStreakChip": "{count} días seguidos",
+  "newRecordChip": "¡Nuevo récord!",
+  "cpuThinking": "Pensando...",
+  "yourTurn": "Tu turno"
 }

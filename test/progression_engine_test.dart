@@ -649,4 +649,27 @@ void main() {
           reason: 'a partida sozinha não subiu, o bônus subiu');
     });
   });
+
+  group('effectiveDailyStreak (o que a home e o modal mostram)', () {
+    final DateTime now = DateTime(2026, 9, 25, 15);
+
+    test('jogou hoje: a sequência gravada vale', () {
+      final ProgressState state = ProgressState(dailyStreak: 4, lastPlayedDay: '2026-09-25');
+      expect(ProgressionEngine.effectiveDailyStreak(state, now), 4);
+    });
+
+    test('jogou ontem: ainda vale (dá para manter hoje)', () {
+      final ProgressState state = ProgressState(dailyStreak: 4, lastPlayedDay: '2026-09-24');
+      expect(ProgressionEngine.effectiveDailyStreak(state, now), 4);
+    });
+
+    test('pulou um dia: a sequência já quebrou, mostrar 0 e não o número velho', () {
+      final ProgressState state = ProgressState(dailyStreak: 4, lastPlayedDay: '2026-09-23');
+      expect(ProgressionEngine.effectiveDailyStreak(state, now), 0);
+    });
+
+    test('nunca jogou: 0', () {
+      expect(ProgressionEngine.effectiveDailyStreak(ProgressState(), now), 0);
+    });
+  });
 }

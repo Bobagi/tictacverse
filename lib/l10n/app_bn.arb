@@ -107,5 +107,14 @@
   "achMatches50Title": "পোড়খাওয়া",
   "achMatches250Title": "ম্যারাথনার",
   "achDescMatches": "{count}টি ম্যাচ খেলুন",
-  "playGamesOpen": "Play Games-এ দেখুন"
+  "playGamesOpen": "Play Games-এ দেখুন",
+  "hapticsLabel": "কম্পন",
+  "youWinTitle": "আপনি জিতেছেন!",
+  "cpuWinsTitle": "মেশিন জিতেছে",
+  "playerWinsTitle": "{symbol} জিতেছে!",
+  "winStreakChip": "টানা {count} জয়!",
+  "dailyStreakChip": "টানা {count} দিন",
+  "newRecordChip": "নতুন রেকর্ড!",
+  "cpuThinking": "ভাবছে...",
+  "yourTurn": "আপনার পালা"
 }

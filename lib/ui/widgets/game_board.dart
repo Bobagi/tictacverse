@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/player_marker.dart';
 import '../../services/visual_assets.dart';
+import 'juice/particles.dart';
+import 'juice/press_scale.dart';
 import 'modern_background.dart';
 import 'neon_win_line.dart';
 import 'pop_in.dart';
@@ -18,6 +20,8 @@ class GameBoard extends StatefulWidget {
     this.winningPlayer,
     this.visualAssetConfig,
     this.highlightIndex,
+    this.particles,
+    this.interactive = true,
   });
 
   final List<PlayerMarker?> board;
@@ -27,6 +31,14 @@ class GameBoard extends StatefulWidget {
   final PlayerMarker? winningPlayer;
   final VisualAssetConfig? visualAssetConfig;
   final int? highlightIndex;
+
+  /// Partículas do tabuleiro (explosão ao colocar peça, poeira ao remover,
+  /// faísca no bloqueio). O tabuleiro cria o próprio se não receber um.
+  final ParticleController? particles;
+
+  /// Toques respondem (escala de pressão). Desligue enquanto a máquina pensa
+  /// para o jogador não achar que o toque "pegou".
+  final bool interactive;
 
   @override
   State<GameBoard> createState() => _GameBoardState();
@@ -44,6 +56,10 @@ class _GameBoardState extends State<GameBoard>
   late final AnimationController _neonPulseController =
       AnimationController(vsync: this, duration: const Duration(seconds: 6))
         ..repeat();
+  late final ParticleController _ownParticles = ParticleController();
+  double _lastCellExtent = 0;
+
+  ParticleController get _particles => widget.particles ?? _ownParticles;
 
   @override
   void initState() {
@@ -63,13 +79,62 @@ class _GameBoardState extends State<GameBoard>
       _assignGlowColors();
     }
     _storeRotationsForNewPlacements();
+    _emitPlacementParticles(oldWidget);
     _previousBoardState = List<PlayerMarker?>.from(widget.board);
   }
 
   @override
   void dispose() {
     _neonPulseController.dispose();
+    _ownParticles.dispose();
     super.dispose();
+  }
+
+  Offset _cellCenter(int index) {
+    final double extent = _lastCellExtent;
+    return Offset((index % 3 + 0.5) * extent, (index ~/ 3 + 0.5) * extent);
+  }
+
+  /// Explosão na peça nova, poeira na peça que sumiu (Shift/Caos) e faísca
+  /// vermelha na célula que acabou de ser bloqueada.
+  void _emitPlacementParticles(GameBoard oldWidget) {
+    if (_lastCellExtent <= 0 || _boardWasReset()) {
+      return;
+    }
+    final double size = _lastCellExtent;
+    for (int index = 0; index < widget.board.length; index++) {
+      final PlayerMarker? before = _previousBoardState[index];
+      final PlayerMarker? now = widget.board[index];
+      if (before == null && now != null) {
+        _particles.burst(
+          center: _cellCenter(index),
+          color: _playerGlowColors[now] ?? Colors.cyanAccent,
+          accent: Colors.white,
+          count: 16,
+          size: size * 0.05,
+          speed: size / 90,
+        );
+      } else if (before != null && now == null) {
+        _particles.burst(
+          center: _cellCenter(index),
+          color: Colors.white70,
+          count: 10,
+          size: size * 0.04,
+          speed: size / 140,
+        );
+      }
+    }
+    for (final int index in widget.blockedCells) {
+      if (!oldWidget.blockedCells.contains(index)) {
+        _particles.burst(
+          center: _cellCenter(index),
+          color: Colors.redAccent.shade200,
+          count: 12,
+          size: size * 0.04,
+          speed: size / 120,
+        );
+      }
+    }
   }
 
   @override
@@ -82,6 +147,7 @@ class _GameBoardState extends State<GameBoard>
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             final double cellExtent = constraints.biggest.shortestSide / 3;
+            _lastCellExtent = cellExtent;
             return Stack(
               children: <Widget>[
                 Positioned.fill(
@@ -109,6 +175,7 @@ class _GameBoardState extends State<GameBoard>
                     resolvedAssetConfig,
                   ),
                 ),
+                Positioned.fill(child: ParticleField(controller: _particles)),
                 if (widget.winningLine != null && widget.winningPlayer != null)
                   Positioned.fill(
                     child: IgnorePointer(
@@ -134,66 +201,75 @@ class _GameBoardState extends State<GameBoard>
     final PlayerMarker? marker = widget.board[index];
     final bool isBlocked = widget.blockedCells.contains(index);
     final bool isHighlighted = widget.highlightIndex == index;
-    return GestureDetector(
-      onTap: () => widget.onCellSelected(index),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
-          color: Colors.transparent,
-        ),
-        child: Stack(
-          children: <Widget>[
-            if (marker != null)
-              _buildMarkerWithEffects(marker, index, cellExtent, assetConfig),
-            if (isBlocked)
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.35),
-                  borderRadius: BorderRadius.circular(12),
+    final bool isWinningCell = widget.winningLine?.contains(index) ?? false;
+    return PressScale(
+      enabled: widget.interactive && marker == null && !isBlocked,
+      pressedScale: 0.9,
+      child: GestureDetector(
+        onTap: () => widget.onCellSelected(index),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            color: Colors.transparent,
+          ),
+          child: Stack(
+            children: <Widget>[
+              if (marker != null)
+                _WinningCellPulse(
+                  active: isWinningCell,
+                  child: _buildMarkerWithEffects(
+                      marker, index, cellExtent, assetConfig),
                 ),
-                child: Center(
-                  child: Icon(Icons.block, color: Colors.redAccent.shade200),
+              if (isBlocked)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.35),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Icon(Icons.block, color: Colors.redAccent.shade200),
+                  ),
                 ),
-              ),
-            if (isHighlighted)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0.6, end: 1),
-                    duration: const Duration(milliseconds: 600),
-                    curve: Curves.easeOutBack,
-                    builder:
-                        (BuildContext context, double value, Widget? child) {
-                      final double rawOpacity = 1 - (value - 0.6) / 0.4;
-                      final double safeOpacity = rawOpacity.clamp(0.0, 1.0);
-                      return Opacity(
-                        opacity: safeOpacity,
-                        child: Transform.scale(
-                          scale: value,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                            color: Colors.lightBlueAccent.withOpacity(0.85),
-                            width: 2),
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: Colors.lightBlueAccent.withOpacity(0.35),
-                            blurRadius: 16,
-                            spreadRadius: 2,
+              if (isHighlighted)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0.6, end: 1),
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeOutBack,
+                      builder:
+                          (BuildContext context, double value, Widget? child) {
+                        final double rawOpacity = 1 - (value - 0.6) / 0.4;
+                        final double safeOpacity = rawOpacity.clamp(0.0, 1.0);
+                        return Opacity(
+                          opacity: safeOpacity,
+                          child: Transform.scale(
+                            scale: value,
+                            child: child,
                           ),
-                        ],
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: Colors.lightBlueAccent.withOpacity(0.85),
+                              width: 2),
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                              color: Colors.lightBlueAccent.withOpacity(0.35),
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -280,6 +356,67 @@ class _GameBoardState extends State<GameBoard>
     const List<double> quarterTurns = <double>[0, pi / 2, pi, 3 * pi / 2];
     final int randomIndex = _randomGenerator.nextInt(quarterTurns.length);
     return quarterTurns[randomIndex];
+  }
+}
+
+/// As três peças da linha vencedora "respiram" enquanto a linha neon brilha.
+class _WinningCellPulse extends StatefulWidget {
+  const _WinningCellPulse({required this.active, required this.child});
+
+  final bool active;
+  final Widget child;
+
+  @override
+  State<_WinningCellPulse> createState() => _WinningCellPulseState();
+}
+
+class _WinningCellPulseState extends State<_WinningCellPulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 520),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.active) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(_WinningCellPulse oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active && !oldWidget.active) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.active && oldWidget.active) {
+      _controller.stop();
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (!widget.active || reduceMotion) {
+      return widget.child;
+    }
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, Widget? child) {
+        final double t = Curves.easeInOut.transform(_controller.value);
+        return Transform.scale(scale: 1 + 0.14 * t, child: child);
+      },
+      child: widget.child,
+    );
   }
 }
 

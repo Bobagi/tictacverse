@@ -4,9 +4,17 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../services/ad_unit_id_provider.dart';
 
+/// O que a oferta de dobrar o XP precisa do anúncio premiado. Interface
+/// separada para os testes trocarem o SDK por um dublê.
+abstract interface class RewardedAdGateway {
+  bool get isReady;
+  void loadRewardedAd();
+  Future<bool> showForReward();
+}
+
 /// Anúncio premiado (opt-in): o jogador escolhe assisti-lo em troca de um
 /// bônus. Nunca é exibido sozinho - só a partir de um toque explícito.
-class RewardedAdController {
+class RewardedAdController implements RewardedAdGateway {
   RewardedAd? _rewardedAd;
   bool _isLoading = false;
   bool _disposed = false;
@@ -18,8 +26,10 @@ class RewardedAdController {
   /// Há anúncio carregado e pronto para exibir. A oferta só aparece na UI
   /// quando isto é verdadeiro: prometer o bônus e depois não ter anúncio para
   /// mostrar é pior do que não oferecer.
+  @override
   bool get isReady => _rewardedAd != null;
 
+  @override
   void loadRewardedAd() {
     if (_disposed || _rewardedAd != null || _isLoading) {
       return;
@@ -57,6 +67,7 @@ class RewardedAdController {
   /// Resolve com `false` quando não havia anúncio carregado, quando ele falhou
   /// ao abrir, ou quando o jogador fechou antes do fim. Quem chama nunca deve
   /// creditar o bônus sem esperar por este `true`.
+  @override
   Future<bool> showForReward() {
     final RewardedAd? ad = _disposed ? null : _rewardedAd;
     if (ad == null) {

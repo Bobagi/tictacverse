@@ -5,7 +5,7 @@
   "modeShiftTitle": "Modo Shift",
   "modeShiftSubtitle": "Só 3 peças por jogador - a mais antiga some.",
   "modeChaosTitle": "Modo Caos",
-  "modeChaosSubtitle": "A cada rodadas, um evento muda as regras.",
+  "modeChaosSubtitle": "A cada poucas rodadas, um evento muda as regras.",
   "modeUltimateTitle": "Mini Supremo",
   "modeUltimateSubtitle": "Vença sob uma condição especial que muda a cada partida.",
   "startMatch": "Iniciar partida",
@@ -107,5 +107,14 @@
   "achMatches50Title": "Veterano",
   "achMatches250Title": "Maratonista",
   "achDescMatches": "Jogue {count} partidas",
-  "playGamesOpen": "Ver no Play Games"
+  "playGamesOpen": "Ver no Play Games",
+  "hapticsLabel": "Vibração",
+  "youWinTitle": "Você venceu!",
+  "cpuWinsTitle": "A máquina venceu",
+  "playerWinsTitle": "{symbol} venceu!",
+  "winStreakChip": "{count} vitórias seguidas!",
+  "dailyStreakChip": "{count} dias seguidos",
+  "newRecordChip": "Novo recorde!",
+  "cpuThinking": "Pensando...",
+  "yourTurn": "Sua vez"
 }

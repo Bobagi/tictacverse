@@ -11,9 +11,13 @@ import '../../models/chaos_event.dart';
 import '../../models/game_mode.dart';
 import '../../models/game_result.dart';
 import '../../models/player_marker.dart';
+import '../../models/progress_state.dart';
 import '../../services/ad_service.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
+import '../../services/double_xp_offer.dart';
+import '../../services/haptics_service.dart';
+import '../../services/match_feedback.dart';
 import '../../services/metrics_service.dart';
 import '../../services/progression_engine.dart';
 import '../../services/progression_service.dart';
@@ -23,7 +27,10 @@ import '../../services/visual_assets.dart';
 import '../widgets/board_shake.dart';
 import '../widgets/game_board.dart';
 import '../widgets/game_over_modal.dart';
+import '../widgets/juice/particles.dart';
+import '../widgets/juice/pulse.dart';
 import '../widgets/modern_background.dart';
+import '../widgets/pop_in.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({
@@ -47,6 +54,13 @@ class _GameScreenState extends State<GameScreen> {
   final RewardedAdController rewardedAdController = RewardedAdController();
   final AdService adService = AdService.instance;
   final AudioService audioService = AudioService.instance;
+  final HapticsService haptics = HapticsService.instance;
+  final ParticleController _screenParticles = ParticleController();
+  final ParticleController _boardParticles = ParticleController();
+  late final DoubleXpOffer _doubleXpOffer = DoubleXpOffer(
+    rewardedAdController: rewardedAdController,
+    adService: adService,
+  );
   Timer? _cpuHighlightTimer;
   Timer? _cpuMoveTimer;
   Timer? _gameOverTimer;
@@ -56,17 +70,6 @@ class _GameScreenState extends State<GameScreen> {
 
   /// Recompensa da última partida, exibida dentro do modal de fim.
   ProgressionResult? _progressionResult;
-
-  /// O intersticial foi realmente exibido no fim desta partida. Quando foi, a
-  /// oferta de anúncio premiado é suprimida: encadear "anúncio, agora quer ver
-  /// outro?" queima o jogador e é o tipo de padrão que chama atenção da
-  /// política do AdMob. Vale um convite a menos.
-  bool _interstitialShownThisMatch = false;
-
-  /// O convite de dobrar o XP caiu no intervalo desta partida. Contado uma vez
-  /// em `_onMatchEnded`, nunca dentro do `builder` do modal - o `builder` pode
-  /// rodar de novo num rebuild e adiantaria o intervalo.
-  bool _rewardedOfferDueThisMatch = false;
 
   /// Pausa de "pensamento" antes da CPU responder - a jogada dela não pode
   /// aparecer no mesmo frame do toque do jogador.
@@ -99,6 +102,8 @@ class _GameScreenState extends State<GameScreen> {
     bannerAdController.dispose();
     interstitialAdController.dispose();
     rewardedAdController.dispose();
+    _screenParticles.dispose();
+    _boardParticles.dispose();
     super.dispose();
   }
 
@@ -125,59 +130,69 @@ class _GameScreenState extends State<GameScreen> {
             ),
           ],
         ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      _buildStatusHud(localization),
-                      const SizedBox(height: 12),
-                      Expanded(
-                        child: LayoutBuilder(
-                          builder: (BuildContext context,
-                              BoxConstraints constraints) {
-                            final double boardSize =
-                                constraints.biggest.shortestSide;
-                            return Center(
-                              child: SizedBox(
-                                width: boardSize,
-                                height: boardSize,
-                                child: BoardShake(
-                                  trigger: _shakeTick,
-                                  child: GameBoard(
-                                    board: widget.controller.state.board,
-                                    blockedCells:
-                                        widget.controller.state.blockedCells,
-                                    onCellSelected: _handleCellTap,
-                                    winningLine: widget
-                                        .controller.state.result.winningLine,
-                                    winningPlayer:
-                                        widget.controller.state.result.winner,
-                                    visualAssetConfig: _visualAssets,
-                                    highlightIndex: _cpuMoveHighlightIndex,
+        body: Stack(
+          children: <Widget>[
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          _buildStatusHud(localization),
+                          const SizedBox(height: 12),
+                          Expanded(
+                            child: LayoutBuilder(
+                              builder: (BuildContext context,
+                                  BoxConstraints constraints) {
+                                final double boardSize =
+                                    constraints.biggest.shortestSide;
+                                return Center(
+                                  child: SizedBox(
+                                    width: boardSize,
+                                    height: boardSize,
+                                    child: BoardShake(
+                                      trigger: _shakeTick,
+                                      child: GameBoard(
+                                        board: widget.controller.state.board,
+                                        blockedCells: widget
+                                            .controller.state.blockedCells,
+                                        onCellSelected: _handleCellTap,
+                                        winningLine: widget.controller.state
+                                            .result.winningLine,
+                                        winningPlayer: widget
+                                            .controller.state.result.winner,
+                                        visualAssetConfig: _visualAssets,
+                                        highlightIndex: _cpuMoveHighlightIndex,
+                                        particles: _boardParticles,
+                                        interactive: !_cpuThinking &&
+                                            !widget.controller.state.result
+                                                .isFinal,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                       ),
+                    ),
+                    if (AdsConfiguration.adsEnabled) ...<Widget>[
                       const SizedBox(height: 12),
+                      _buildBannerArea(),
                     ],
-                  ),
+                  ],
                 ),
-                if (AdsConfiguration.adsEnabled) ...<Widget>[
-                  const SizedBox(height: 12),
-                  _buildBannerArea(),
-                ],
-              ],
+              ),
             ),
-          ),
+            // Confete por cima de tudo (inclusive do banner), sem roubar toque.
+            Positioned.fill(child: ParticleField(controller: _screenParticles)),
+          ],
         ),
       ),
     );
@@ -185,6 +200,17 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildStatusHud(AppLocalizations localization) {
     final PlayerMarker current = widget.controller.state.currentPlayer;
+    final bool vsCpu = widget.controller.playAgainstCpu;
+    final bool humanTurn = !widget.controller.state.result.isFinal &&
+        (!vsCpu || (current == PlayerMarker.cross && !_cpuThinking));
+    final String hint;
+    if (_cpuThinking) {
+      hint = localization.cpuThinking;
+    } else if (vsCpu && humanTurn) {
+      hint = localization.yourTurn;
+    } else {
+      hint = localization.winInstruction;
+    }
     return GlassPanel(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Column(
@@ -192,7 +218,21 @@ class _GameScreenState extends State<GameScreen> {
         children: <Widget>[
           Row(
             children: <Widget>[
-              _buildPlayerAvatar(current),
+              // O avatar de quem joga "respira": a vez de jogar fica óbvia sem
+              // ler o texto - importa nos idiomas em que a HUD fica longa.
+              Pulse(
+                active: humanTurn,
+                maxScale: 1.1,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 260),
+                  transitionBuilder: (Widget child, Animation<double> anim) =>
+                      ScaleTransition(scale: anim, child: child),
+                  child: KeyedSubtree(
+                    key: ValueKey<PlayerMarker>(current),
+                    child: _buildPlayerAvatar(current),
+                  ),
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -206,33 +246,42 @@ class _GameScreenState extends State<GameScreen> {
                           ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      localization.winInstruction,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.white70),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      child: Text(
+                        hint,
+                        key: ValueKey<String>(hint),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: _cpuThinking
+                                  ? Colors.cyanAccent
+                                  : Colors.white70,
+                            ),
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton(
-                onPressed: () {
-                  audioService.playUiClick();
-                  _showHelpModal(localization);
-                },
-                icon: const Icon(Icons.help_outline_rounded,
-                    color: Colors.white70),
-                tooltip: localization.helpTitle,
-              ),
+              if (_cpuThinking)
+                const _ThinkingDots()
+              else
+                IconButton(
+                  onPressed: () {
+                    audioService.playUiClick();
+                    haptics.play(HapticCue.tap);
+                    _showHelpModal(localization);
+                  },
+                  icon: const Icon(Icons.help_outline_rounded,
+                      color: Colors.white70),
+                  tooltip: localization.helpTitle,
+                ),
             ],
           ),
           if (widget.controller.state.movesRemaining != null ||
-              widget.controller.state.activeUltimateCondition !=
-                  null) ...<Widget>[
+              widget.controller.state.activeUltimateCondition != null ||
+              widget.controller.state.activeChaosEvent != null) ...<Widget>[
             const SizedBox(height: 10),
           ],
           Wrap(
@@ -251,10 +300,15 @@ class _GameScreenState extends State<GameScreen> {
                       .describe(localization),
                 ),
               if (widget.controller.state.activeChaosEvent != null)
-                _buildHudChip(
-                  Icons.bolt_rounded,
-                  _chaosEventLabel(
-                      localization, widget.controller.state.activeChaosEvent!),
+                PopIn(
+                  key: ObjectKey(widget.controller.state.activeChaosEvent),
+                  beginScale: 1.4,
+                  child: _buildHudChip(
+                    Icons.bolt_rounded,
+                    _chaosEventLabel(localization,
+                        widget.controller.state.activeChaosEvent!),
+                    tint: VerseColors.energy,
+                  ),
                 ),
             ],
           ),
@@ -274,25 +328,28 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  Widget _buildHudChip(IconData icon, String label) {
+  Widget _buildHudChip(IconData icon, String label,
+      {Color tint = Colors.lightBlueAccent}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
+        color: tint.withOpacity(0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.25)),
+        border: Border.all(color: tint.withOpacity(0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(icon, size: 18, color: Colors.lightBlueAccent),
+          Icon(icon, size: 18, color: tint),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Colors.white),
+          Flexible(
+            child: Text(
+              label,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -322,14 +379,19 @@ class _GameScreenState extends State<GameScreen> {
     }
     final List<PlayerMarker?> previousBoard =
         List<PlayerMarker?>.from(widget.controller.state.board);
+    final ChaosEvent? previousEvent = widget.controller.state.activeChaosEvent;
     setState(() {
       widget.controller.selectCellHumanOnly(index);
     });
     final int newPlacements =
         _countNewPlacements(previousBoard, widget.controller.state.board);
     if (newPlacements > 0) {
-      audioService.playMoveSfx();
+      audioService.playMoveSfx(
+          isNought:
+              widget.controller.state.board[index] == PlayerMarker.nought);
+      haptics.play(HapticCue.place);
     }
+    _announceChaosEvent(previousEvent);
     if (widget.controller.state.result.isFinal) {
       _onMatchEnded();
       return;
@@ -347,13 +409,15 @@ class _GameScreenState extends State<GameScreen> {
     }
     final List<PlayerMarker?> previousBoard =
         List<PlayerMarker?>.from(widget.controller.state.board);
+    final ChaosEvent? previousEvent = widget.controller.state.activeChaosEvent;
     setState(() {
       widget.controller.performPendingCpuMove();
       _cpuThinking = false;
     });
     if (_countNewPlacements(previousBoard, widget.controller.state.board) > 0) {
-      audioService.playMoveSfx();
+      audioService.playMoveSfx(isNought: true);
     }
+    _announceChaosEvent(previousEvent);
     final int? cpuMoveIndex =
         _findCpuMoveIndex(previousBoard, widget.controller.state.board);
     if (cpuMoveIndex != null) {
@@ -361,6 +425,21 @@ class _GameScreenState extends State<GameScreen> {
     }
     if (widget.controller.state.result.isFinal) {
       _onMatchEnded();
+    }
+  }
+
+  /// Evento novo do Caos: som de "arranhão", pulso e tremida curta.
+  void _announceChaosEvent(ChaosEvent? previousEvent) {
+    final ChaosEvent? event = widget.controller.state.activeChaosEvent;
+    if (event == null || identical(event, previousEvent)) {
+      return;
+    }
+    audioService.play(Sfx.chaos);
+    haptics.play(HapticCue.capture);
+    if (!widget.controller.state.result.isFinal) {
+      setState(() {
+        _shakeTick++;
+      });
     }
   }
 
@@ -391,48 +470,62 @@ class _GameScreenState extends State<GameScreen> {
 
   void _onMatchEnded() {
     final GameResult finalResult = widget.controller.state.result;
+    final bool vsCpu = widget.controller.playAgainstCpu;
     widget.metricsService.recordMatch(widget.controller.modeDefinition.type);
     StorageService.instance.recordMatch(
       mode: widget.controller.modeDefinition.type,
       result: finalResult,
-      vsCpu: widget.controller.playAgainstCpu,
+      vsCpu: vsCpu,
     );
-    _progressionResult = _registerProgression(finalResult);
-    _interstitialShownThisMatch = false;
-    _rewardedOfferDueThisMatch = false;
-    rewardedAdController.loadRewardedAd();
+    final ProgressionResult progression = _registerProgression(finalResult);
+    _progressionResult = progression;
+    _doubleXpOffer.onMatchEnded(progression);
 
     // Celebração antes do modal: tabuleiro travado (result.isFinal), shake de
     // impacto e a linha neon desenhando por inteiro. Review/interstitial só
     // depois, senão cobrem a animação.
     final bool hasWinLine =
         finalResult.winningLine != null && finalResult.winner != null;
+    final MatchEndKind kind = classifyMatchEnd(finalResult, vsCpu: vsCpu);
     if (hasWinLine) {
       setState(() {
         _shakeTick++;
       });
+      audioService.play(Sfx.winLine);
     }
     final bool reduceMotion = MediaQuery.of(context).disableAnimations;
     final Duration delay = reduceMotion
         ? const Duration(milliseconds: 200)
         : (hasWinLine ? _winCelebration : _drawPause);
+    // Som/vibração/confete entram quando a linha termina de desenhar (ou logo
+    // no empate), para a festa não atropelar o "risco" da linha.
+    Timer(
+      reduceMotion || !hasWinLine
+          ? Duration.zero
+          : const Duration(milliseconds: 650),
+      () {
+        if (mounted) {
+          playMatchEndFeedback(kind, screenParticles: _screenParticles);
+        }
+      },
+    );
     _gameOverTimer?.cancel();
     _gameOverTimer = Timer(delay, () {
       if (!mounted) {
         return;
       }
-      if (widget.controller.playAgainstCpu &&
-          finalResult.winner == PlayerMarker.cross) {
+      if (vsCpu && finalResult.winner == PlayerMarker.cross) {
         ReviewService.instance.maybeRequestReview();
       }
+      bool interstitialShown = false;
       if (adService.shouldShowInterstitialOnMatchEnd()) {
-        _interstitialShownThisMatch =
+        interstitialShown =
             interstitialAdController.showInterstitialAdIfAvailable();
       } else {
         interstitialAdController.loadInterstitialAd();
       }
-      _rewardedOfferDueThisMatch = adService.shouldOfferRewardedOnMatchEnd();
-      _showGameOverSheet();
+      _doubleXpOffer.onCelebrationDone(interstitialShown: interstitialShown);
+      _showGameOverSheet(kind);
     });
   }
 
@@ -475,73 +568,40 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  /// A oferta de dobrar o XP, ou `null` quando não há o que oferecer.
-  ///
-  /// Só convida com anúncio JÁ carregado: prometer o bônus e depois não ter o
-  /// que exibir é pior do que ficar calado.
-  Future<ProgressionResult?> Function()? _doubleXpOffer() {
-    if (!AdsConfiguration.adsEnabled) {
-      return null;
-    }
-    if (_interstitialShownThisMatch) {
-      return null;
-    }
-    if (!_rewardedOfferDueThisMatch) {
-      return null;
-    }
-    if (!rewardedAdController.isReady) {
-      return null;
-    }
-    final ProgressionResult? earned = _progressionResult;
-    if (earned == null || earned.xpGained <= 0) {
-      return null;
-    }
-    return _watchAdForDoubleXp;
-  }
-
-  /// Exibe o anúncio premiado e credita o bônus, devolvendo o que mudou.
-  ///
-  /// O valor do bônus é fixado ANTES de abrir o anúncio (o XP da partida que
-  /// acabou), então dobrar é sempre dobrar aquele número - e o crédito só
-  /// acontece se o SDK confirmar que o jogador assistiu até o fim.
-  Future<ProgressionResult?> _watchAdForDoubleXp() async {
-    final ProgressionResult? earned = _progressionResult;
-    if (earned == null || earned.xpGained <= 0) {
-      return null;
-    }
-    final int bonusXp = earned.xpGained;
-    final bool rewarded = await rewardedAdController.showForReward();
-    if (!rewarded) {
-      return null;
-    }
-    return ProgressionService.instance.grantBonusXp(bonusXp);
-  }
-
-  void _showGameOverSheet() {
+  void _showGameOverSheet(MatchEndKind kind) {
     final AppLocalizations localization = AppLocalizations.of(context)!;
     final GameResult result = widget.controller.state.result;
-    final String title;
-    final String subtitle;
-    if (result.resolution == GameResolution.draw) {
-      title = localization.drawResult;
-      subtitle = localization.playAgain;
-    } else {
-      title = localization.winnerResult;
-      subtitle = result.winner?.symbol ?? '';
-    }
+    final bool vsCpu = widget.controller.playAgainstCpu;
+    final ProgressState progress = ProgressionService.instance.state;
+    final bool celebrate =
+        kind == MatchEndKind.humanWin || kind == MatchEndKind.twoPlayerWin;
     showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
+      // Sem isto o sheet trava em 9/16 da tela e o modal cheio (sequências,
+      // nível, conquista, barra, oferta) sairia cortado; o modal limita a
+      // própria altura e rola por dentro.
+      isScrollControlled: true,
       builder: (BuildContext context) => GameOverModal(
-        title: title,
-        subtitle: subtitle,
+        title: matchEndTitle(localization, result, vsCpu: vsCpu),
+        subtitle: localization.playAgain,
         progression: _progressionResult,
-        onWatchAdForDoubleXp: _doubleXpOffer(),
+        onWatchAdForDoubleXp: _doubleXpOffer.build(),
+        xpAfter: ProgressionService.instance.xp,
+        winStreak: vsCpu ? progress.currentWinStreak : 0,
+        isNewBestStreak: vsCpu &&
+            kind == MatchEndKind.humanWin &&
+            progress.currentWinStreak >= 2 &&
+            progress.currentWinStreak == progress.bestWinStreak,
+        dailyStreak:
+            ProgressionEngine.effectiveDailyStreak(progress, DateTime.now()),
+        celebrate: celebrate,
         onPlayAgain: () {
           Navigator.of(context).pop();
           _cpuMoveTimer?.cancel();
           _cpuHighlightTimer?.cancel();
+          _screenParticles.clear();
           setState(() {
             widget.controller.resetMatch();
             _cpuThinking = false;
@@ -653,5 +713,70 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ),
     );
+  }
+}
+
+/// Três pontos pulsando em sequência enquanto a máquina "pensa". Ocupa o lugar
+/// do botão de ajuda para a HUD não mudar de altura.
+class _ThinkingDots extends StatefulWidget {
+  const _ThinkingDots();
+
+  @override
+  State<_ThinkingDots> createState() => _ThinkingDotsState();
+}
+
+class _ThinkingDotsState extends State<_ThinkingDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 720),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: Center(
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (BuildContext context, Widget? _) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                for (int i = 0; i < 3; i++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Opacity(
+                      opacity: 0.35 +
+                          0.65 *
+                              (0.5 + 0.5 * _wave(_controller.value - i * 0.18)),
+                      child: Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Colors.cyanAccent,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  static double _wave(double t) {
+    final double phase = (t % 1 + 1) % 1;
+    return phase < 0.5 ? (phase * 4 - 1) : (3 - phase * 4);
   }
 }

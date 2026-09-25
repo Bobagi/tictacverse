@@ -32,13 +32,48 @@ build.
   sobre `ProgressState` com relógio injetável**, o que permite testar XP, nível e
   conquistas sem widget e sem esperar a virada do dia. Mantenha assim.
 - `lib/controllers/` - um controller por formato de anúncio, mais o `GameController`.
-- `lib/ui/screens/` e `lib/ui/widgets/`.
-- `lib/l10n/` - ARB por idioma. **`lib/localization/` é sistema morto e duplicado,
-  não use** (está no backlog para deletar).
+- `lib/ui/screens/` e `lib/ui/widgets/`. Os widgets de "juice" (partículas,
+  escala de pressão, pulso, contador que sobe) moram em `lib/ui/widgets/juice/`.
+- `lib/l10n/` - ARB por idioma (o antigo `lib/localization/` foi deletado em
+  2026-09-25; não recrie).
+- `lib/services/double_xp_offer.dart` - as regras do convite "dobre o XP" num
+  lugar só, usadas pelas DUAS telas de jogo. `match_feedback.dart` classifica o
+  fim da partida (vitória do humano, da máquina, entre amigos, empate) e dá o
+  título, o som, a vibração e o confete certos.
 
 Modos: `classic`, `shift`, `chaos`, `ultimateMini`, `ultimate2`. O **`ultimate2`
 (Super Jogo da Velha) é o carro-chefe** por diretriz do dono: campanha, criativo e
 screenshot giram em torno dele, e ele rende 50% mais XP de propósito.
+
+## Game feel ("juice"): o que existe e como estender
+
+Passe de 2026-09-25 (v1.11.0+23). Tudo respeita `MediaQuery.disableAnimations`
+(vira no-op) e o custo em repouso é zero (ticker de partículas só roda com
+partícula viva).
+
+- **Som:** `AudioService.play(Sfx.x)`; enum `Sfx` aponta para
+  `assets/audio/sfx/*.ogg` (Kenney, CC0; tabela em `assets/audio/CREDITS.md`).
+  Pool de 4 tocadores em rodízio; `Sfx.xpTick` tem throttle. Som novo = arquivo
+  ogg mono normalizado + entrada no enum + linha no CREDITS.
+- **Vibração:** `HapticsService.play(HapticCue.x)`; só `HapticFeedback` do
+  Flutter (sem permissão VIBRATE, nada sai do aparelho, Data safety não muda).
+  Ligável nas configurações (`settings.haptics`, padrão ligado).
+- **Partículas:** um `ParticleController` por camada + `ParticleField` em
+  `Positioned.fill` no Stack. `burst` (peça/captura), `confetti` (vitória, tela
+  inteira), `sparkle` (nível). O `GameBoard` e o `_MacroBoard` detectam a peça
+  nova no `didUpdateWidget` e explodem sozinhos.
+- **Fim de partida:** `_onMatchEnded` toca `winLine` no risco da linha, e 650ms
+  depois `playMatchEndFeedback` (som + vibração + confete). O modal tem título
+  que fala com o jogador, chips de sequência (vitórias a partir de 2, dias a
+  partir de 2), XP contando, barra de nível animando (atravessa a virada) e
+  chips de nível/conquista entrando escalonados. **O miolo rola e a linha de
+  ações fica fixa**: com tudo junto o conteúdo passa de 568px, e o teste
+  `tudo junto na menor tela` trava isso em 6 idiomas.
+- **Toque:** `PressScale` em botão, card e célula livre; célula ocupada ou
+  durante a pausa da máquina não reage (senão parece que o toque "pegou").
+- **Não fazer:** partícula em `setState` de tela inteira (cada camada tem o
+  próprio controller), pulso infinito em teste sem `settle()` bounded
+  (`pumpAndSettle` nunca resolve com `Pulse` na tela).
 
 ## Idiomas
 

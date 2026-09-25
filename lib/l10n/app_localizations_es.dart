@@ -367,4 +367,37 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get playGamesOpen => 'Ver en Play Games';
+
+  @override
+  String get hapticsLabel => 'Vibración';
+
+  @override
+  String get youWinTitle => '¡Ganaste!';
+
+  @override
+  String get cpuWinsTitle => 'La máquina ganó';
+
+  @override
+  String playerWinsTitle(String symbol) {
+    return '¡Ganó $symbol!';
+  }
+
+  @override
+  String winStreakChip(int count) {
+    return '¡$count victorias seguidas!';
+  }
+
+  @override
+  String dailyStreakChip(int count) {
+    return '$count días seguidos';
+  }
+
+  @override
+  String get newRecordChip => '¡Nuevo récord!';
+
+  @override
+  String get cpuThinking => 'Pensando...';
+
+  @override
+  String get yourTurn => 'Tu turno';
 }

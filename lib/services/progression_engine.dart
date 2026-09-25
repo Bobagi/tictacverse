@@ -268,6 +268,20 @@ class ProgressionEngine {
     }
   }
 
+  /// Sequência diária que ainda vale AGORA: a contagem gravada só é real se o
+  /// último dia jogado foi hoje ou ontem. Caso contrário a sequência já quebrou
+  /// (o próximo jogo recomeça do 1) e mostrar o número antigo seria mentira.
+  static int effectiveDailyStreak(ProgressState state, DateTime now) {
+    final String? last = state.lastPlayedDay;
+    if (last == null) {
+      return 0;
+    }
+    if (last == dayKey(now) || last == _yesterdayKey(now)) {
+      return state.dailyStreak;
+    }
+    return 0;
+  }
+
   /// Chave do dia no calendário local, `yyyy-mm-dd`.
   static String dayKey(DateTime moment) {
     final String month = moment.month.toString().padLeft(2, '0');
