@@ -73,6 +73,39 @@ self-clicking"). Reincidência é **encerramento permanente**, com retenção de
 - Os ids reais ficam em `lib/services/ad_unit_id_provider.dart`. Conferi-los contra
   o painel é `admob.py adunits`.
 
+## Segurança de dados (Data safety) e privacidade
+
+O app **coleta e compartilha dados**, porque serve anúncios. Declarar "nenhum
+dado" é exatamente o erro que gerou o aviso de política de **24/09/2026**
+(*Invalid Data safety form*, tipo *Device or other IDs*, prazo 08/10/2026): o
+Google detectou o `com.google.android.gms.permission.AD_ID` que o Mobile Ads SDK
+**mescla sozinho** no manifest final e não achou a declaração correspondente.
+O app estava certo; a declaração estava errada.
+
+O que sai do aparelho, resumido: Advertising ID, app set ID e id de conta
+logada, IP (vira localização aproximada), interações, diagnóstico e crash, tudo
+pelo Google Mobile Ads SDK; mais player ID, conquistas e nível pelo Play Games.
+Nada mais: o app **não tem cliente HTTP próprio, backend, Firebase, Crashlytics
+nem analytics**, e `shared_preferences` e `MetricsService` não saem do aparelho.
+
+Declaração completa, campo por campo, com o passo a passo da Play Console:
+[`docs/data-safety.md`](docs/data-safety.md). Texto publicado da política:
+[`docs/privacy-policy.md`](docs/privacy-policy.md) (publicado no gist cuja URL
+está na ficha da Play; **não trocar a URL**).
+
+**Regra que não se quebra:** Data safety, política de privacidade e código são
+**um só pacote**. Mexeu em SDK, plugin, permissão do manifest ou em qualquer
+coisa que passe a sair do aparelho? Na mesma tarefa: atualize
+`docs/data-safety.md`, refaça o formulário na Play Console, atualize
+`docs/privacy-policy.md` e republique a política. A Play Developer API **não
+cobre Data safety**, então isso é sempre manual e é sempre o passo que alguém
+esquece. Conferência rápida do que o SDK mescla de verdade:
+
+```bash
+grep -oE '<uses-permission[^>]*android:name="[^"]*"' \
+  build/app/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml
+```
+
 ## Play Games Services
 
 Ligado. As 16 conquistas e o placar foram criados por `tool/play_games_setup.py`,
