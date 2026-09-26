@@ -6,7 +6,23 @@ import '../../services/haptics_service.dart';
 import '../../services/update_service.dart';
 import 'modern_background.dart';
 
-// (Badge do Material 3 usado para o indicador de nova versão.)
+/// Abre o painel de configurações. Único ponto de abertura (a home e o teste
+/// usam esta função), porque os parâmetros importam: sem `isScrollControlled`
+/// o sheet trava em 9/16 da altura da tela e o que estiver no fim do painel
+/// sai cortado. Foi assim que o botão de atualizar sumiu em aparelhos reais na
+/// v1.11.0, depois de o painel ganhar mais itens.
+Future<void> showSettingsSheet(
+  BuildContext context,
+  AppLocalizations localization,
+) {
+  return showModalBottomSheet<void>(
+    context: context,
+    useSafeArea: true,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (BuildContext context) => SettingsSheet(localization: localization),
+  );
+}
 
 class SettingsSheet extends StatelessWidget {
   const SettingsSheet({super.key, required this.localization});
@@ -19,117 +35,136 @@ class SettingsSheet extends StatelessWidget {
     final double bottomInset = MediaQuery.of(context).viewPadding.bottom;
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
-      child: GlassPanel(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  localization.settingsTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
+      child: ConstrainedBox(
+        // Nunca passa de 90% da tela: o miolo rola, o cabeçalho fica fixo.
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
+        ),
+        child: GlassPanel(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      localization.settingsTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      audioService.playUiClick();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      // Atualizações em PRIMEIRO: é o item que o jogador
+                      // precisa achar quando há versão nova, então não pode
+                      // ficar no fim de um painel que rola.
+                      const SizedBox(height: 4),
+                      Text(
+                        localization.updatesLabel,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      _UpdateCheckButton(localization: localization),
+                      const SizedBox(height: 16),
+                      Text(
+                        localization.audioLabel,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: audioService.isMutedListenable,
+                        builder:
+                            (BuildContext context, bool isMuted, Widget? child) {
+                          return SwitchListTile.adaptive(
+                            value: isMuted,
+                            onChanged: (bool value) =>
+                                audioService.setMuted(value),
+                            activeThumbColor: Colors.cyanAccent,
+                            title: Text(localization.muteLabel),
+                            contentPadding: EdgeInsets.zero,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: audioService.isMutedListenable,
+                        builder:
+                            (BuildContext context, bool isMuted, Widget? child) {
+                          return ValueListenableBuilder<double>(
+                            valueListenable: audioService.volumeListenable,
+                            builder: (BuildContext context, double volume,
+                                Widget? _) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    localization.volumeLabel,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(color: Colors.white70),
+                                  ),
+                                  Slider(
+                                    value: volume,
+                                    onChanged: isMuted
+                                        ? null
+                                        : (double value) =>
+                                            audioService.setVolume(value),
+                                    min: 0,
+                                    max: 1,
+                                    divisions: 10,
+                                    activeColor: Colors.lightBlueAccent,
+                                    inactiveColor: Colors.white24,
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      ValueListenableBuilder<bool>(
+                        valueListenable:
+                            HapticsService.instance.isEnabledListenable,
+                        builder:
+                            (BuildContext context, bool enabled, Widget? child) {
+                          return SwitchListTile.adaptive(
+                            value: enabled,
+                            onChanged: (bool value) {
+                              HapticsService.instance.setEnabled(value);
+                              // Demonstra na hora o que o jogador ligou.
+                              HapticsService.instance
+                                  .play(HapticCue.capture);
+                            },
+                            activeThumbColor: Colors.cyanAccent,
+                            title: Text(localization.hapticsLabel),
+                            secondary: const Icon(Icons.vibration_rounded,
+                                color: Colors.white70),
+                            contentPadding: EdgeInsets.zero,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    audioService.playUiClick();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              localization.audioLabel,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            ValueListenableBuilder<bool>(
-              valueListenable: audioService.isMutedListenable,
-              builder: (BuildContext context, bool isMuted, Widget? child) {
-                return SwitchListTile.adaptive(
-                  value: isMuted,
-                  onChanged: (bool value) => audioService.setMuted(value),
-                  activeThumbColor: Colors.cyanAccent,
-                  title: Text(localization.muteLabel),
-                  contentPadding: EdgeInsets.zero,
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            ValueListenableBuilder<bool>(
-              valueListenable: audioService.isMutedListenable,
-              builder: (BuildContext context, bool isMuted, Widget? child) {
-                return ValueListenableBuilder<double>(
-                  valueListenable: audioService.volumeListenable,
-                  builder: (BuildContext context, double volume, Widget? _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          localization.volumeLabel,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: Colors.white70),
-                        ),
-                        Slider(
-                          value: volume,
-                          onChanged: isMuted
-                              ? null
-                              : (double value) => audioService.setVolume(value),
-                          min: 0,
-                          max: 1,
-                          divisions: 10,
-                          activeColor: Colors.lightBlueAccent,
-                          inactiveColor: Colors.white24,
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-            ValueListenableBuilder<bool>(
-              valueListenable: HapticsService.instance.isEnabledListenable,
-              builder: (BuildContext context, bool enabled, Widget? child) {
-                return SwitchListTile.adaptive(
-                  value: enabled,
-                  onChanged: (bool value) {
-                    HapticsService.instance.setEnabled(value);
-                    // Demonstra na hora o que o jogador acabou de ligar.
-                    HapticsService.instance.play(HapticCue.capture);
-                  },
-                  activeThumbColor: Colors.cyanAccent,
-                  title: Text(localization.hapticsLabel),
-                  secondary: const Icon(Icons.vibration_rounded,
-                      color: Colors.white70),
-                  contentPadding: EdgeInsets.zero,
-                );
-              },
-            ),
-            const SizedBox(height: 4),
-            // CC BY 4.0 (Tomasz Kucza) exige crédito visível no app; os outros
-            // são CC0 e entram por cortesia. Tabela completa: CREDITS.md.
-            Text(
-              '${localization.audioCreditsLabel}: Juhani Junkala (CC0), '
-              'Tomasz Kucza (CC BY 4.0), Kenney (CC0)',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: VerseColors.mutedText),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              localization.updatesLabel,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            _UpdateCheckButton(localization: localization),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,15 +1,17 @@
 import 'dart:math';
 
 /// Trilhas de fundo. Caminhos relativos a `assets/` (formato do `AssetSource`).
-/// Origem e licença de cada uma em `assets/audio/CREDITS.md`.
+/// Origem de cada uma em `assets/audio/CREDITS.md`. **Só entra faixa CC0 ou
+/// própria**: licença que exige crédito (CC BY) obrigaria texto na tela.
 const List<String> backgroundTracks = <String>[
   'audio/music/background_loop.mp3',
   'audio/music/junkala_level1.ogg',
   'audio/music/junkala_level2.ogg',
   'audio/music/junkala_level3.ogg',
-  'audio/music/kucza_deadly_contracts.ogg',
-  'audio/music/kucza_price_of_freedom.ogg',
-  'audio/music/kucza_hostile_territory.ogg',
+  'audio/music/sketchy_mercury.ogg',
+  'audio/music/sketchy_mars.ogg',
+  'audio/music/congus_lasso_lady.ogg',
+  'audio/music/chasers_chipscape.ogg',
 ];
 
 /// Ordem de reprodução embaralhada: toca todas as faixas antes de repetir

@@ -25,6 +25,8 @@ normalizados em loudness (-16 LUFS) e renomeados:
 
 ## Música (`music/`)
 
+Política: **só CC0 ou própria**. Nada que exija crédito em tela (decisão do dono em 2026-09-26, depois de o texto de créditos ocupar espaço nas configurações).
+
 A playlist embaralha as faixas e toca todas antes de repetir (`music_playlist.dart`).
 Todas normalizadas em loudness (-17 LUFS) e encodadas em OGG Vorbis q3 (loop sem
 "gap", ao contrário do MP3).
@@ -33,4 +35,6 @@ Todas normalizadas em loudness (-17 LUFS) e encodadas em OGG Vorbis q3 (loop sem
 |---|---|---|
 | `background_loop.mp3` | trilha original do projeto (128 kbps; era 320 kbps / 7,9 MB) | própria |
 | `junkala_level1.ogg`, `junkala_level2.ogg`, `junkala_level3.ogg` | Juhani Junkala, "5 Chiptunes (Action)" / Retro Game Music Pack (opengameart.org/content/5-chiptunes-action) | CC0 1.0 |
-| `kucza_deadly_contracts.ogg`, `kucza_price_of_freedom.ogg`, `kucza_hostile_territory.ogg` | Tomasz Kucza, "Retro Synthwave Loops" (opengameart.org/content/retro-synthwave-loops) | **CC BY 4.0**: crédito obrigatório, exibido na tela de configurações do app |
+| `sketchy_mercury.ogg`, `sketchy_mars.ogg` | SketchyLogic, "NES Shooter Music" (opengameart.org/content/nes-shooter-music-5-tracks-3-jingles) | CC0 1.0 |
+| `congus_lasso_lady.ogg` | congusbongus, "Lasso Lady" (opengameart.org/content/lasso-lady-seamless-loop) | CC0 1.0 |
+| `chasers_chipscape.ogg` | Chasersgaming, "ChipScape" (opengameart.org/content/chipscape) | CC0 1.0 |

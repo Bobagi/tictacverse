@@ -400,5 +400,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get yourTurn => 'Sua vez';
 
   @override
-  String get audioCreditsLabel => 'Créditos de áudio';
+  String get updateAvailableTitle => 'Nova versão disponível';
+
+  @override
+  String get updateAvailableBody =>
+      'Atualize agora para ter as últimas melhorias e correções.';
+
+  @override
+  String get updateNowLabel => 'Atualizar';
+
+  @override
+  String get updateLaterLabel => 'Depois';
 }

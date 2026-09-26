@@ -401,5 +401,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get yourTurn => 'Tu turno';
 
   @override
-  String get audioCreditsLabel => 'Créditos de audio';
+  String get updateAvailableTitle => 'Nueva versión disponible';
+
+  @override
+  String get updateAvailableBody =>
+      'Actualiza ahora para tener las últimas mejoras y correcciones.';
+
+  @override
+  String get updateNowLabel => 'Actualizar';
+
+  @override
+  String get updateLaterLabel => 'Después';
 }

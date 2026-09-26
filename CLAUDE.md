@@ -55,12 +55,26 @@ partícula viva).
   `assets/audio/sfx/*.ogg` (Kenney, CC0; tabela em `assets/audio/CREDITS.md`).
   Pool de 4 tocadores em rodízio; `Sfx.xpTick` tem throttle. Som novo = arquivo
   ogg mono normalizado + entrada no enum + linha no CREDITS.
-- **Música:** 7 trilhas em `assets/audio/music/` tocadas por `MusicPlaylist`
-  (embaralha, toca todas antes de repetir, nunca emenda a mesma). Três são
-  **CC BY 4.0 (Tomasz Kucza)**: o crédito na tela de configurações é
-  obrigação de licença, não enfeite; não remova. Trilha nova = OGG (loop sem
-  gap; MP3 tem silêncio no fim), loudnorm -17 LUFS, entrada em
-  `backgroundTracks` + linha no CREDITS.
+- **Música:** 8 trilhas em `assets/audio/music/` tocadas por `MusicPlaylist`
+  (embaralha, toca todas antes de repetir, nunca emenda a mesma). **Só entra
+  faixa CC0 ou própria**: licença que exige crédito (CC BY) obrigaria texto na
+  tela, e o dono não quer texto de crédito nas configurações (2026-09-26; as 3
+  trilhas CC BY da v24 foram trocadas). Trilha nova = confirme CC0 na página do
+  autor, OGG (loop sem gap; MP3 tem silêncio no fim), loudnorm -17 LUFS, entrada
+  em `backgroundTracks` + linha no CREDITS.
+- **Configurações e atualização (regressão da v1.11.0, não repetir):** abra o
+  painel SEMPRE por `showSettingsSheet()` (usa `isScrollControlled`; sem isso o
+  sheet trava em 9/16 da altura e o último item sai cortado). A v1.11.0 acrescentou
+  itens e o botão "Buscar atualizações", que era o último, sumiu em aparelho real,
+  deixando o jogador sem como atualizar. Hoje a seção de atualização é a
+  PRIMEIRA e o miolo rola; `settings_sheet_test.dart` exige o botão visível e
+  tocável sem rolar em 5 telas x 6 idiomas (fonte 1,4x). Painel novo ganha item
+  no fim, nunca acima de Atualizações.
+- **Aviso de versão nova ao abrir:** `main` chama `UpdateService.silentCheck()`;
+  a home roda `UpdatePromptCoordinator` (`update_prompt.dart`), que espera o
+  resultado e mostra `showUpdateAvailableDialog` uma vez por sessão, sem empilhar
+  sobre a sugestão de idioma. QA sem publicar versão maior: build com
+  `--dart-define=FAKE_UPDATE=true` (nunca em build de loja).
 - **Árvore estável em animação:** todo widget que anima por
   `AnimatedBuilder`/`Transform` DEVE devolver a MESMA forma de árvore parado e
   animando (`BoardShake`, `_WinningCellPulse`). Devolver `child` puro fora da

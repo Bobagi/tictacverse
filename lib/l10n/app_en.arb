@@ -214,5 +214,8 @@
   "newRecordChip": "New record!",
   "cpuThinking": "Thinking...",
   "yourTurn": "Your turn",
-  "audioCreditsLabel": "Audio credits"
+  "updateAvailableTitle": "New version available",
+  "updateAvailableBody": "Update now to get the latest improvements and fixes.",
+  "updateNowLabel": "Update",
+  "updateLaterLabel": "Later"
 }

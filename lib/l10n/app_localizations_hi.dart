@@ -396,5 +396,15 @@ class AppLocalizationsHi extends AppLocalizations {
   String get yourTurn => 'आपकी बारी';
 
   @override
-  String get audioCreditsLabel => 'ऑडियो श्रेय';
+  String get updateAvailableTitle => 'नया संस्करण उपलब्ध है';
+
+  @override
+  String get updateAvailableBody =>
+      'नवीनतम सुधार और बग फ़िक्स पाने के लिए अभी अपडेट करें।';
+
+  @override
+  String get updateNowLabel => 'अपडेट करें';
+
+  @override
+  String get updateLaterLabel => 'बाद में';
 }

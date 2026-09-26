@@ -814,11 +814,29 @@ abstract class AppLocalizations {
   /// **'Your turn'**
   String get yourTurn;
 
-  /// No description provided for @audioCreditsLabel.
+  /// No description provided for @updateAvailableTitle.
   ///
   /// In en, this message translates to:
-  /// **'Audio credits'**
-  String get audioCreditsLabel;
+  /// **'New version available'**
+  String get updateAvailableTitle;
+
+  /// No description provided for @updateAvailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now to get the latest improvements and fixes.'**
+  String get updateAvailableBody;
+
+  /// No description provided for @updateNowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateNowLabel;
+
+  /// No description provided for @updateLaterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLaterLabel;
 }
 
 class _AppLocalizationsDelegate

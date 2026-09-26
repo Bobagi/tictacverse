@@ -117,5 +117,8 @@
   "newRecordChip": "¡Nuevo récord!",
   "cpuThinking": "Pensando...",
   "yourTurn": "Tu turno",
-  "audioCreditsLabel": "Créditos de audio"
+  "updateAvailableTitle": "Nueva versión disponible",
+  "updateAvailableBody": "Actualiza ahora para tener las últimas mejoras y correcciones.",
+  "updateNowLabel": "Actualizar",
+  "updateLaterLabel": "Después"
 }

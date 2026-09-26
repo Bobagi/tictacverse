@@ -394,5 +394,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourTurn => 'Your turn';
 
   @override
-  String get audioCreditsLabel => 'Audio credits';
+  String get updateAvailableTitle => 'New version available';
+
+  @override
+  String get updateAvailableBody =>
+      'Update now to get the latest improvements and fixes.';
+
+  @override
+  String get updateNowLabel => 'Update';
+
+  @override
+  String get updateLaterLabel => 'Later';
 }

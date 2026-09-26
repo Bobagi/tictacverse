@@ -396,5 +396,15 @@ class AppLocalizationsNe extends AppLocalizations {
   String get yourTurn => 'तपाईंको पालो';
 
   @override
-  String get audioCreditsLabel => 'अडियो श्रेय';
+  String get updateAvailableTitle => 'नयाँ संस्करण उपलब्ध छ';
+
+  @override
+  String get updateAvailableBody =>
+      'पछिल्ला सुधार र समाधान पाउन अहिले अपडेट गर्नुहोस्।';
+
+  @override
+  String get updateNowLabel => 'अपडेट गर्नुहोस्';
+
+  @override
+  String get updateLaterLabel => 'पछि';
 }

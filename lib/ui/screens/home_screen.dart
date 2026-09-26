@@ -9,6 +9,7 @@ import '../../services/language_suggestion.dart';
 import '../../services/metrics_service.dart';
 import '../../services/progression_service.dart';
 import '../../services/storage_service.dart';
+import '../../services/update_prompt.dart';
 import '../../services/update_service.dart';
 import '../widgets/achievements_sheet.dart';
 import '../widgets/juice/press_scale.dart';
@@ -17,6 +18,7 @@ import '../widgets/language_selector_sheet.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/stats_sheet.dart';
+import '../widgets/update_available_dialog.dart';
 import 'mode_select_screen.dart';
 
 /// Tela inicial enxuta: escolha do oponente (máquina ou amigo). Os modos de
@@ -52,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       audioService.ensureBackgroundMusic();
       _maybeSuggestLanguage();
+      _maybePromptUpdate();
     });
   }
 
@@ -99,6 +102,15 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  /// Ao abrir o jogo, avisa (uma vez por sessão) se há versão nova.
+  Future<void> _maybePromptUpdate() {
+    return UpdatePromptCoordinator(
+      isMounted: () => mounted,
+      isTopRoute: () => ModalRoute.of(context)?.isCurrent ?? true,
+      show: () => showUpdateAvailableDialog(context, AppLocalizations.of(context)!),
+    ).run();
   }
 
   @override
@@ -320,13 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openSettings(AppLocalizations localization) {
-    showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) =>
-          SettingsSheet(localization: localization),
-    );
+    showSettingsSheet(context, localization);
   }
 }
 

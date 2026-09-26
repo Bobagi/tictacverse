@@ -396,5 +396,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get yourTurn => 'আপনার পালা';
 
   @override
-  String get audioCreditsLabel => 'অডিও কৃতিত্ব';
+  String get updateAvailableTitle => 'নতুন সংস্করণ উপলব্ধ';
+
+  @override
+  String get updateAvailableBody =>
+      'সর্বশেষ উন্নতি ও সমাধান পেতে এখনই আপডেট করুন।';
+
+  @override
+  String get updateNowLabel => 'আপডেট করুন';
+
+  @override
+  String get updateLaterLabel => 'পরে';
 }

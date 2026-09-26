@@ -117,5 +117,8 @@
   "newRecordChip": "নতুন রেকর্ড!",
   "cpuThinking": "ভাবছে...",
   "yourTurn": "আপনার পালা",
-  "audioCreditsLabel": "অডিও কৃতিত্ব"
+  "updateAvailableTitle": "নতুন সংস্করণ উপলব্ধ",
+  "updateAvailableBody": "সর্বশেষ উন্নতি ও সমাধান পেতে এখনই আপডেট করুন।",
+  "updateNowLabel": "আপডেট করুন",
+  "updateLaterLabel": "পরে"
 }
