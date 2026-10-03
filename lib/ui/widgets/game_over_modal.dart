@@ -15,6 +15,7 @@ import 'juice/particles.dart';
 import 'juice/press_scale.dart';
 import 'juice/pulse.dart';
 import 'modern_background.dart';
+import 'piece_glyph.dart';
 import 'pop_in.dart';
 
 class GameOverModal extends StatefulWidget {
@@ -366,6 +367,24 @@ class _GameOverModalState extends State<GameOverModal> {
               ),
             ),
           ),
+          if (result.coinsGained > 0)
+            PopIn(
+              delay: nextDelay(),
+              beginScale: 0.5,
+              child: _RewardChip(
+                icon: Icons.monetization_on_rounded,
+                tint: VerseColors.coin,
+                child: CountUpText(
+                  value: result.coinsGained,
+                  format: localization.coinsGained,
+                  duration: const Duration(milliseconds: 800),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            ),
           if (result.leveledUp)
             PopIn(
               delay: nextDelay(),
@@ -508,9 +527,6 @@ class _GameOverModalState extends State<GameOverModal> {
           style: Theme.of(context).textTheme.bodyMedium);
     }
 
-    final String assetPath = widget.winner == PlayerMarker.cross
-        ? widget.visualAssets!.crossAssetPath
-        : widget.visualAssets!.noughtAssetPath;
     final Color accentColor = widget.winner == PlayerMarker.cross
         ? const Color(0xFF6BE0FF)
         : const Color(0xFFFF6BD9);
@@ -540,12 +556,7 @@ class _GameOverModalState extends State<GameOverModal> {
               ],
             ),
           ),
-          child: Image.asset(
-            assetPath,
-            width: 38,
-            height: 38,
-            fit: BoxFit.contain,
-          ),
+          child: PieceGlyph(marker: widget.winner!, size: 38),
         ),
       ),
     );

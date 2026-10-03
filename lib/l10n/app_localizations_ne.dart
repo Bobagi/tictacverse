@@ -260,10 +260,11 @@ class AppLocalizationsNe extends AppLocalizations {
   String get achUnlockedToast => 'उपलब्धि अनलक भयो!';
 
   @override
-  String get doubleXpCta => 'विज्ञापन हेर्नुहोस्, XP दोब्बर बनाउनुहोस्';
+  String get doubleXpCta =>
+      'विज्ञापन हेर्नुहोस्, XP र सिक्का दोब्बर बनाउनुहोस्';
 
   @override
-  String get doubleXpDone => 'XP दोब्बर भयो!';
+  String get doubleXpDone => 'XP र सिक्का दोब्बर!';
 
   @override
   String get doubleXpUnavailable =>
@@ -407,4 +408,91 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get updateLaterLabel => 'पछि';
+
+  @override
+  String get coinsLabel => 'सिक्का';
+
+  @override
+  String coinsGained(int amount) {
+    return '+$amount सिक्का';
+  }
+
+  @override
+  String get shopTitle => 'गोटीको शैली';
+
+  @override
+  String get shopSubtitle =>
+      'खेलेर सिक्का कमाउनुहोस् र X र O को रूप बदल्नुहोस्।';
+
+  @override
+  String get shopEquip => 'प्रयोग गर्नुहोस्';
+
+  @override
+  String get shopEquipped => 'प्रयोगमा';
+
+  @override
+  String shopMissing(int amount) {
+    return 'अझै $amount चाहिन्छ';
+  }
+
+  @override
+  String get shopPurchased => 'नयाँ शैली अनलक भयो!';
+
+  @override
+  String get skinAurora => 'अरोरा';
+
+  @override
+  String get skinNeon => 'नियोन';
+
+  @override
+  String get skinFireIce => 'आगो र हिउँ';
+
+  @override
+  String get skinCandy => 'क्यान्डी';
+
+  @override
+  String get skinGold => 'सुन र चाँदी';
+
+  @override
+  String get skinGalaxy => 'ग्यालेक्सी';
+
+  @override
+  String adCoinsCta(int amount) {
+    return 'विज्ञापन हेर्नुहोस्: +$amount सिक्का';
+  }
+
+  @override
+  String adCoinsLeft(int count) {
+    return 'आज $count बाँकी';
+  }
+
+  @override
+  String get adCoinsSoldOut => 'विज्ञापनबाट थप सिक्काका लागि भोलि आउनुहोस्।';
+
+  @override
+  String get adUnavailable =>
+      'अहिले कुनै विज्ञापन उपलब्ध छैन। केही बेरपछि फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String get dailyTitle => 'दैनिक बोनस';
+
+  @override
+  String get dailyReady => 'तयार!';
+
+  @override
+  String get dailyComeBack => 'भोलि फेरि आउनुहोस्';
+
+  @override
+  String dailyDay(int day) {
+    return 'दिन $day';
+  }
+
+  @override
+  String get dailyClaim => 'लिनुहोस्';
+
+  @override
+  String get dailyHint => 'हरेक दिन आउनुहोस्: बोनस दिन ७ सम्म बढ्छ।';
+
+  @override
+  String get dailyDoubleCta => 'विज्ञापन हेरेर दोब्बर बनाउनुहोस्';
 }

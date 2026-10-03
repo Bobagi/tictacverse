@@ -30,6 +30,7 @@ import '../widgets/game_over_modal.dart';
 import '../widgets/juice/particles.dart';
 import '../widgets/juice/pulse.dart';
 import '../widgets/modern_background.dart';
+import '../widgets/piece_glyph.dart';
 import '../widgets/pop_in.dart';
 
 class GameScreen extends StatefulWidget {
@@ -537,9 +538,6 @@ class _GameScreenState extends State<GameScreen> {
     final Color accentColor = marker == PlayerMarker.cross
         ? const Color(0xFF6BE0FF)
         : const Color(0xFFFF6BD9);
-    final String assetPath = marker == PlayerMarker.cross
-        ? _visualAssets.crossAssetPath
-        : _visualAssets.noughtAssetPath;
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
@@ -562,12 +560,7 @@ class _GameScreenState extends State<GameScreen> {
           border: Border.all(color: accentColor.withOpacity(0.4)),
         ),
         padding: const EdgeInsets.all(4),
-        child: Image.asset(
-          assetPath,
-          width: 16,
-          height: 16,
-          fit: BoxFit.contain,
-        ),
+        child: PieceGlyph(marker: marker, size: 16),
       ),
     );
   }

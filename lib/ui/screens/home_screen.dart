@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
+import '../../controllers/rewarded_ad_controller.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
+import '../../services/economy_service.dart';
 import '../../services/haptics_service.dart';
 import '../../services/language_suggestion.dart';
 import '../../services/metrics_service.dart';
@@ -12,11 +14,14 @@ import '../../services/storage_service.dart';
 import '../../services/update_prompt.dart';
 import '../../services/update_service.dart';
 import '../widgets/achievements_sheet.dart';
+import '../widgets/coin_badge.dart';
+import '../widgets/daily_bonus_sheet.dart';
 import '../widgets/juice/press_scale.dart';
 import '../widgets/juice/pulse.dart';
 import '../widgets/language_selector_sheet.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/settings_sheet.dart';
+import '../widgets/shop_sheet.dart';
 import '../widgets/stats_sheet.dart';
 import '../widgets/update_available_dialog.dart';
 import 'mode_select_screen.dart';
@@ -42,6 +47,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final BannerAdController bannerAdController = BannerAdController();
   final AudioService audioService = AudioService.instance;
+
+  /// Premiado opt-in da loja e do bônus diário. Nulo em build sem anúncios.
+  final RewardedAdController? _rewarded =
+      AdsConfiguration.adsEnabled ? RewardedAdController() : null;
 
   @override
   void initState() {
@@ -109,13 +118,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return UpdatePromptCoordinator(
       isMounted: () => mounted,
       isTopRoute: () => ModalRoute.of(context)?.isCurrent ?? true,
-      show: () => showUpdateAvailableDialog(context, AppLocalizations.of(context)!),
+      show: () =>
+          showUpdateAvailableDialog(context, AppLocalizations.of(context)!),
     ).run();
   }
 
   @override
   void dispose() {
     bannerAdController.dispose();
+    _rewarded?.dispose();
     super.dispose();
   }
 
@@ -126,7 +137,21 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(localization.appTitle),
+          titleSpacing: 12,
+          // O nome do jogo já está no logo; o topo mostra o saldo, que é o
+          // atalho para a loja de visuais.
+          title: ValueListenableBuilder<int>(
+            valueListenable: ProgressionService.instance.revision,
+            builder: (BuildContext context, int _, Widget? __) => Align(
+              alignment: Alignment.centerLeft,
+              child: CoinBadge(
+                coins: EconomyService.instance.coins,
+                semanticLabel:
+                    '${EconomyService.instance.coins} ${localization.coinsLabel}. ${localization.shopTitle}',
+                onTap: () => _openShop(localization),
+              ),
+            ),
+          ),
           actions: <Widget>[
             ValueListenableBuilder<bool>(
               valueListenable: audioService.isMutedListenable,
@@ -183,73 +208,143 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      // O ícone "respira" devagar: a home nunca fica parada.
-                      Pulse(
-                        maxScale: 1.04,
-                        period: const Duration(milliseconds: 2400),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(26),
-                          child: Image.asset(
-                            'assets/icon/app_icon.png',
-                            width: 104,
-                            height: 104,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const SizedBox.shrink(),
-                          ),
+                  // Rola quando falta altura (tela 360x640 com a fonte grande):
+                  // nenhum botão pode ficar escondido atrás do banner.
+                  child: LayoutBuilder(builder:
+                      (BuildContext context, BoxConstraints constraints) {
+                    return SingleChildScrollView(
+                      // Sem recorte: a sombra neon dos botões vazava cortada
+                      // nas bordas da área rolável (retângulo claro visível).
+                      clipBehavior: Clip.none,
+                      child: ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: constraints.maxHeight),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            // Logo ao lado do nome: o banner médio (300x250)
+                            // ocupa a base da tela, e o espaço que sobra é dos
+                            // botões de jogar e dos atalhos.
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                // O ícone "respira" devagar: a home nunca fica parada.
+                                Pulse(
+                                  maxScale: 1.05,
+                                  period: const Duration(milliseconds: 2400),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Image.asset(
+                                      'assets/icon/app_icon.png',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          const SizedBox.shrink(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Flexible(
+                                  child: Text(
+                                    localization.appTitle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 22),
+                            _OpponentButton(
+                              icon: Icons.smart_toy_rounded,
+                              label: localization.playVsCpuBig,
+                              accent: const Color(0xFF6BE0FF),
+                              onTap: () => _openModes(playAgainstCpu: true),
+                            ),
+                            const SizedBox(height: 14),
+                            _OpponentButton(
+                              icon: Icons.group_rounded,
+                              label: localization.playWithFriend,
+                              accent: const Color(0xFFFF6BD9),
+                              onTap: () => _openModes(playAgainstCpu: false),
+                            ),
+                            const SizedBox(height: 14),
+                            ValueListenableBuilder<int>(
+                              valueListenable:
+                                  ProgressionService.instance.revision,
+                              builder:
+                                  (BuildContext context, int _, Widget? __) {
+                                final EconomyService economy =
+                                    EconomyService.instance;
+                                return Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: _HomeTile(
+                                        key: const ValueKey<String>(
+                                            'home-daily'),
+                                        icon: Icons.card_giftcard_rounded,
+                                        title: localization.dailyTitle,
+                                        subtitle: economy.canClaimDaily
+                                            ? localization.dailyReady
+                                            : localization.dailyComeBack,
+                                        highlight: economy.canClaimDaily,
+                                        onTap: () => _openDaily(localization),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: _HomeTile(
+                                        key:
+                                            const ValueKey<String>('home-shop'),
+                                        icon: Icons.palette_rounded,
+                                        title: localization.shopTitle,
+                                        subtitle: skinName(
+                                            localization, economy.equippedSkin),
+                                        highlight: false,
+                                        onTap: () => _openShop(localization),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 14),
+                            // O nível é a porta de entrada das conquistas: fica no
+                            // corpo da home, e não num ícone da AppBar, para o
+                            // jogador ver o progresso sem procurar.
+                            ValueListenableBuilder<int>(
+                              valueListenable:
+                                  ProgressionService.instance.revision,
+                              builder:
+                                  (BuildContext context, int _, Widget? __) {
+                                return Semantics(
+                                  button: true,
+                                  label: localization.achievementsTitle,
+                                  child: PressScale(
+                                    pressedScale: 0.97,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        audioService.playUiClick();
+                                        HapticsService.instance
+                                            .play(HapticCue.tap);
+                                        _openAchievements(localization);
+                                      },
+                                      child: LevelPanel(
+                                          localization: localization),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      Text(
-                        localization.appTitle,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 34),
-                      _OpponentButton(
-                        icon: Icons.smart_toy_rounded,
-                        label: localization.playVsCpuBig,
-                        accent: const Color(0xFF6BE0FF),
-                        onTap: () => _openModes(playAgainstCpu: true),
-                      ),
-                      const SizedBox(height: 14),
-                      _OpponentButton(
-                        icon: Icons.group_rounded,
-                        label: localization.playWithFriend,
-                        accent: const Color(0xFFFF6BD9),
-                        onTap: () => _openModes(playAgainstCpu: false),
-                      ),
-                      const SizedBox(height: 22),
-                      // O nível é a porta de entrada das conquistas: fica no
-                      // corpo da home, e não num ícone da AppBar, para o
-                      // jogador ver o progresso sem procurar.
-                      ValueListenableBuilder<int>(
-                        valueListenable: ProgressionService.instance.revision,
-                        builder: (BuildContext context, int _, Widget? __) {
-                          return Semantics(
-                            button: true,
-                            label: localization.achievementsTitle,
-                            child: PressScale(
-                              pressedScale: 0.97,
-                              child: GestureDetector(
-                                onTap: () {
-                                  audioService.playUiClick();
-                                  HapticsService.instance.play(HapticCue.tap);
-                                  _openAchievements(localization);
-                                },
-                                child: LevelPanel(localization: localization),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                    );
+                  }),
                 ),
                 if (AdsConfiguration.adsEnabled) ...<Widget>[
                   const SizedBox(height: 16),
@@ -331,6 +426,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _openShop(AppLocalizations localization) {
+    audioService.playUiClick();
+    HapticsService.instance.play(HapticCue.tap);
+    showShopSheet(context, localization, rewarded: _rewarded);
+  }
+
+  void _openDaily(AppLocalizations localization) {
+    audioService.playUiClick();
+    HapticsService.instance.play(HapticCue.tap);
+    showDailyBonusSheet(context, localization, rewarded: _rewarded);
+  }
+
   void _openSettings(AppLocalizations localization) {
     showSettingsSheet(context, localization);
   }
@@ -359,7 +466,7 @@ class _OpponentButton extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: <Color>[
                 accent.withOpacity(0.16),
@@ -396,6 +503,96 @@ class _OpponentButton extends StatelessWidget {
                     color: Colors.white.withOpacity(0.7)),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Atalho secundário da home (bônus diário, visuais). Menor que os botões de
+/// oponente de propósito: jogar continua sendo a ação principal.
+class _HomeTile extends StatelessWidget {
+  const _HomeTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.highlight,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool highlight;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color accent = highlight ? VerseColors.coin : VerseColors.mutedText;
+    final Widget tile = Container(
+      padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(highlight ? 0.08 : 0.04),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: accent.withOpacity(highlight ? 0.8 : 0.35),
+          width: highlight ? 1.6 : 1.2,
+        ),
+      ),
+      child: Row(
+        children: <Widget>[
+          Badge(
+            isLabelVisible: highlight,
+            smallSize: 9,
+            backgroundColor: Colors.redAccent,
+            child: Icon(icon,
+                color: highlight ? VerseColors.coin : Colors.white, size: 26),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w800, height: 1.15),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: accent),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    return Semantics(
+      button: true,
+      label: '$title. $subtitle',
+      child: PressScale(
+        pressedScale: 0.96,
+        child: GestureDetector(
+          onTap: onTap,
+          // Mesma árvore com e sem destaque: só o `active` muda.
+          child: Pulse(
+            active: highlight,
+            maxScale: 1.03,
+            period: const Duration(milliseconds: 1400),
+            child: tile,
           ),
         ),
       ),

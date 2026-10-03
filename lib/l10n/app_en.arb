@@ -112,8 +112,8 @@
     }
   },
   "achUnlockedToast": "Achievement unlocked!",
-  "doubleXpCta": "Watch an ad, double your XP",
-  "doubleXpDone": "XP doubled!",
+  "doubleXpCta": "Watch an ad, double XP and coins",
+  "doubleXpDone": "XP and coins doubled!",
   "doubleXpUnavailable": "The ad didn't load. Try again next match.",
   "levelUpToast": "Level {level} reached!",
   "@levelUpToast": {
@@ -217,5 +217,65 @@
   "updateAvailableTitle": "New version available",
   "updateAvailableBody": "Update now to get the latest improvements and fixes.",
   "updateNowLabel": "Update",
-  "updateLaterLabel": "Later"
+  "updateLaterLabel": "Later",
+  "coinsLabel": "Coins",
+  "coinsGained": "+{amount} coins",
+  "@coinsGained": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTitle": "Piece styles",
+  "shopSubtitle": "Earn coins by playing and change how X and O look.",
+  "shopEquip": "Use",
+  "shopEquipped": "In use",
+  "shopMissing": "{amount} to go",
+  "@shopMissing": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "shopPurchased": "New style unlocked!",
+  "skinAurora": "Aurora",
+  "skinNeon": "Neon",
+  "skinFireIce": "Fire and ice",
+  "skinCandy": "Candy",
+  "skinGold": "Gold and silver",
+  "skinGalaxy": "Galaxy",
+  "adCoinsCta": "Watch an ad: +{amount} coins",
+  "@adCoinsCta": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "adCoinsLeft": "{count} left today",
+  "@adCoinsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adCoinsSoldOut": "Come back tomorrow for more ad coins.",
+  "adUnavailable": "No ad available right now. Try again in a moment.",
+  "dailyTitle": "Daily bonus",
+  "dailyReady": "Ready!",
+  "dailyComeBack": "Come back tomorrow",
+  "dailyDay": "Day {day}",
+  "@dailyDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "dailyClaim": "Claim",
+  "dailyHint": "Come back every day: the bonus grows until day 7.",
+  "dailyDoubleCta": "Watch an ad and double it"
 }

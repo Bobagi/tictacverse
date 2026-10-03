@@ -102,6 +102,37 @@ partícula viva).
   próprio controller), pulso infinito em teste sem `settle()` bounded
   (`pumpAndSettle` nunca resolve com `Pulse` na tela).
 
+## Moedas, loja de visuais e bônus diário (v1.12.0+26)
+
+Nascido da pesquisa de mercado de 2026-10-03: os concorrentes diretos (Tic Tac
+Toe Glow, XOXO e afins, 10M a 100M downloads) vendem visual de peça e o Block
+Blast/Ludo King vivem de premiado com valor percebido. Antes disso o XP não
+tinha onde ser gasto e o premiado "dobrar XP" teve 0 impressões em 30 dias.
+
+- **Regra pura em `lib/services/economy_engine.dart`** (relógio injetável, mesmo
+  padrão do `ProgressionEngine`); `EconomyService` só persiste e avisa a UI pelo
+  `ProgressionService.revision`. Carteira, visuais e bônus moram no
+  `ProgressState` (chave `progress.v1`), com leitura tolerante.
+- **Moedas acompanham o XP** (`coinsForXp = ceil(xp/3)`), então o carro-chefe e o
+  Impossível rendem mais sem segunda tabela, e o premiado de fim de partida dobra
+  XP **e** moedas. Bônus diário: 20, 25, 30, 40, 50, 60, 100 (ciclo de 7, pular
+  um dia volta ao 1). Premiado da loja: +25, teto de 5 por dia. Preços em
+  `lib/models/piece_skin.dart` (120 a 800).
+- **Visual só muda aparência.** Toda peça passa por `PieceGlyph`
+  (`lib/ui/widgets/piece_glyph.dart`): `aurora` = as artes PNG, os outros são
+  vetoriais (`PiecePainter`). Visual novo = entrada no catálogo + nome nos 6 ARB
+  + `skinName()` em `shop_sheet.dart`.
+- Premiado da loja e do bônus segue as regras da seção de anúncios: opt-in,
+  contorno longe do botão primário, crédito só com `showForReward() == true`,
+  trava de toque duplo antes do `await`. `test/economy_engine_test.dart` e
+  `test/shop_and_daily_sheet_test.dart` travam isso (mutantes conferidos).
+- Nada disso sai do aparelho: **Data safety não muda**.
+- **Ícone:** gerado por `tool/icon/make_app_icon.py` (X e O neon sobre grade,
+  sem moldura nem texto; camadas `icon_bg`/`icon_fg` para o adaptativo). Mexeu
+  no desenho, rode o script e depois `dart run flutter_launcher_icons`.
+- **Home:** o MREC (300x250) só entra com tela >= 380x760; abaixo vai o banner
+  comum, senão bônus e loja ficam abaixo da dobra.
+
 ## Idiomas
 
 Seis: `pt`, `en`, `es`, `hi`, `bn`, `ne`. Hindi, bengali e nepali não são enfeite,

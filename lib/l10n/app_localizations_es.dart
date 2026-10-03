@@ -265,10 +265,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get achUnlockedToast => '¡Logro desbloqueado!';
 
   @override
-  String get doubleXpCta => 'Ver anuncio y duplicar el XP';
+  String get doubleXpCta => 'Ver anuncio y duplicar XP y monedas';
 
   @override
-  String get doubleXpDone => '¡XP duplicado!';
+  String get doubleXpDone => '¡XP y monedas duplicados!';
 
   @override
   String get doubleXpUnavailable =>
@@ -412,4 +412,90 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get updateLaterLabel => 'Después';
+
+  @override
+  String get coinsLabel => 'Monedas';
+
+  @override
+  String coinsGained(int amount) {
+    return '+$amount monedas';
+  }
+
+  @override
+  String get shopTitle => 'Estilo de fichas';
+
+  @override
+  String get shopSubtitle =>
+      'Gana monedas jugando y cambia el estilo de la X y la O.';
+
+  @override
+  String get shopEquip => 'Usar';
+
+  @override
+  String get shopEquipped => 'En uso';
+
+  @override
+  String shopMissing(int amount) {
+    return 'Faltan $amount';
+  }
+
+  @override
+  String get shopPurchased => '¡Nuevo estilo desbloqueado!';
+
+  @override
+  String get skinAurora => 'Aurora';
+
+  @override
+  String get skinNeon => 'Neón';
+
+  @override
+  String get skinFireIce => 'Fuego y hielo';
+
+  @override
+  String get skinCandy => 'Caramelo';
+
+  @override
+  String get skinGold => 'Oro y plata';
+
+  @override
+  String get skinGalaxy => 'Galaxia';
+
+  @override
+  String adCoinsCta(int amount) {
+    return 'Ver anuncio: +$amount monedas';
+  }
+
+  @override
+  String adCoinsLeft(int count) {
+    return 'Quedan $count hoy';
+  }
+
+  @override
+  String get adCoinsSoldOut => 'Vuelve mañana para más monedas por anuncio.';
+
+  @override
+  String get adUnavailable => 'No hay anuncios ahora. Inténtalo en un momento.';
+
+  @override
+  String get dailyTitle => 'Bono diario';
+
+  @override
+  String get dailyReady => '¡Listo!';
+
+  @override
+  String get dailyComeBack => 'Vuelve mañana';
+
+  @override
+  String dailyDay(int day) {
+    return 'Día $day';
+  }
+
+  @override
+  String get dailyClaim => 'Reclamar';
+
+  @override
+  String get dailyHint => 'Vuelve cada día: el bono crece hasta el día 7.';
+
+  @override
+  String get dailyDoubleCta => 'Ver anuncio y duplicar';
 }

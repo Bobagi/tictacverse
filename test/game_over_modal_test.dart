@@ -82,7 +82,7 @@ void main() {
       await settle(tester);
 
       expect(offerButton(), findsOneWidget);
-      expect(find.text('Watch an ad, double your XP'), findsOneWidget);
+      expect(find.text('Watch an ad, double XP and coins'), findsOneWidget);
     });
 
     testWidgets('partida sem XP não recebe oferta', (WidgetTester tester) async {
@@ -133,7 +133,7 @@ void main() {
       expect(find.text('+70 XP'), findsOneWidget);
       expect(find.text('Level 2 reached!'), findsOneWidget,
           reason: 'a subida de nível vinda do bônus tem de aparecer');
-      expect(find.text('XP doubled!'), findsOneWidget);
+      expect(find.text('XP and coins doubled!'), findsOneWidget);
       expect(offerButton(), findsNothing);
     });
 

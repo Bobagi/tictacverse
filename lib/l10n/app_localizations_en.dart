@@ -258,10 +258,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achUnlockedToast => 'Achievement unlocked!';
 
   @override
-  String get doubleXpCta => 'Watch an ad, double your XP';
+  String get doubleXpCta => 'Watch an ad, double XP and coins';
 
   @override
-  String get doubleXpDone => 'XP doubled!';
+  String get doubleXpDone => 'XP and coins doubled!';
 
   @override
   String get doubleXpUnavailable =>
@@ -405,4 +405,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateLaterLabel => 'Later';
+
+  @override
+  String get coinsLabel => 'Coins';
+
+  @override
+  String coinsGained(int amount) {
+    return '+$amount coins';
+  }
+
+  @override
+  String get shopTitle => 'Piece styles';
+
+  @override
+  String get shopSubtitle =>
+      'Earn coins by playing and change how X and O look.';
+
+  @override
+  String get shopEquip => 'Use';
+
+  @override
+  String get shopEquipped => 'In use';
+
+  @override
+  String shopMissing(int amount) {
+    return '$amount to go';
+  }
+
+  @override
+  String get shopPurchased => 'New style unlocked!';
+
+  @override
+  String get skinAurora => 'Aurora';
+
+  @override
+  String get skinNeon => 'Neon';
+
+  @override
+  String get skinFireIce => 'Fire and ice';
+
+  @override
+  String get skinCandy => 'Candy';
+
+  @override
+  String get skinGold => 'Gold and silver';
+
+  @override
+  String get skinGalaxy => 'Galaxy';
+
+  @override
+  String adCoinsCta(int amount) {
+    return 'Watch an ad: +$amount coins';
+  }
+
+  @override
+  String adCoinsLeft(int count) {
+    return '$count left today';
+  }
+
+  @override
+  String get adCoinsSoldOut => 'Come back tomorrow for more ad coins.';
+
+  @override
+  String get adUnavailable =>
+      'No ad available right now. Try again in a moment.';
+
+  @override
+  String get dailyTitle => 'Daily bonus';
+
+  @override
+  String get dailyReady => 'Ready!';
+
+  @override
+  String get dailyComeBack => 'Come back tomorrow';
+
+  @override
+  String dailyDay(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get dailyClaim => 'Claim';
+
+  @override
+  String get dailyHint => 'Come back every day: the bonus grows until day 7.';
+
+  @override
+  String get dailyDoubleCta => 'Watch an ad and double it';
 }

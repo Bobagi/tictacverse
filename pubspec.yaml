@@ -1,5 +1,5 @@
 name: tictacverse
-version: 1.11.2+25
+version: 1.12.0+26
 publish_to: 'none'
 
 environment:
@@ -45,16 +45,17 @@ flutter_launcher_icons:
   android: true
   ios: false
   image_path_android: "assets/icon/app_icon.png"
-  adaptive_icon_background: "#0B1020"
-  adaptive_icon_foreground: "assets/icon/app_icon.png"
+  # Camadas geradas por tool/icon/make_app_icon.py (fundo com grade + peças).
+  adaptive_icon_background: "assets/icon/icon_bg.png"
+  adaptive_icon_foreground: "assets/icon/icon_fg.png"
 
 flutter_native_splash:
   android: true
   ios: false
 
-  color: "#300645"
+  color: "#1A0B2E"
   image: assets/icon/app_icon.png
 
   android_12:
-    color: "#300645"
+    color: "#1A0B2E"
     image: assets/icon/app_icon.png

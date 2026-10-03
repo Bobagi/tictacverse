@@ -583,13 +583,13 @@ abstract class AppLocalizations {
   /// No description provided for @doubleXpCta.
   ///
   /// In en, this message translates to:
-  /// **'Watch an ad, double your XP'**
+  /// **'Watch an ad, double XP and coins'**
   String get doubleXpCta;
 
   /// No description provided for @doubleXpDone.
   ///
   /// In en, this message translates to:
-  /// **'XP doubled!'**
+  /// **'XP and coins doubled!'**
   String get doubleXpDone;
 
   /// No description provided for @doubleXpUnavailable.
@@ -837,6 +837,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Later'**
   String get updateLaterLabel;
+
+  /// No description provided for @coinsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins'**
+  String get coinsLabel;
+
+  /// No description provided for @coinsGained.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} coins'**
+  String coinsGained(int amount);
+
+  /// No description provided for @shopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece styles'**
+  String get shopTitle;
+
+  /// No description provided for @shopSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn coins by playing and change how X and O look.'**
+  String get shopSubtitle;
+
+  /// No description provided for @shopEquip.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get shopEquip;
+
+  /// No description provided for @shopEquipped.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get shopEquipped;
+
+  /// No description provided for @shopMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to go'**
+  String shopMissing(int amount);
+
+  /// No description provided for @shopPurchased.
+  ///
+  /// In en, this message translates to:
+  /// **'New style unlocked!'**
+  String get shopPurchased;
+
+  /// No description provided for @skinAurora.
+  ///
+  /// In en, this message translates to:
+  /// **'Aurora'**
+  String get skinAurora;
+
+  /// No description provided for @skinNeon.
+  ///
+  /// In en, this message translates to:
+  /// **'Neon'**
+  String get skinNeon;
+
+  /// No description provided for @skinFireIce.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire and ice'**
+  String get skinFireIce;
+
+  /// No description provided for @skinCandy.
+  ///
+  /// In en, this message translates to:
+  /// **'Candy'**
+  String get skinCandy;
+
+  /// No description provided for @skinGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold and silver'**
+  String get skinGold;
+
+  /// No description provided for @skinGalaxy.
+  ///
+  /// In en, this message translates to:
+  /// **'Galaxy'**
+  String get skinGalaxy;
+
+  /// No description provided for @adCoinsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad: +{amount} coins'**
+  String adCoinsCta(int amount);
+
+  /// No description provided for @adCoinsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left today'**
+  String adCoinsLeft(int count);
+
+  /// No description provided for @adCoinsSoldOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back tomorrow for more ad coins.'**
+  String get adCoinsSoldOut;
+
+  /// No description provided for @adUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No ad available right now. Try again in a moment.'**
+  String get adUnavailable;
+
+  /// No description provided for @dailyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus'**
+  String get dailyTitle;
+
+  /// No description provided for @dailyReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready!'**
+  String get dailyReady;
+
+  /// No description provided for @dailyComeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back tomorrow'**
+  String get dailyComeBack;
+
+  /// No description provided for @dailyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String dailyDay(int day);
+
+  /// No description provided for @dailyClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim'**
+  String get dailyClaim;
+
+  /// No description provided for @dailyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back every day: the bonus grows until day 7.'**
+  String get dailyHint;
+
+  /// No description provided for @dailyDoubleCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad and double it'**
+  String get dailyDoubleCta;
 }
 
 class _AppLocalizationsDelegate

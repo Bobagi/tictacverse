@@ -20,8 +20,12 @@ class BannerAdController {
       return;
     }
 
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool shouldUseMediumRectangle = screenWidth >= 380;
+    final Size screen = MediaQuery.of(context).size;
+    // O retângulo médio (300x250) paga mais, mas em tela baixa ele empurra os
+    // atalhos da home (bônus diário, visuais) para fora da tela. Abaixo de
+    // 760 de altura vai o banner comum.
+    final bool shouldUseMediumRectangle =
+        screen.width >= 380 && screen.height >= 760;
 
     final AdSize nextAdSize =
         shouldUseMediumRectangle ? AdSize.mediumRectangle : AdSize.banner;

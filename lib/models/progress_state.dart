@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'game_mode.dart';
 
 /// Estado persistido da progressão (XP, contadores e conquistas desbloqueadas).
@@ -18,10 +20,21 @@ class ProgressState {
     this.bestDailyStreak = 0,
     this.hasFastWin = false,
     this.lastPlayedDay,
+    this.coins = 0,
+    this.equippedSkin = defaultSkinId,
+    this.lastDailyClaimDay,
+    this.dailyClaimStreak = 0,
+    this.adCoinsDay,
+    this.adCoinsClaimsToday = 0,
     Set<GameModeType>? modesPlayed,
     Set<String>? unlockedAchievements,
+    Set<String>? ownedSkins,
   })  : modesPlayed = modesPlayed ?? <GameModeType>{},
-        unlockedAchievements = unlockedAchievements ?? <String>{};
+        unlockedAchievements = unlockedAchievements ?? <String>{},
+        ownedSkins = ownedSkins ?? <String>{defaultSkinId};
+
+  /// Visual de peças que todo jogador tem desde o início.
+  static const String defaultSkinId = 'aurora';
 
   /// XP acumulado. Só cresce; o nível é derivado dele.
   int xp;
@@ -54,6 +67,24 @@ class ProgressState {
   final Set<GameModeType> modesPlayed;
   final Set<String> unlockedAchievements;
 
+  /// Moedas: ganhas jogando, no bônus diário e em anúncio premiado opt-in;
+  /// gastas só na loja de visuais. Nunca ficam negativas.
+  int coins;
+
+  /// Visuais de peça comprados (o padrão sempre incluso) e o que está em uso.
+  final Set<String> ownedSkins;
+  String equippedSkin;
+
+  /// Último dia (`yyyy-mm-dd`, local) em que o bônus diário foi resgatado e
+  /// quantos dias seguidos o jogador resgatou até ele.
+  String? lastDailyClaimDay;
+  int dailyClaimStreak;
+
+  /// Teto diário das moedas por anúncio premiado na loja: dia da contagem e
+  /// quantos resgates já foram feitos nele.
+  String? adCoinsDay;
+  int adCoinsClaimsToday;
+
   Map<String, dynamic> toJson() => <String, dynamic>{
         'xp': xp,
         'matches': matches,
@@ -68,6 +99,13 @@ class ProgressState {
         'lastPlayedDay': lastPlayedDay,
         'modesPlayed': modesPlayed.map((GameModeType m) => m.name).toList(),
         'unlocked': unlockedAchievements.toList(),
+        'coins': coins,
+        'ownedSkins': ownedSkins.toList(),
+        'equippedSkin': equippedSkin,
+        'lastDailyClaimDay': lastDailyClaimDay,
+        'dailyClaimStreak': dailyClaimStreak,
+        'adCoinsDay': adCoinsDay,
+        'adCoinsClaimsToday': adCoinsClaimsToday,
       };
 
   /// Leitura tolerante a campo com tipo errado.
@@ -98,17 +136,33 @@ class ProgressState {
       dailyStreak: _asInt(json['dailyStreak']),
       bestDailyStreak: _asInt(json['bestDailyStreak']),
       hasFastWin: json['hasFastWin'] is bool && json['hasFastWin'] as bool,
-      lastPlayedDay:
-          json['lastPlayedDay'] is String ? json['lastPlayedDay'] as String : null,
+      lastPlayedDay: json['lastPlayedDay'] is String
+          ? json['lastPlayedDay'] as String
+          : null,
       modesPlayed: modes,
       unlockedAchievements: <String>{
         for (final Object? raw in _asList(json['unlocked']))
           if (raw is String) raw,
       },
+      coins: math.max(0, _asInt(json['coins'])),
+      ownedSkins: <String>{
+        defaultSkinId,
+        for (final Object? raw in _asList(json['ownedSkins']))
+          if (raw is String) raw,
+      },
+      equippedSkin: json['equippedSkin'] is String
+          ? json['equippedSkin'] as String
+          : defaultSkinId,
+      lastDailyClaimDay: _asString(json['lastDailyClaimDay']),
+      dailyClaimStreak: _asInt(json['dailyClaimStreak']),
+      adCoinsDay: _asString(json['adCoinsDay']),
+      adCoinsClaimsToday: _asInt(json['adCoinsClaimsToday']),
     );
   }
 
   static int _asInt(Object? value) => value is num ? value.toInt() : 0;
+
+  static String? _asString(Object? value) => value is String ? value : null;
 
   static List<Object?> _asList(Object? value) =>
       value is List<Object?> ? value : const <Object?>[];

@@ -4,6 +4,7 @@ import '../models/achievement.dart';
 import '../models/cpu_difficulty.dart';
 import '../models/game_mode.dart';
 import '../models/progress_state.dart';
+import 'economy_engine.dart';
 
 /// O que aconteceu numa partida, do ponto de vista da progressão.
 class MatchOutcome {
@@ -39,9 +40,13 @@ class ProgressionResult {
     required this.levelBefore,
     required this.levelAfter,
     required this.newlyUnlocked,
+    this.coinsGained = 0,
   });
 
   final int xpGained;
+
+  /// Moedas creditadas junto com o XP (ver [EconomyEngine.coinsForXp]).
+  final int coinsGained;
   final int levelBefore;
   final int levelAfter;
   final List<AchievementDefinition> newlyUnlocked;
@@ -58,6 +63,7 @@ class ProgressionResult {
   ProgressionResult mergedWith(ProgressionResult later) {
     return ProgressionResult(
       xpGained: xpGained + later.xpGained,
+      coinsGained: coinsGained + later.coinsGained,
       levelBefore: levelBefore,
       levelAfter: later.levelAfter,
       newlyUnlocked: <AchievementDefinition>[
@@ -196,8 +202,12 @@ class ProgressionEngine {
       state.xp += achievement.tier.xpReward;
     }
 
+    final int xpGained = state.xp - xpBefore;
+    final int coinsGained = EconomyEngine.coinsForXp(xpGained);
+    state.coins += coinsGained;
     return ProgressionResult(
-      xpGained: state.xp - xpBefore,
+      xpGained: xpGained,
+      coinsGained: coinsGained,
       levelBefore: levelBefore,
       levelAfter: levelForXp(state.xp),
       newlyUnlocked: unlocked,
@@ -222,8 +232,12 @@ class ProgressionEngine {
       state.unlockedAchievements.add(achievement.id);
       state.xp += achievement.tier.xpReward;
     }
+    final int xpGained = state.xp - xpBefore;
+    final int coinsGained = EconomyEngine.coinsForXp(xpGained);
+    state.coins += coinsGained;
     return ProgressionResult(
-      xpGained: state.xp - xpBefore,
+      xpGained: xpGained,
+      coinsGained: coinsGained,
       levelBefore: levelBefore,
       levelAfter: levelForXp(state.xp),
       newlyUnlocked: unlocked,
@@ -257,7 +271,7 @@ class ProgressionEngine {
     if (last == today) {
       return;
     }
-    if (last != null && last == _yesterdayKey(now)) {
+    if (last != null && last == yesterdayKey(now)) {
       state.dailyStreak += 1;
     } else {
       state.dailyStreak = 1;
@@ -276,7 +290,7 @@ class ProgressionEngine {
     if (last == null) {
       return 0;
     }
-    if (last == dayKey(now) || last == _yesterdayKey(now)) {
+    if (last == dayKey(now) || last == yesterdayKey(now)) {
       return state.dailyStreak;
     }
     return 0;
@@ -294,7 +308,7 @@ class ProgressionEngine {
   /// A subtração é feita em UTC de propósito: subtrair 24 h de um `DateTime`
   /// local pula ou repete o dia quando o fuso tem horário de verão, e aí a
   /// sequência diária quebraria sozinha duas vezes por ano.
-  static String _yesterdayKey(DateTime now) {
+  static String yesterdayKey(DateTime now) {
     final DateTime previous = DateTime.utc(now.year, now.month, now.day)
         .subtract(const Duration(days: 1));
     return dayKey(previous);

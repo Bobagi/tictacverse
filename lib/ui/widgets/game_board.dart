@@ -2,12 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../models/piece_skin.dart';
 import '../../models/player_marker.dart';
+import '../../services/economy_service.dart';
 import '../../services/visual_assets.dart';
 import 'juice/particles.dart';
 import 'juice/press_scale.dart';
 import 'modern_background.dart';
 import 'neon_win_line.dart';
+import 'piece_glyph.dart';
 import 'pop_in.dart';
 
 class GameBoard extends StatefulWidget {
@@ -282,10 +285,12 @@ class _GameBoardState extends State<GameBoard>
     VisualAssetConfig assetConfig,
   ) {
     final double rotationAngle = _cellRotations[index] ?? 0;
-    final Color glowColor = _playerGlowColors[marker] ?? Colors.cyanAccent;
-    final String assetPath = marker == PlayerMarker.cross
-        ? assetConfig.crossAssetPath
-        : assetConfig.noughtAssetPath;
+    // Visual vetorial brilha na própria cor; a arte PNG usa o sorteio azul/rosa.
+    final PieceSkin skin = EconomyService.instance.equippedSkin;
+    final Color glowColor =
+        (marker == PlayerMarker.cross ? skin.crossGlow : skin.noughtGlow) ??
+            _playerGlowColors[marker] ??
+            Colors.cyanAccent;
     return Center(
       child: Transform.rotate(
         angle: rotationAngle,
@@ -307,10 +312,7 @@ class _GameBoardState extends State<GameBoard>
                 ),
               ],
             ),
-            child: Image.asset(
-              assetPath,
-              fit: BoxFit.contain,
-            ),
+            child: PieceGlyph(marker: marker),
           ),
         ),
       ),

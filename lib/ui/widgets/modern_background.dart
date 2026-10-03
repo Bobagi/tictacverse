@@ -13,6 +13,7 @@ class VerseColors {
   static const Color cross = Color(0xFF35D6FF);
   static const Color nought = Color(0xFFFF4FD8);
   static const Color energy = Color(0xFFFFB938);
+  static const Color coin = Color(0xFFFFD21A);
   static const Color danger = Color(0xFFFF5A6A);
   static const Color mutedText = Color(0xFFC9B8E8);
   static const Color line = Color(0xFF6D4BA6);

@@ -31,6 +31,7 @@ import '../widgets/juice/press_scale.dart';
 import '../widgets/juice/pulse.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/neon_win_line.dart';
+import '../widgets/piece_glyph.dart';
 import '../widgets/pop_in.dart';
 
 class Ultimate2Screen extends StatefulWidget {
@@ -695,12 +696,7 @@ class _MacroBoardState extends State<_MacroBoard> {
                         active: isWinningBoard,
                         maxScale: 1.12,
                         period: const Duration(milliseconds: 520),
-                        child: Image.asset(
-                          owner == PlayerMarker.cross
-                              ? widget.visualAssets.crossAssetPath
-                              : widget.visualAssets.noughtAssetPath,
-                          fit: BoxFit.contain,
-                        ),
+                        child: PieceGlyph(marker: owner),
                       ),
                     ),
                   ),
@@ -735,12 +731,7 @@ class _MacroBoardState extends State<_MacroBoard> {
                   padding: const EdgeInsets.all(2),
                   child: PopIn(
                     duration: const Duration(milliseconds: 200),
-                    child: Image.asset(
-                      marker == PlayerMarker.cross
-                          ? widget.visualAssets.crossAssetPath
-                          : widget.visualAssets.noughtAssetPath,
-                      fit: BoxFit.contain,
-                    ),
+                    child: PieceGlyph(marker: marker),
                   ),
                 ),
         ),
