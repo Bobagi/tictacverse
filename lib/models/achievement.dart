@@ -133,6 +133,12 @@ List<AchievementDefinition> createAchievements() => <AchievementDefinition>[
       AchievementDefinition(
         id: 'all_modes',
         tier: AchievementTier.silver,
+        // Meta FIXA em 5 modos diferentes, mesmo com 7 no menu desde a
+        // chegada do 4x4 e do Cinco em linha: quem já desbloqueou segue com
+        // ela (desbloqueio nunca é revogado), e subir a meta para 7 tiraria a
+        // barra de progresso cheia de quem já jogava os 5 originais, além de
+        // descasar da conquista já publicada no Play Games. Qualquer 5 modos
+        // contam, então os novos também ajudam quem ainda não chegou lá.
         target: 5,
         titleBuilder: (AppLocalizations l) => l.achAllModesTitle,
         descriptionBuilder: (AppLocalizations l) => l.achAllModesDesc,

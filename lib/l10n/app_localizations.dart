@@ -502,6 +502,42 @@ abstract class AppLocalizations {
   /// **'9 boards in one. Your move picks where your rival plays.'**
   String get modeUltimate2Subtitle;
 
+  /// No description provided for @modeFourByFourTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'4x4'**
+  String get modeFourByFourTitle;
+
+  /// No description provided for @modeFourByFourSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Four in a row on a bigger board.'**
+  String get modeFourByFourSubtitle;
+
+  /// No description provided for @modeGomokuTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Five in a Row'**
+  String get modeGomokuTitle;
+
+  /// No description provided for @modeGomokuSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gomoku: line up five on a 10x10 board.'**
+  String get modeGomokuSubtitle;
+
+  /// No description provided for @winInstructionFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Line up four to win.'**
+  String get winInstructionFour;
+
+  /// No description provided for @winInstructionFive.
+  ///
+  /// In en, this message translates to:
+  /// **'Line up five to win.'**
+  String get winInstructionFive;
+
   /// No description provided for @ultimate2FreeMove.
   ///
   /// In en, this message translates to:
@@ -685,7 +721,7 @@ abstract class AppLocalizations {
   /// No description provided for @achAllModesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Play all 5 game modes'**
+  /// **'Play 5 different game modes'**
   String get achAllModesDesc;
 
   /// No description provided for @achUltimateWinsTitle.

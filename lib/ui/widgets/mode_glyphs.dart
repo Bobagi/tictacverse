@@ -69,16 +69,21 @@ class _ModeGlyphPainter extends CustomPainter {
         _paintChaos(canvas);
       case GameModeType.ultimateMini:
         _paintUltimateMini(canvas);
+      case GameModeType.fourByFour:
+        _paintFourByFour(canvas);
+      case GameModeType.gomoku:
+        _paintGomoku(canvas);
     }
   }
 
-  /// Grade 3×3 desenhada em [rect], com traço [width] e cor [color].
+  /// Grade [cells]×[cells] (3×3 por padrão) desenhada em [rect], com traço
+  /// [width] e cor [color].
   void _paintGrid(Canvas canvas, Rect rect, double width, Color color,
-      {bool withGlow = false}) {
+      {bool withGlow = false, int cells = 3}) {
     final Path grid = Path();
-    for (int i = 1; i <= 2; i++) {
-      final double dx = rect.left + rect.width * i / 3;
-      final double dy = rect.top + rect.height * i / 3;
+    for (int i = 1; i < cells; i++) {
+      final double dx = rect.left + rect.width * i / cells;
+      final double dy = rect.top + rect.height * i / cells;
       grid
         ..moveTo(dx, rect.top)
         ..lineTo(dx, rect.bottom)
@@ -199,6 +204,41 @@ class _ModeGlyphPainter extends CustomPainter {
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, _s * 0.09),
     );
     canvas.drawPath(spark, Paint()..color = _core);
+  }
+
+  /// 4x4: a grade de quatro casas por lado com a linha de quatro riscada.
+  void _paintFourByFour(Canvas canvas) {
+    final Rect board = Rect.fromLTRB(_s * 0.1, _s * 0.1, _s * 0.9, _s * 0.9);
+    _paintGrid(canvas, board, _s * 0.05, accent, withGlow: true, cells: 4);
+    final double cell = board.width / 4;
+    final double y = board.top + cell * 1.5;
+    final Offset a = Offset(board.left + cell * 0.35, y);
+    final Offset b = Offset(board.right - cell * 0.35, y);
+    canvas.drawLine(a, b, _glow(_s * 0.14, opacity: 0.9));
+    canvas.drawLine(a, b, _stroke(_s * 0.06));
+  }
+
+  /// Cinco em linha: grade fina de Gomoku com cinco pedras acesas na
+  /// diagonal, ligadas pelo risco da vitória.
+  void _paintGomoku(Canvas canvas) {
+    final Rect board = Rect.fromLTRB(_s * 0.06, _s * 0.06, _s * 0.94, _s * 0.94);
+    _paintGrid(canvas, board, _s * 0.025, accent.withOpacity(0.55), cells: 6);
+    final double cell = board.width / 6;
+    Offset stone(int i) => Offset(
+          board.left + cell * (i + 0.5),
+          board.bottom - cell * (i + 0.5),
+        );
+    canvas.drawLine(stone(0), stone(4), _glow(_s * 0.12, opacity: 0.8));
+    for (int i = 0; i < 5; i++) {
+      canvas.drawCircle(
+        stone(i),
+        cell * 0.42,
+        Paint()
+          ..color = accent.withOpacity(0.7)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, _s * 0.05),
+      );
+      canvas.drawCircle(stone(i), cell * 0.3, Paint()..color = _core);
+    }
   }
 
   @override

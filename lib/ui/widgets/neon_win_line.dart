@@ -10,10 +10,15 @@ class NeonWinLine extends StatefulWidget {
     super.key,
     required this.winningLine,
     required this.color,
+    this.dimension = 3,
   });
 
+  /// Casas da linha em ordem: a primeira e a última são as pontas do risco.
   final List<int> winningLine;
   final Color color;
+
+  /// Casas por lado do tabuleiro (3 no clássico, 4 no 4x4, 10 no Gomoku).
+  final int dimension;
 
   @override
   State<NeonWinLine> createState() => _NeonWinLineState();
@@ -94,6 +99,7 @@ class _NeonWinLineState extends State<NeonWinLine>
       painter: _NeonWinLinePainter(
         winningLine: widget.winningLine,
         color: widget.color,
+        dimension: widget.dimension,
         lineProgress: _lineProgress,
         time: _controller.value,
         particles: _particles,
@@ -106,6 +112,7 @@ class _NeonWinLinePainter extends CustomPainter {
   _NeonWinLinePainter({
     required this.winningLine,
     required this.color,
+    required this.dimension,
     required this.lineProgress,
     required this.time,
     required this.particles,
@@ -113,14 +120,16 @@ class _NeonWinLinePainter extends CustomPainter {
 
   final List<int> winningLine;
   final Color color;
+  final int dimension;
   final double lineProgress;
   final double time;
   final List<_Particle> particles;
 
   Offset _cellCenter(int index, Size size) {
-    final double cw = size.width / 3;
-    final double ch = size.height / 3;
-    return Offset((index % 3 + 0.5) * cw, (index ~/ 3 + 0.5) * ch);
+    final double cw = size.width / dimension;
+    final double ch = size.height / dimension;
+    return Offset(
+        (index % dimension + 0.5) * cw, (index ~/ dimension + 0.5) * ch);
   }
 
   @override
@@ -132,7 +141,11 @@ class _NeonWinLinePainter extends CustomPainter {
     final Offset end = _cellCenter(winningLine.last, size);
     // estica um pouco além dos centros das pontas
     final Offset dir = (end - start) / (end - start).distance;
-    final double overshoot = size.shortestSide * 0.06;
+    // Espessura e sobra das pontas acompanham a casa: no 3x3 o fator é 1
+    // (igual a antes); no 10x10 o risco não pode cobrir três fileiras.
+    final double cellScale = 3 / dimension;
+    final double thickness = size.shortestSide * sqrt(cellScale);
+    final double overshoot = size.shortestSide * 0.06 * cellScale;
     final Offset a = start - dir * overshoot;
     final Offset b = end + dir * overshoot;
     final Offset tip = Offset.lerp(a, b, lineProgress)!;
@@ -140,17 +153,17 @@ class _NeonWinLinePainter extends CustomPainter {
     // camadas de glow: larga e difusa → núcleo brilhante
     final Paint outerGlow = Paint()
       ..color = color.withOpacity(0.30)
-      ..strokeWidth = size.shortestSide * 0.085
+      ..strokeWidth = thickness * 0.085
       ..strokeCap = StrokeCap.round
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14);
     final Paint innerGlow = Paint()
       ..color = color.withOpacity(0.75)
-      ..strokeWidth = size.shortestSide * 0.038
+      ..strokeWidth = thickness * 0.038
       ..strokeCap = StrokeCap.round
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
     final Paint core = Paint()
       ..color = Colors.white.withOpacity(0.95)
-      ..strokeWidth = size.shortestSide * 0.014
+      ..strokeWidth = thickness * 0.014
       ..strokeCap = StrokeCap.round;
 
     canvas.drawLine(a, tip, outerGlow);
@@ -161,7 +174,7 @@ class _NeonWinLinePainter extends CustomPainter {
     if (lineProgress < 1) {
       canvas.drawCircle(
         tip,
-        size.shortestSide * 0.028,
+        thickness * 0.028,
         Paint()
           ..color = Colors.white
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),

@@ -8,6 +8,7 @@ import 'cpu_strategy.dart';
 import 'modes/chaos_rules_engine.dart';
 import 'modes/classic_rules_engine.dart';
 import 'modes/game_rules_engine.dart';
+import 'modes/line_rules_engine.dart';
 import 'modes/shift_rules_engine.dart';
 import 'modes/ultimate_mini_rules_engine.dart';
 
@@ -77,6 +78,9 @@ class GameController {
       case GameModeType.ultimate2:
         // Tic Tac Toe 2 tem tela/engine próprias (Ultimate2Screen).
         throw UnsupportedError('ultimate2 não usa GameController');
+      case GameModeType.fourByFour:
+      case GameModeType.gomoku:
+        return LineRulesEngine.forMode(modeDefinition.type);
     }
   }
 

@@ -209,6 +209,24 @@ class AppLocalizationsEn extends AppLocalizations {
       '9 boards in one. Your move picks where your rival plays.';
 
   @override
+  String get modeFourByFourTitle => '4x4';
+
+  @override
+  String get modeFourByFourSubtitle => 'Four in a row on a bigger board.';
+
+  @override
+  String get modeGomokuTitle => 'Five in a Row';
+
+  @override
+  String get modeGomokuSubtitle => 'Gomoku: line up five on a 10x10 board.';
+
+  @override
+  String get winInstructionFour => 'Line up four to win.';
+
+  @override
+  String get winInstructionFive => 'Line up five to win.';
+
+  @override
   String get ultimate2FreeMove => 'Free move: any board';
 
   @override
@@ -316,7 +334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get achAllModesTitle => 'Explorer';
 
   @override
-  String get achAllModesDesc => 'Play all 5 game modes';
+  String get achAllModesDesc => 'Play 5 different game modes';
 
   @override
   String get achUltimateWinsTitle => 'Grid Master';

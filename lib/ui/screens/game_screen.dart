@@ -218,7 +218,7 @@ class _GameScreenState extends State<GameScreen> {
     } else if (vsCpu && humanTurn) {
       hint = localization.yourTurn;
     } else {
-      hint = localization.winInstruction;
+      hint = _winInstruction(localization);
     }
     return GlassPanel(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -324,6 +324,18 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
     );
+  }
+
+  /// "Alinhe três/quatro/cinco": a dica segue o tamanho da linha do modo.
+  String _winInstruction(AppLocalizations localization) {
+    switch (widget.controller.modeDefinition.type.winLength) {
+      case 4:
+        return localization.winInstructionFour;
+      case 5:
+        return localization.winInstructionFive;
+      default:
+        return localization.winInstruction;
+    }
   }
 
   String _chaosEventLabel(AppLocalizations localization, ChaosEvent event) {

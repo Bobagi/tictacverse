@@ -215,6 +215,24 @@ class AppLocalizationsPt extends AppLocalizations {
       '9 tabuleiros em um. Sua jogada define onde o rival joga.';
 
   @override
+  String get modeFourByFourTitle => '4x4';
+
+  @override
+  String get modeFourByFourSubtitle => 'Quatro em linha num tabuleiro maior.';
+
+  @override
+  String get modeGomokuTitle => 'Cinco em linha';
+
+  @override
+  String get modeGomokuSubtitle => 'Gomoku: alinhe cinco num tabuleiro 10x10.';
+
+  @override
+  String get winInstructionFour => 'Alinhe quatro para vencer.';
+
+  @override
+  String get winInstructionFive => 'Alinhe cinco para vencer.';
+
+  @override
   String get ultimate2FreeMove => 'Jogada livre: qualquer tabuleiro';
 
   @override
@@ -322,7 +340,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get achAllModesTitle => 'Explorador';
 
   @override
-  String get achAllModesDesc => 'Jogue os 5 modos de jogo';
+  String get achAllModesDesc => 'Jogue 5 modos de jogo diferentes';
 
   @override
   String get achUltimateWinsTitle => 'Mestre do tabuleirão';

@@ -8,6 +8,8 @@ class MetricsService {
     GameModeType.shift: 0,
     GameModeType.chaos: 0,
     GameModeType.ultimateMini: 0,
+    GameModeType.fourByFour: 0,
+    GameModeType.gomoku: 0,
   };
   int adsShown = 0;
 

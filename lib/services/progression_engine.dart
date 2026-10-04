@@ -149,8 +149,21 @@ class ProgressionEngine {
     }
     // O Super Jogo da Velha é o carro-chefe: rende 50% a mais para puxar o
     // jogador para o modo que diferencia o app.
-    if (outcome.mode == GameModeType.ultimate2) {
-      xp = (xp * 1.5).round();
+    // O Cinco em linha (10x10) é partida bem mais longa que o 3x3 e rende 25%
+    // a mais; fica abaixo do Super Jogo da Velha de propósito, para o
+    // carro-chefe continuar sendo o modo que mais paga. O 4x4 paga como o
+    // Clássico (partida curta, mesma tabela).
+    switch (outcome.mode) {
+      case GameModeType.ultimate2:
+        xp = (xp * 1.5).round();
+      case GameModeType.gomoku:
+        xp = (xp * 1.25).round();
+      case GameModeType.classic:
+      case GameModeType.shift:
+      case GameModeType.chaos:
+      case GameModeType.ultimateMini:
+      case GameModeType.fourByFour:
+        break;
     }
     return xp;
   }

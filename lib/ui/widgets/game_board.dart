@@ -93,9 +93,18 @@ class _GameBoardState extends State<GameBoard>
     super.dispose();
   }
 
+  /// Lado do tabuleiro, deduzido do número de casas (9 = 3x3, 16 = 4x4,
+  /// 100 = 10x10). Assim a tela não precisa saber o modo para desenhar.
+  int get _dimension => boardDimensionFor(widget.board.length);
+
+  /// Fator de escala dos enfeites (sombra, borda, traço da grade) em relação
+  /// ao 3x3: no 3x3 vale 1 e nada muda; no 10x10 tudo encolhe junto da casa.
+  double get _ornamentScale => 3 / _dimension;
+
   Offset _cellCenter(int index) {
     final double extent = _lastCellExtent;
-    return Offset((index % 3 + 0.5) * extent, (index ~/ 3 + 0.5) * extent);
+    final int n = _dimension;
+    return Offset((index % n + 0.5) * extent, (index ~/ n + 0.5) * extent);
   }
 
   /// Explosão na peça nova, poeira na peça que sumiu (Shift/Caos) e faísca
@@ -149,7 +158,9 @@ class _GameBoardState extends State<GameBoard>
         aspectRatio: 1,
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            final double cellExtent = constraints.biggest.shortestSide / 3;
+            final int dimension = _dimension;
+            final double cellExtent =
+                constraints.biggest.shortestSide / dimension;
             _lastCellExtent = cellExtent;
             return Stack(
               children: <Widget>[
@@ -159,7 +170,9 @@ class _GameBoardState extends State<GameBoard>
                     builder: (BuildContext context, Widget? _) {
                       return CustomPaint(
                         painter: NeonGridPainter(
-                            progress: _neonPulseController.value),
+                          progress: _neonPulseController.value,
+                          dimension: dimension,
+                        ),
                       );
                     },
                   ),
@@ -168,8 +181,8 @@ class _GameBoardState extends State<GameBoard>
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   padding: EdgeInsets.zero,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: dimension),
                   itemCount: widget.board.length,
                   itemBuilder: (BuildContext context, int index) => _buildCell(
                     context,
@@ -186,6 +199,7 @@ class _GameBoardState extends State<GameBoard>
                         key: ValueKey<String>(
                             'win-${widget.winningLine!.join('-')}'),
                         winningLine: widget.winningLine!,
+                        dimension: dimension,
                         color: _playerGlowColors[widget.winningPlayer!] ??
                             Colors.cyanAccent,
                       ),
@@ -205,6 +219,9 @@ class _GameBoardState extends State<GameBoard>
     final bool isBlocked = widget.blockedCells.contains(index);
     final bool isHighlighted = widget.highlightIndex == index;
     final bool isWinningCell = widget.winningLine?.contains(index) ?? false;
+    // 12 no 3x3 (como sempre foi); no 10x10 a casa tem ~28px e 12 de raio a
+    // deixaria redonda.
+    final double radius = 12 * _ornamentScale;
     return PressScale(
       enabled: widget.interactive && marker == null && !isBlocked,
       pressedScale: 0.9,
@@ -212,7 +229,7 @@ class _GameBoardState extends State<GameBoard>
         onTap: () => widget.onCellSelected(index),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(radius),
             border: Border.all(color: Colors.white.withOpacity(0.08)),
             color: Colors.transparent,
           ),
@@ -228,10 +245,12 @@ class _GameBoardState extends State<GameBoard>
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(radius),
                   ),
                   child: Center(
-                    child: Icon(Icons.block, color: Colors.redAccent.shade200),
+                    child: Icon(Icons.block,
+                        color: Colors.redAccent.shade200,
+                        size: min(24, cellExtent * 0.6)),
                   ),
                 ),
               if (isHighlighted)
@@ -255,15 +274,15 @@ class _GameBoardState extends State<GameBoard>
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(radius),
                           border: Border.all(
                               color: Colors.lightBlueAccent.withOpacity(0.85),
-                              width: 2),
+                              width: max(1, 2 * _ornamentScale)),
                           boxShadow: <BoxShadow>[
                             BoxShadow(
                               color: Colors.lightBlueAccent.withOpacity(0.35),
-                              blurRadius: 16,
-                              spreadRadius: 2,
+                              blurRadius: 16 * _ornamentScale,
+                              spreadRadius: 2 * _ornamentScale,
                             ),
                           ],
                         ),
@@ -291,24 +310,28 @@ class _GameBoardState extends State<GameBoard>
         (marker == PlayerMarker.cross ? skin.crossGlow : skin.noughtGlow) ??
             _playerGlowColors[marker] ??
             Colors.cyanAccent;
+    final double scale = _ornamentScale;
+    // No 3x3 a peça ocupa 64% da casa; em tabuleiro grande a casa é pequena
+    // e a peça cresce para 78%, senão vira um pontinho num celular de 360px.
+    final double pieceFraction = _dimension <= 3 ? 0.64 : 0.78;
     return Center(
       child: Transform.rotate(
         angle: rotationAngle,
         child: PopIn(
           child: Container(
-            width: cellExtent * 0.64,
-            height: cellExtent * 0.64,
+            width: cellExtent * pieceFraction,
+            height: cellExtent * pieceFraction,
             decoration: BoxDecoration(
               boxShadow: <BoxShadow>[
                 BoxShadow(
                   color: glowColor.withOpacity(0.48),
-                  blurRadius: 36,
-                  spreadRadius: 4,
+                  blurRadius: 36 * scale,
+                  spreadRadius: 4 * scale,
                 ),
                 BoxShadow(
                   color: glowColor.withOpacity(0.22),
-                  blurRadius: 18,
-                  spreadRadius: 1,
+                  blurRadius: 18 * scale,
+                  spreadRadius: 1 * scale,
                 ),
               ],
             ),
@@ -422,32 +445,46 @@ class _WinningCellPulseState extends State<_WinningCellPulse>
   }
 }
 
+/// Lado de um tabuleiro quadrado com [cellCount] casas (9 -> 3, 100 -> 10).
+int boardDimensionFor(int cellCount) {
+  final int dimension = sqrt(cellCount).round();
+  assert(dimension * dimension == cellCount, 'tabuleiro não é quadrado');
+  return dimension;
+}
+
 class NeonGridPainter extends CustomPainter {
-  NeonGridPainter({required this.progress});
+  NeonGridPainter({required this.progress, this.dimension = 3});
 
   final double progress;
+
+  /// Casas por lado. As linhas internas são `dimension - 1` em cada eixo.
+  final int dimension;
 
   static const Color electricBlue = Color(0xFF6BE0FF);
   static const Color neonPink = Color(0xFFFF6BD9);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double strokeWidth = size.shortestSide * 0.04;
+    // O traço afina junto com a casa: no 3x3 fica 4% do lado, como sempre;
+    // no 10x10 a grade não pode engolir as casas.
+    final double strokeWidth = size.shortestSide * 0.04 * 3 / dimension;
     final double glowStrokeWidth = strokeWidth * 1.55;
     final Paint glowPaint = _buildGlowPaint(glowStrokeWidth);
     final Paint linePaint = _buildLinePaint(strokeWidth);
 
-    final double firstDivision = size.width / 3;
-    final double secondDivision = 2 * firstDivision;
-    final Path gridPath = Path()
-      ..moveTo(firstDivision, 0)
-      ..lineTo(firstDivision, size.height)
-      ..moveTo(secondDivision, 0)
-      ..lineTo(secondDivision, size.height)
-      ..moveTo(0, firstDivision)
-      ..lineTo(size.width, firstDivision)
-      ..moveTo(0, secondDivision)
-      ..lineTo(size.width, secondDivision);
+    final Path gridPath = Path();
+    for (int i = 1; i < dimension; i++) {
+      final double division = size.width * i / dimension;
+      gridPath
+        ..moveTo(division, 0)
+        ..lineTo(division, size.height);
+    }
+    for (int i = 1; i < dimension; i++) {
+      final double division = size.width * i / dimension;
+      gridPath
+        ..moveTo(0, division)
+        ..lineTo(size.width, division);
+    }
 
     canvas.drawPath(gridPath, glowPaint);
     canvas.drawPath(gridPath, linePaint);
@@ -458,7 +495,7 @@ class NeonGridPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = strokeWidth
-      ..shader = _buildGradientShader(strokeWidth);
+      ..shader = _buildGradientShader(strokeWidth * dimension / 3);
   }
 
   Paint _buildGlowPaint(double strokeWidth) {
@@ -466,8 +503,8 @@ class NeonGridPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = strokeWidth
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18)
-      ..shader = _buildGradientShader(strokeWidth);
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 18 * 3 / dimension)
+      ..shader = _buildGradientShader(strokeWidth * dimension / 3);
   }
 
   Shader _buildGradientShader(double strokeWidth) {
@@ -487,7 +524,7 @@ class NeonGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant NeonGridPainter oldDelegate) =>
-      oldDelegate.progress != progress;
+      oldDelegate.progress != progress || oldDelegate.dimension != dimension;
 }
 
 class WinningLinePainter extends CustomPainter {

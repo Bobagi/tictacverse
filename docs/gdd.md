@@ -47,6 +47,12 @@ Consequências de design:
 | **Shift** (`shift`) | Cada jogador tem no máximo 3 peças; ao colocar a 4ª, a mais antiga some. | Acaba com o empate chato |
 | **Caos** (`chaos`) | Eventos aleatórios no meio da partida: remover uma peça, bloquear uma casa, trocar os símbolos. | Imprevisibilidade |
 | **Ultimate Mini** (`ultimateMini`) | 3x3 com condição especial sorteada por rodada: proibido usar o centro, ou número limitado de jogadas. | Variedade rápida |
+| **4x4** (`fourByFour`) | Tabuleiro 4x4; quatro em linha (linha, coluna ou diagonal) vence; cheio sem linha empata. | Passo seguinte ao Clássico |
+| **Cinco em linha** (`gomoku`) | Gomoku 10x10, regra livre: cinco ou mais em linha vencem (seis também); cheio sem linha empata. | Partida longa e estratégica; +25% de XP |
+
+Os dois últimos rodam no mesmo fluxo do Clássico (`GameController` + `GameScreen`), com
+`LineRulesEngine` e o formato do tabuleiro em `GameModeType.boardSize`/`winLength`; o
+`GameBoard` desenha NxN a partir do número de casas.
 
 **Oponentes:** contra a CPU ou 2 jogadores no mesmo aparelho. No modo contra a CPU o humano é
 sempre o X.
@@ -57,6 +63,11 @@ sempre o X.
 - **Impossível:** minimax perfeito no Clássico (imbatível **de propósito**: é provocação
   intencional do dono, não bug, não se reabre). Nos outros modos usa vitória/bloqueio ciente
   da regra do modo, filtro de jogadas seguras e preferência posicional.
+- **4x4 e Cinco em linha** usam a `LineCpu` (`lib/controllers/line_cpu.dart`). Fácil: casa
+  aleatória colada em alguma peça. Médio: vence, bloqueia, senão sorteia entre as 3 melhores
+  da pontuação. Impossível: vence, bloqueia, arma ameaça dupla (quatro aberto), desmonta a
+  ameaça dupla do rival (fecha o três aberto) e, sem nada disso, pontua janelas de N casas;
+  responde em poucos milissegundos no 10x10.
 
 ## 4. Progressão
 
@@ -64,7 +75,8 @@ Tudo é regra pura com relógio injetável (`lib/services/progression_engine.dar
 sem widget.
 
 **XP por partida:** base 10; vitória +25; empate +5; contra a CPU no Médio +5, no Impossível
-+12; Super Jogo da Velha x1,5. Vitória local entre amigos não conta como vitória.
++12; Super Jogo da Velha x1,5; Cinco em linha x1,25 (abaixo do carro-chefe de propósito);
+4x4 paga como o Clássico. Vitória local entre amigos não conta como vitória.
 
 **Nível:** custo do nível N para N+1 = 80 + 40 x (N - 1), ou seja 80, 120, 160, 200... Os
 primeiros níveis caem na primeira sessão; os altos viram meta longa.
@@ -75,7 +87,7 @@ primeiros níveis caem na primeira sessão; os altos viram meta longa.
 |---|---|
 | Vitórias contra a CPU | 1 (bronze), 10 (bronze), 50 (prata), 200 (ouro) |
 | Vitórias seguidas | 3 (bronze), 7 (prata), 15 (ouro) |
-| Feitos | vencer no Impossível (ouro), vencer o Clássico em 3 jogadas (prata), jogar os 5 modos (prata), 10 vitórias no Super Jogo da Velha (prata) |
+| Feitos | vencer no Impossível (ouro), vencer o Clássico em 3 jogadas (prata), jogar 5 modos diferentes (prata; meta fixa em 5 mesmo com 7 modos, quem já tinha segue com ela), 10 vitórias no Super Jogo da Velha (prata) |
 | Dias seguidos jogando | 3 (bronze), 7 (prata), 30 (ouro) |
 | Partidas | 50 (bronze), 250 (ouro) |
 
