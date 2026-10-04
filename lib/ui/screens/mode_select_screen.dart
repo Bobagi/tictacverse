@@ -232,6 +232,10 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
         return VerseColors.nought;
       case GameModeType.ultimateMini:
         return const Color(0xFFB98BFF);
+      case GameModeType.fourByFour:
+        return const Color(0xFFFFB347);
+      case GameModeType.gomoku:
+        return const Color(0xFF7CFF6B);
     }
   }
 

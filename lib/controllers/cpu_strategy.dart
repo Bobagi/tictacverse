@@ -6,6 +6,7 @@ import '../models/game_result.dart';
 import '../models/game_state.dart';
 import '../models/player_marker.dart';
 import '../models/ultimate_condition.dart';
+import 'line_cpu.dart';
 import 'modes/shift_rules_engine.dart';
 import 'win_checker.dart';
 
@@ -16,16 +17,31 @@ import 'win_checker.dart';
 /// - hard: minimax perfeito no modo clássico; nos demais modos usa a mesma
 ///   detecção de vitória/bloqueio ciente das regras do modo (remoção do Shift,
 ///   condição do Ultimate) + filtro de jogadas seguras + preferência posicional.
+///
+/// Os modos de tabuleiro maior (4x4 e Cinco em linha) vão para a [LineCpu],
+/// que tem as próprias regras por dificuldade; o minimax do Clássico não muda.
 class CpuStrategy {
-  CpuStrategy({Random? random}) : _random = random ?? Random();
+  CpuStrategy({Random? random})
+      : _random = random ?? Random(),
+        _lineCpu = LineCpu(random: random);
 
   final Random _random;
+  final LineCpu _lineCpu;
 
   int? chooseMove({
     required GameState state,
     required GameModeType mode,
     required CpuDifficulty difficulty,
   }) {
+    if (mode.isLineMode) {
+      return _lineCpu.chooseMove(
+        board: state.board,
+        size: mode.boardSize,
+        winLength: mode.winLength,
+        me: state.currentPlayer,
+        difficulty: difficulty,
+      );
+    }
     final List<int> moves = _availableMoves(state);
     if (moves.isEmpty) {
       return null;

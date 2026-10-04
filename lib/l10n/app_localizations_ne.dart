@@ -212,6 +212,25 @@ class AppLocalizationsNe extends AppLocalizations {
       'एउटैमा ९ बोर्ड। तपाईंको चालले प्रतिद्वन्द्वी कहाँ खेल्छ भन्ने तय गर्छ।';
 
   @override
+  String get modeFourByFourTitle => '4x4';
+
+  @override
+  String get modeFourByFourSubtitle => 'ठूलो बोर्डमा लगातार चार मिलाउनुहोस्।';
+
+  @override
+  String get modeGomokuTitle => 'लगातार पाँच';
+
+  @override
+  String get modeGomokuSubtitle =>
+      'गोमोकु: १०x१० बोर्डमा लगातार पाँच मिलाउनुहोस्।';
+
+  @override
+  String get winInstructionFour => 'चार लाइनमा मिलाएर जित्नुहोस्';
+
+  @override
+  String get winInstructionFive => 'पाँच लाइनमा मिलाएर जित्नुहोस्';
+
+  @override
   String get ultimate2FreeMove => 'खुला चाल: जुनसुकै बोर्ड';
 
   @override
@@ -319,7 +338,7 @@ class AppLocalizationsNe extends AppLocalizations {
   String get achAllModesTitle => 'अन्वेषक';
 
   @override
-  String get achAllModesDesc => 'पाँचै मोड खेल्नुहोस्';
+  String get achAllModesDesc => '५ फरक मोड खेल्नुहोस्';
 
   @override
   String get achUltimateWinsTitle => 'बोर्डको उस्ताद';

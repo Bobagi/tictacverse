@@ -212,6 +212,24 @@ class AppLocalizationsBn extends AppLocalizations {
       'একটিতে ৯টি বোর্ড। আপনার চালই ঠিক করে প্রতিপক্ষ কোথায় খেলবে।';
 
   @override
+  String get modeFourByFourTitle => '4x4';
+
+  @override
+  String get modeFourByFourSubtitle => 'বড় বোর্ডে টানা চারটি মেলান।';
+
+  @override
+  String get modeGomokuTitle => 'টানা পাঁচ';
+
+  @override
+  String get modeGomokuSubtitle => 'গোমোকু: ১০x১০ বোর্ডে টানা পাঁচটি মেলান।';
+
+  @override
+  String get winInstructionFour => 'চারটি সারিতে সাজিয়ে জিতুন';
+
+  @override
+  String get winInstructionFive => 'পাঁচটি সারিতে সাজিয়ে জিতুন';
+
+  @override
   String get ultimate2FreeMove => 'মুক্ত চাল: যেকোনো বোর্ড';
 
   @override
@@ -318,7 +336,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get achAllModesTitle => 'অভিযাত্রী';
 
   @override
-  String get achAllModesDesc => 'পাঁচটি মোডেই খেলুন';
+  String get achAllModesDesc => '৫টি আলাদা মোডে খেলুন';
 
   @override
   String get achUltimateWinsTitle => 'বোর্ডের ওস্তাদ';

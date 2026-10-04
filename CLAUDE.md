@@ -45,7 +45,10 @@ build.
   fim da partida (vitória do humano, da máquina, entre amigos, empate) e dá o
   título, o som, a vibração e o confete certos.
 
-Modos: `classic`, `shift`, `chaos`, `ultimateMini`, `ultimate2`. O **`ultimate2`
+Modos: `classic`, `shift`, `chaos`, `ultimateMini`, `ultimate2`, `fourByFour`
+(4x4, quatro em linha) e `gomoku` (Cinco em linha, 10x10, cinco ou mais vencem). Os dois
+últimos usam `LineRulesEngine` + `LineCpu` e o tamanho vem de `GameModeType.boardSize`/
+`winLength`; o `GameBoard` deduz o NxN do número de casas. O **`ultimate2`
 (Super Jogo da Velha) é o carro-chefe** por diretriz do dono: campanha, criativo e
 screenshot giram em torno dele, e ele rende 50% mais XP de propósito.
 
