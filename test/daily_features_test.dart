@@ -204,7 +204,8 @@ void main() {
       final ProgressState s = ProgressState(
           coins: 0,
           ownedThemes: <String>{defaultBoardThemeId, 'royal'},
-          equippedTheme: 'royal');
+          equippedTheme: 'royal',
+          coinPurchases: <String, int>{'theme:royal': 600});
       final RevocationEffect e = engine.applyRevocation(s,
           redemptionId: 'x', coins: 300, removeAds: false);
       expect(e.lostSkins, <String>['royal']);

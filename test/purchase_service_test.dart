@@ -329,7 +329,8 @@ void main() {
     StorageService.instance.progress = ProgressState(
         coins: 200,
         ownedSkins: <String>{'neon', 'galaxy', 'fireIce'},
-        equippedSkin: 'galaxy');
+        equippedSkin: 'galaxy',
+        coinPurchases: <String, int>{'skin:galaxy': 800, 'skin:fireIce': 250});
     api.revoked.add(const Revocation(
         redemptionId: '12',
         productId: 'coins_1000',

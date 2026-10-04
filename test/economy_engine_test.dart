@@ -376,7 +376,12 @@ void main() {
       final ProgressState s = ProgressState(
           coins: 100,
           ownedSkins: <String>{'neon', 'fireIce', 'candy', 'gold'},
-          equippedSkin: 'candy');
+          equippedSkin: 'candy',
+          coinPurchases: <String, int>{
+            'skin:fireIce': 250,
+            'skin:candy': 350,
+            'skin:gold': 500,
+          });
       // 100 - 1000 = -900: sai o ouro (500) -> -400, sai a bala (350) -> -50,
       // sai fogo e gelo (250) -> 200.
       final RevocationEffect e = engine.applyRevocation(s,
@@ -409,6 +414,57 @@ void main() {
           redemptionId: '4', coins: 1000, removeAds: false);
       expect(again.applied, isFalse);
       expect(back.coins, 1000);
+    });
+
+    test('item ganho de graça não vira moeda no estorno (Aurora da migração)',
+        () {
+      // Jogador antigo ganhou o Aurora (1000) na migração, compra 300 moedas,
+      // gasta num visual de 250 e pede reembolso.
+      final ProgressState s = ProgressState.fromJson(<String, dynamic>{
+        'coins': 0,
+        'ownedSkins': <String>['aurora'],
+        'equippedSkin': 'aurora',
+      });
+      engine.applyServerGrant(s,
+          purchaseToken: 't', coins: 300, removeAds: false);
+      expect(engine.buySkin(s, 'fireIce'), SkinPurchaseResult.purchased);
+      expect(s.coins, 50);
+      final RevocationEffect e = engine.applyRevocation(s,
+          redemptionId: 'r', coins: 300, removeAds: false);
+      expect(s.ownedSkins, contains('aurora'), reason: 'presente não sai');
+      expect(e.lostSkins, <String>['fireIce']);
+      expect(s.coins, 0, reason: '50 - 300 + 250: sem lucro nenhum');
+    });
+
+    test('o registro do que foi pago com moedas sobrevive ao save', () {
+      final ProgressState s = ProgressState(coins: 300);
+      engine.buySkin(s, 'fireIce');
+      final ProgressState back = ProgressState.fromJson(
+          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
+      expect(back.coinPurchases, <String, int>{'skin:fireIce': 250});
+    });
+
+    test('compra única não paga de novo nem depois de 100 compras novas', () {
+      final ProgressState s = ProgressState();
+      engine.applyServerGrant(s,
+          purchaseToken: 'pacote',
+          coins: 1000,
+          removeAds: true,
+          permanent: true);
+      for (int i = 0; i < ProgressState.processedPurchasesCap + 10; i++) {
+        engine.applyServerGrant(s,
+            purchaseToken: 'm$i', coins: 300, removeAds: false);
+      }
+      final int before = s.coins;
+      final ProgressState back = ProgressState.fromJson(
+          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
+      // A Play devolve o pacote em toda abertura; o servidor reentrega.
+      engine.applyServerGrant(back,
+          purchaseToken: 'pacote',
+          coins: 1000,
+          removeAds: true,
+          permanent: true);
+      expect(back.coins, before);
     });
 
     test('"sem anúncios" estornado: anúncios voltam', () {

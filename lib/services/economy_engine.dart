@@ -137,6 +137,7 @@ class EconomyEngine {
     }
     state.coins -= skin.price;
     state.ownedSkins.add(skin.id);
+    state.coinPurchases['skin:${skin.id}'] = skin.price;
     state.equippedSkin = skin.id;
     return SkinPurchaseResult.purchased;
   }
@@ -155,6 +156,7 @@ class EconomyEngine {
     }
     state.coins -= theme.price;
     state.ownedThemes.add(theme.id);
+    state.coinPurchases['theme:${theme.id}'] = theme.price;
     state.equippedTheme = theme.id;
     return SkinPurchaseResult.purchased;
   }
@@ -205,6 +207,7 @@ class EconomyEngine {
     required String purchaseToken,
     required int coins,
     required bool removeAds,
+    bool permanent = false,
   }) {
     if (purchaseToken.isEmpty) {
       return const StoreGrant(duplicate: true);
@@ -214,10 +217,15 @@ class EconomyEngine {
       state.adsRemoved = true;
     }
     final bool removedNow = removeAds && !wasRemoved;
-    if (state.processedPurchases.contains(purchaseToken)) {
+    if (state.processedPurchases.contains(purchaseToken) ||
+        state.permanentPurchases.contains(purchaseToken)) {
       return StoreGrant(removedAds: removeAds, duplicate: !removedNow);
     }
-    _remember(state.processedPurchases, purchaseToken);
+    if (permanent) {
+      state.permanentPurchases.add(purchaseToken);
+    } else {
+      _remember(state.processedPurchases, purchaseToken);
+    }
     final int credited = coins > 0 ? coins : 0;
     state.coins += credited;
     return StoreGrant(
@@ -249,15 +257,17 @@ class EconomyEngine {
     final List<String> lostSkins = <String>[];
     if (coins > 0) {
       state.coins -= coins;
-      // Visuais de peça e temas de tabuleiro pagos, do mais caro ao mais
-      // barato.
+      // Só o que foi comprado COM MOEDAS volta, pelo preço pago, do mais caro
+      // ao mais barato. Item ganho de graça (o Aurora de quem já jogava antes
+      // da troca) não entra: senão o estorno daria moeda de lucro.
       final List<(String, int, bool)> owned = <(String, int, bool)>[
-        for (final PieceSkin s in pieceSkinCatalog)
-          if (s.price > 0 && state.ownedSkins.contains(s.id))
-            (s.id, s.price, true),
-        for (final BoardTheme t in boardThemeCatalog)
-          if (t.price > 0 && state.ownedThemes.contains(t.id))
-            (t.id, t.price, false),
+        for (final MapEntry<String, int> e in state.coinPurchases.entries)
+          if (e.key.startsWith('skin:') &&
+              state.ownedSkins.contains(e.key.substring(5)))
+            (e.key.substring(5), e.value, true)
+          else if (e.key.startsWith('theme:') &&
+              state.ownedThemes.contains(e.key.substring(6)))
+            (e.key.substring(6), e.value, false),
       ]..sort(((String, int, bool) a, (String, int, bool) b) =>
           b.$2.compareTo(a.$2));
       for (final (String id, int price, bool isSkin) in owned) {
@@ -266,6 +276,7 @@ class EconomyEngine {
         }
         state.coins += price;
         lostSkins.add(id);
+        state.coinPurchases.remove(isSkin ? 'skin:$id' : 'theme:$id');
         if (isSkin) {
           state.ownedSkins.remove(id);
           if (state.equippedSkin == id) {

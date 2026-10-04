@@ -412,6 +412,10 @@ class PurchaseService {
       purchaseToken: token,
       coins: verdict.coins,
       removeAds: verdict.removeAds,
+      // Compra única volta em toda abertura: o token dela nunca sai do
+      // registro (o de pacote de moedas tem teto, porque a Play não reentrega
+      // pacote já consumido).
+      permanent: !product.isConsumable,
     );
     if (product.isConsumable) {
       // Consumir também confirma; falhou, a Play reentrega e o token barra o

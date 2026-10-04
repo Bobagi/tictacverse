@@ -38,12 +38,16 @@ class ProgressState {
     List<String>? processedPurchases,
     List<String>? appliedRevocations,
     Set<String>? ownedThemes,
+    Map<String, int>? coinPurchases,
+    Set<String>? permanentPurchases,
   })  : modesPlayed = modesPlayed ?? <GameModeType>{},
         unlockedAchievements = unlockedAchievements ?? <String>{},
         ownedSkins = ownedSkins ?? <String>{defaultSkinId},
         processedPurchases = processedPurchases ?? <String>[],
         appliedRevocations = appliedRevocations ?? <String>[],
-        ownedThemes = ownedThemes ?? <String>{defaultBoardThemeId};
+        ownedThemes = ownedThemes ?? <String>{defaultBoardThemeId},
+        coinPurchases = coinPurchases ?? <String, int>{},
+        permanentPurchases = permanentPurchases ?? <String>{};
 
   /// Visual de peças que todo jogador tem desde o início (Neon desde a
   /// v1.13.0; até a v1.12.0 era o Aurora).
@@ -131,6 +135,16 @@ class ProgressState {
   int challengeStreak;
   int bestChallengeStreak;
 
+  /// O que foi comprado COM MOEDAS e quanto custou (`skin:<id>`, `theme:<id>`).
+  /// Só isso volta para a loja num estorno: item ganho de graça (o Aurora de
+  /// quem já jogava) não pode virar moeda.
+  final Map<String, int> coinPurchases;
+
+  /// Tokens de compra ÚNICA (pacote de boas-vindas, sem anúncios) já
+  /// creditados. Sem teto: a Play devolve essas compras em toda abertura, e
+  /// esquecer o token pagaria as moedas do pacote de novo.
+  final Set<String> permanentPurchases;
+
   /// Estornos (ids de resgate do servidor) já descontados aqui.
   final List<String> appliedRevocations;
 
@@ -163,6 +177,8 @@ class ProgressState {
         'bestChallengeStreak': bestChallengeStreak,
         'ownedThemes': ownedThemes.toList(),
         'equippedTheme': equippedTheme,
+        'coinPurchases': coinPurchases,
+        'permanentPurchases': permanentPurchases.toList(),
         'catalogVersion': catalogVersion,
       };
 
@@ -250,6 +266,17 @@ class ProgressState {
           if (raw is String) raw,
       },
       equippedTheme: _asString(json['equippedTheme']) ?? defaultBoardThemeId,
+      coinPurchases: <String, int>{
+        if (json['coinPurchases'] is Map)
+          for (final MapEntry<dynamic, dynamic> e
+              in (json['coinPurchases'] as Map).entries)
+            if (e.key is String && e.value is num && (e.value as num) > 0)
+              e.key as String: (e.value as num).toInt(),
+      },
+      permanentPurchases: <String>{
+        for (final Object? raw in _asList(json['permanentPurchases']))
+          if (raw is String) raw,
+      },
       processedPurchases: <String>[
         for (final Object? raw in _asList(json['processedPurchases']))
           if (raw is String) raw,

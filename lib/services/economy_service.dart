@@ -61,9 +61,13 @@ class EconomyService {
     required String purchaseToken,
     required int coins,
     required bool removeAds,
+    bool permanent = false,
   }) async {
     final StoreGrant grant = engine.applyServerGrant(_state,
-        purchaseToken: purchaseToken, coins: coins, removeAds: removeAds);
+        purchaseToken: purchaseToken,
+        coins: coins,
+        removeAds: removeAds,
+        permanent: permanent);
     await _persist();
     return grant;
   }
