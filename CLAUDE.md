@@ -4,6 +4,10 @@ Jogo da velha multiverso em Flutter, publicado na Play Store como
 `com.bobagi.tictacverse`. É o app do portfolio com expectativa real de receita,
 então **anúncio e loja são caminho crítico, não detalhe**.
 
+> **Design do jogo (modos, progressão, economia, monetização, loja, roadmap):
+> [`docs/gdd.md`](docs/gdd.md).** Mudou regra, número, economia ou política de loja,
+> atualize o GDD na mesma tarefa.
+>
 > **Onde ver os painéis (Google Ads, AdMob, Play): [`docs/paineis.md`](docs/paineis.md).**
 > Tem link direto de cada console, o que a API já responde sem abrir navegador,
 > e o que só o operador consegue fazer clicando.
@@ -219,6 +223,14 @@ falhar**: ao escrever, quebre a regra que ele cobre no código e confirme que el
 fica vermelho. Se não ficar, é teatro.
 
 ## Loja
+
+**Lançamento é SEMPRE a 100% (ordem do dono, 2026-10-04).** Nunca usar rollout
+gradual: a v22 ficou um mês a 20% e 80% da base presa na v20. Fluxo: upload no
+`internal` → `GPLAY_CONFIRM_PROD=yes gplay.py promote --from-track internal
+--to-track production --rollout 1.0` → ficha e ícone (`docs/store-listing/`) no
+mesmo passo quando a versão muda o que a ficha descreve. O classificador de
+segurança do Claude Code barra escrita em produção sem ordem explícita do dono
+na conversa; com a ordem, executa.
 
 O título da ficha é **só "Tic Tac Verse"**, sem subtítulo, em todos os idiomas
 (ordem do dono). Não enumere nomes de lojas ou marcas de terceiros na descrição:
