@@ -166,31 +166,26 @@ class _GameScreenState extends State<GameScreen> {
                                     height: boardSize,
                                     child: BoardShake(
                                       trigger: _shakeTick,
-                                      // Moldura opaca: vira a foto do
-                                      // "compartilhar vitória".
+                                      // Vira a foto do "compartilhar vitória"
+                                      // (o fundo é pintado só na imagem).
                                       child: RepaintBoundary(
                                         key: _boardShotKey,
-                                        child: DecoratedBox(
-                                          decoration: const BoxDecoration(
-                                              color: VerseColors.bgTop),
-                                          child: GameBoard(
-                                            board:
-                                                widget.controller.state.board,
-                                            blockedCells: widget
-                                                .controller.state.blockedCells,
-                                            onCellSelected: _handleCellTap,
-                                            winningLine: widget.controller.state
-                                                .result.winningLine,
-                                            winningPlayer: widget
-                                                .controller.state.result.winner,
-                                            visualAssetConfig: _visualAssets,
-                                            highlightIndex:
-                                                _cpuMoveHighlightIndex,
-                                            particles: _boardParticles,
-                                            interactive: !_cpuThinking &&
-                                                !widget.controller.state.result
-                                                    .isFinal,
-                                          ),
+                                        child: GameBoard(
+                                          board: widget.controller.state.board,
+                                          blockedCells: widget
+                                              .controller.state.blockedCells,
+                                          onCellSelected: _handleCellTap,
+                                          winningLine: widget.controller.state
+                                              .result.winningLine,
+                                          winningPlayer: widget
+                                              .controller.state.result.winner,
+                                          visualAssetConfig: _visualAssets,
+                                          highlightIndex:
+                                              _cpuMoveHighlightIndex,
+                                          particles: _boardParticles,
+                                          interactive: !_cpuThinking &&
+                                              !widget.controller.state.result
+                                                  .isFinal,
                                         ),
                                       ),
                                     ),

@@ -324,14 +324,6 @@
   "notNow": "Not now",
   "purchaseVerifying": "Payment received. Confirming your purchase, it arrives in a moment.",
   "challengeTitle": "Daily challenge",
-  "challengeGoal": "Beat the CPU in Super Tic Tac Toe in {limit} moves or fewer",
-  "@challengeGoal": {
-    "placeholders": {
-      "limit": {
-        "type": "int"
-      }
-    }
-  },
   "challengeMoves": "{used}/{limit}",
   "@challengeMoves": {
     "placeholders": {
@@ -387,5 +379,14 @@
   "themeSunset": "Sunset",
   "themeOcean": "Ocean",
   "themeEmerald": "Emerald",
-  "themeRoyal": "Royal"
+  "themeRoyal": "Royal",
+  "challengeGoalShort": "Win the Super in {limit} moves",
+  "@challengeGoalShort": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "supportIdLabel": "Support ID (for help with purchases or deleting your data)"
 }

@@ -442,21 +442,17 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                               height: size,
                               child: BoardShake(
                                 trigger: _shakeTick,
-                                // Fundo opaco só para a foto do compartilhar
-                                // não sair com o tabuleiro sobre transparente.
+                                // Vira a foto do "compartilhar vitória" (o
+                                // fundo é pintado só na imagem).
                                 child: RepaintBoundary(
                                   key: _boardShotKey,
-                                  child: DecoratedBox(
-                                    decoration: const BoxDecoration(
-                                        color: VerseColors.bgTop),
-                                    child: _MacroBoard(
-                                      state: state,
-                                      visualAssets: visualAssets,
-                                      onCellTap: _handleTap,
-                                      particles: _boardParticles,
-                                      interactive: !_cpuThinking &&
-                                          !state.result.isFinal,
-                                    ),
+                                  child: _MacroBoard(
+                                    state: state,
+                                    visualAssets: visualAssets,
+                                    onCellTap: _handleTap,
+                                    particles: _boardParticles,
+                                    interactive:
+                                        !_cpuThinking && !state.result.isFinal,
                                   ),
                                 ),
                               ),

@@ -3,6 +3,7 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../services/audio_service.dart';
 import '../../services/haptics_service.dart';
+import '../../services/storage_service.dart';
 import '../../services/update_service.dart';
 import 'modern_background.dart';
 
@@ -159,6 +160,27 @@ class SettingsSheet extends StatelessWidget {
                           );
                         },
                       ),
+                      // Item novo entra no FIM (regra do painel). O id é o
+                      // que o jogador manda ao pedir ajuda com uma compra ou a
+                      // exclusão dos dados do servidor (política, seção 6).
+                      if (StorageService.instance.isLoaded) ...<Widget>[
+                        const SizedBox(height: 8),
+                        Text(localization.supportIdLabel,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: VerseColors.mutedText)),
+                        SelectableText(
+                          StorageService.instance.installId,
+                          key: const ValueKey<String>('settings-support-id'),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  fontFamily: 'monospace',
+                                  color: Colors.white70),
+                        ),
+                      ],
                     ],
                   ),
                 ),

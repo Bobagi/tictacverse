@@ -1138,12 +1138,6 @@ abstract class AppLocalizations {
   /// **'Daily challenge'**
   String get challengeTitle;
 
-  /// No description provided for @challengeGoal.
-  ///
-  /// In en, this message translates to:
-  /// **'Beat the CPU in Super Tic Tac Toe in {limit} moves or fewer'**
-  String challengeGoal(int limit);
-
   /// No description provided for @challengeMoves.
   ///
   /// In en, this message translates to:
@@ -1293,6 +1287,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Royal'**
   String get themeRoyal;
+
+  /// No description provided for @challengeGoalShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Win the Super in {limit} moves'**
+  String challengeGoalShort(int limit);
+
+  /// No description provided for @supportIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Support ID (for help with purchases or deleting your data)'**
+  String get supportIdLabel;
 }
 
 class _AppLocalizationsDelegate

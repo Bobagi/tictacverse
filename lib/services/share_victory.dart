@@ -20,6 +20,10 @@ class ShareVictory {
       'https://play.google.com/store/apps/details?id=com.bobagi.tictacverse'
       '&referrer=utm_source%3Dshare%26utm_medium%3Dvictory';
 
+  /// Fundo da imagem: o mesmo degradê roxo do jogo.
+  static const Color backgroundTop = Color(0xFF1A0B2E);
+  static const Color backgroundBottom = Color(0xFF3A0F55);
+
   /// Gera o PNG do que está dentro do [RepaintBoundary] de [boundaryKey].
   static Future<Uint8List?> capture(GlobalKey boundaryKey,
       {double pixelRatio = 2}) async {
@@ -27,10 +31,28 @@ class ShareVictory {
     if (object is! RenderRepaintBoundary) {
       return null;
     }
-    final ui.Image image = await object.toImage(pixelRatio: pixelRatio);
+    final ui.Image board = await object.toImage(pixelRatio: pixelRatio);
+    // O tabuleiro é desenhado sobre o fundo da tela, que fica de fora da
+    // captura: sem pintar um fundo aqui, a foto sairia transparente (preta ou
+    // branca, conforme o app que recebe).
+    final double pad = 24 * pixelRatio;
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+    final Size size = Size(board.width + 2 * pad, board.height + 2 * pad);
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()
+        ..shader = ui.Gradient.linear(Offset.zero, Offset(0, size.height),
+            const <Color>[backgroundTop, backgroundBottom]),
+    );
+    canvas.drawImage(board, Offset(pad, pad), Paint());
+    final ui.Image framed = await recorder
+        .endRecording()
+        .toImage(size.width.round(), size.height.round());
+    board.dispose();
     final ByteData? data =
-        await image.toByteData(format: ui.ImageByteFormat.png);
-    image.dispose();
+        await framed.toByteData(format: ui.ImageByteFormat.png);
+    framed.dispose();
     return data?.buffer.asUint8List();
   }
 

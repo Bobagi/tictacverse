@@ -585,11 +585,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get challengeTitle => 'Desafio do dia';
 
   @override
-  String challengeGoal(int limit) {
-    return 'Vença a máquina no Super Jogo da Velha em até $limit jogadas';
-  }
-
-  @override
   String challengeMoves(int used, int limit) {
     return '$used/$limit';
   }
@@ -678,4 +673,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get themeRoyal => 'Realeza';
+
+  @override
+  String challengeGoalShort(int limit) {
+    return 'Vença o Super em até $limit jogadas';
+  }
+
+  @override
+  String get supportIdLabel =>
+      'ID de suporte (para ajuda com compras ou exclusão de dados)';
 }

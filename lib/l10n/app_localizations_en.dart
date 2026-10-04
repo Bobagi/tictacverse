@@ -579,11 +579,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get challengeTitle => 'Daily challenge';
 
   @override
-  String challengeGoal(int limit) {
-    return 'Beat the CPU in Super Tic Tac Toe in $limit moves or fewer';
-  }
-
-  @override
   String challengeMoves(int used, int limit) {
     return '$used/$limit';
   }
@@ -672,4 +667,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeRoyal => 'Royal';
+
+  @override
+  String challengeGoalShort(int limit) {
+    return 'Win the Super in $limit moves';
+  }
+
+  @override
+  String get supportIdLabel =>
+      'Support ID (for help with purchases or deleting your data)';
 }

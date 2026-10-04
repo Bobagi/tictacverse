@@ -117,15 +117,27 @@ nunca dá vantagem.
 | Visual | Preço | Estilo |
 |---|---|---|
 | Neon | grátis (inicial desde a v1.13.0) | traço fino com miolo branco, ciano e rosa |
-| Aurora | 50 | as artes PNG originais (era o inicial até a v1.12.0) |
 | Fogo e gelo | 250 | degradê laranja/amarelo e azul/branco |
 | Bala | 350 | traço grosso arredondado com reflexo, menta e morango |
 | Ouro e prata | 500 | degradê metálico |
 | Galáxia | 800 | degradê violeta/ciano com anel interno e brilhos |
+| Aurora | 1000 | as artes PNG originais, o visual mais trabalhado (fecha o catálogo) |
 
-**Troca do visual inicial (v1.13.0, ordem do dono):** o Neon combina com o ícone novo, então virou o
-padrão. Migração única (`catalogVersion` no save): quem já jogava continua dono do Aurora; quem nunca
-escolheu outro visual passa a ver o Neon; quem tinha comprado o Neon recebe as 120 moedas de volta.
+**Troca do visual inicial (v1.13.0/v1.14.0, ordem do dono):** o Neon combina com o ícone novo e
+virou o padrão; o Aurora, por ser o mais trabalhado, é o último e mais caro. Migração única
+(`catalogVersion` 3 no save): **todo mundo** que estava com o Aurora em uso passa para o Neon; quem já
+jogava continua dono do Aurora (a um toque de voltar); quem tinha comprado o Neon recebe as 120 moedas
+de volta. O cartão do visual mostra sempre o preço (com cadeado sem saldo); tocar sem saldo leva aos
+pacotes de moedas.
+
+**Temas de tabuleiro (v1.14.0, aba "Tabuleiros"):** mudam as cores da grade neon e da moldura em
+todos os modos. Neon (grátis), Pôr do sol 200, Oceano 300, Esmeralda 400, Realeza 600
+(`lib/models/board_theme.dart`). Mais baratos que os visuais de peça: são o segundo desejo.
+
+**Desafio do dia (v1.14.0):** card na home. Vencer a máquina no Super Jogo da Velha em até N
+jogadas (22 a 28 em dia útil no médio; 28 a 33 no fim de semana no impossível), sorteado pela data
+(igual para todo mundo). Paga 60 moedas + 10 por dia seguido (teto +60), uma vez por dia; voltar a
+data do aparelho não libera de novo. `lib/services/daily_challenge.dart`.
 
 Comprar debita o preço exato e já equipa. Visual comprado vale em todas as telas de jogo
 (tabuleiro, Super Jogo da Velha, avatar, modal de fim).
@@ -139,25 +151,34 @@ visual sai na primeira ou segunda sessão e o mais caro vira meta de algumas sem
 
 ## 6. Monetização
 
-Anúncio (Google AdMob) e, desde a v1.13.0, compras pelo Google Play Billing.
+Anúncio (Google AdMob) e, desde a v1.13.0, compras pelo Google Play Billing, validadas desde a
+v1.14.0 no servidor do jogo (`tictacverse-api`, seção 6.1).
 
 **Compras dentro do app** (aba "Moedas" da loja; o saldo no topo da home abre direto nela):
 
 | Produto (id na Play) | Tipo | Entrega | Preço base |
 |---|---|---|---|
+| `starter_pack` | compra única, só para quem ainda vê anúncio | "sem anúncios" + 1000 moedas (moedas só no 1º resgate) | US$ 1,99 |
 | `remove_ads` | compra única, volta ao reinstalar | some banner, retângulo médio e intersticial; o premiado continua opt-in | US$ 0,99 |
 | `coins_300` | consumível | 300 moedas | US$ 0,99 |
 | `coins_1000` | consumível | 1000 moedas | US$ 2,49 |
 | `coins_3000` | consumível ("Melhor oferta") | 3000 moedas | US$ 4,99 |
 
-Preço por país = conversão da própria Play a partir do preço base (o app mostra o preço formatado que
-a Play devolve, nunca um número fixo). Regras que não se quebram:
-- Crédito gravado no aparelho ANTES de consumir/confirmar na Play, idempotente pelo token da compra.
+Preço por país = conversão da própria Play a partir do preço base, com preço regional para o público
+real: Índia ₹89/49/39/99/199, Bangladesh ৳110/60/50/120/240, Nepal US$ 0,99/0,49/0,49/0,99/1,99
+(na ordem da tabela; `tool/play_products_setup.py`). O app mostra o preço formatado que a Play devolve
+e calcula o "Economize X%" do pacote de boas-vindas com os preços reais. Regras que não se quebram:
+- Servidor confirma na Play, app credita e grava, e SÓ ENTÃO consome/confirma na Play. Idempotente
+  pelo token dos dois lados.
 - Pagamento pendente (comum na Índia) não credita; credita quando a Play confirmar, mesmo com a loja
   fechada (a escuta começa no `main`).
 - Os botões de preço só valem 600 ms depois de a aba aparecer (ela surge sob o dedo ao tocar num visual
   trancado). Toque duplo abre uma compra só.
-- Sem servidor: direito e moedas ficam no aparelho. Reembolso na Play não tira o que foi entregue.
+- Servidor fora do ar: a compra fica paga e pendente (não credita, não finaliza) e é tentada de novo
+  em 20 s, 2 min, 10 min e a cada abertura. A Play devolve o dinheiro se não for confirmada em 3 dias.
+- **Reembolso/estorno desfaz a entrega** (seção 6.1).
+- Convite do pacote de boas-vindas na home: a partir da 2ª sessão, no máximo 3 vezes, 2 dias de
+  intervalo, nunca para quem já tirou os anúncios.
 - `--dart-define=FAKE_STORE=true` liga uma loja de mentira para QA na web; release nativo ignora.
 
 | Formato | Onde | Regra |
@@ -178,6 +199,20 @@ reincidência é encerramento permanente):
   longe do botão primário (folga é asserção de teste).
 - Sem encadear anúncios.
 - Toque duplo nunca abre dois anúncios nem paga duas vezes.
+
+### 6.1 Servidor do jogo (`tictacverse-api`, desde a v1.14.0)
+
+Repo privado `Bobagi/tictacverse-api`, `/opt/tictacverse-api` no VPS, container na porta 3066,
+`https://tictacverse-api.bobagi.space`. Três funções:
+1. **Validar compra:** consulta o token na Play Developer API; só entrega com `purchaseState = 0`.
+   Pacote de moedas amarrado à instalação que comprou (`obfuscatedAccountId`); compra única
+   restaurada em outra instalação devolve só o direito, nunca as moedas de novo.
+2. **Desfazer reembolso:** a cada 30 min lê a lista de compras anuladas da Play. O app consulta os
+   estornos da sua instalação ao abrir: tira as moedas e, se já gastou, devolve à loja visuais e
+   temas do mais caro para o mais barato até cobrir; se não cobrir, o saldo fica negativo e as
+   próximas moedas pagam. "Sem anúncios" estornado volta a mostrar anúncios.
+3. **Medir retenção:** ping diário (id aleatório da instalação, versão, idioma; sem IP).
+   `docker exec tictacverse-api npm run stats` dá DAU e D1/D7 por coorte.
 
 **Expectativa realista:** casual só com anúncio fica em US$0,03 a 0,10 por usuário ativo
 por dia; em tier 3, perto do piso. O gargalo é volume e retenção, não formato.
@@ -255,13 +290,16 @@ AD_UNIT`), receita diária, crashes na Play Console.
 Em ordem de impacto, da pesquisa de 2026-10-03:
 1. ~~Compra "remover anúncios"~~ feita na v1.13.0, junto com os pacotes de moedas.
 2. **Teste A/B do ícone** novo contra o antigo pelo Store Listing Experiments.
-3. **Desafio diário do Super Jogo da Velha** ("vença em N jogadas") usando a sequência de
+3. ~~Desafio diário do Super Jogo da Velha~~ feito na v1.14.0 ("vença em N jogadas") usando a sequência de
    dias que já existe.
-4. **Compartilhar vitória / convidar amigo** (sem servidor).
-5. **Tutorial do Super Jogo da Velha** no primeiro uso (regra menos óbvia do carro-chefe).
-6. **App open ad** só a partir da 2ª sessão, com limite de frequência, medindo D1 antes e
+4. ~~Compartilhar vitória~~ feito na v1.14.0 (imagem do tabuleiro + link com `utm_source=share`).
+5. ~~Tutorial do Super Jogo da Velha~~ feito na v1.14.0 (jogável, na 1ª abertura e no "?").
+6. Também na v1.14.0: modos 4x4 e Cinco em linha, temas de tabuleiro, pacote de boas-vindas, pedido de
+   avaliação também após conquista.
+7. **Próximo:** medir D1/D7 pelo servidor por 2 semanas antes de decidir campanha paga.
+8. **App open ad** só a partir da 2ª sessão, com limite de frequência, medindo D1 antes e
    depois.
-7. **Multiplayer online** (Fase 3, servidor próprio no VPS) quando houver base ativa que o
+9. **Multiplayer online** (Fase 3, servidor próprio no VPS) quando houver base ativa que o
    justifique.
 
 ## 13. Histórico de versões relevantes
@@ -274,3 +312,4 @@ Em ordem de impacto, da pesquisa de 2026-10-03:
 | 1.11.0+23 a 1.11.2+25 | 2026-09-25/26 | Passe de game feel (sons, música, vibração, partículas, confete, sequências); botão de atualizar sempre visível; aviso de versão nova |
 | **1.12.0+26** | **2026-10-03/04** | **Moedas, loja de 5 visuais, bônus diário de 7 dias, premiado dobra XP e moedas, home compacta, ícone novo, ficha nova. Produção a 100%.** |
 | **1.13.0+27** | **2026-10-04** | **Compras na Play (sem anúncios + 3 pacotes de moedas), Neon vira o visual inicial e Aurora custa 50, música 10 dB abaixo dos efeitos** |
+| **1.14.0+28** | **2026-10-04** | **Servidor de compras (valida na Play, desfaz reembolso, mede retenção), pacote de boas-vindas, desafio do dia, tutorial jogável do Super, compartilhar vitória, modos 4x4 e Cinco em linha, temas de tabuleiro, Aurora vira o visual mais caro (1000) e sai de uso de todos** |

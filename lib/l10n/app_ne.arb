@@ -171,7 +171,6 @@
   "notNow": "अहिले होइन",
   "purchaseVerifying": "भुक्तानी प्राप्त भयो। किनमेल पुष्टि हुँदैछ, केही बेरमा आइपुग्छ।",
   "challengeTitle": "आजको चुनौती",
-  "challengeGoal": "सुपर टिक ट्याक टोमा {limit} चालभित्र कम्प्युटरलाई हराउनुहोस्",
   "challengeMoves": "{used}/{limit}",
   "challengeOverLimit": "{limit} चाल नाघ्यो: यसपटक इनाम छैन",
   "challengeWon": "आजको चुनौती पूरा! +{coins} सिक्का",
@@ -196,5 +195,7 @@
   "themeSunset": "सूर्यास्त",
   "themeOcean": "समुद्र",
   "themeEmerald": "पन्ना",
-  "themeRoyal": "शाही"
+  "themeRoyal": "शाही",
+  "challengeGoalShort": "सुपर {limit} चालमा जित्नुहोस्",
+  "supportIdLabel": "सपोर्ट आईडी (किनमेलमा सहयोग वा डेटा मेटाउन)"
 }

@@ -37,6 +37,15 @@ OPTION_ID = 'default'
 
 # (id, preço base em US$ como (unidades, nanos), textos por idioma da ficha)
 PRODUCTS = [
+    ('starter_pack', (1, 990_000_000), {
+        'pt-BR': ('Pacote de boas-vindas', 'Sem anúncios para sempre e 1000 moedas, numa compra só.'),
+        'en-US': ('Welcome pack', 'No ads forever and 1000 coins, in one purchase.'),
+        'es-419': ('Paquete de bienvenida', 'Sin anuncios para siempre y 1000 monedas, en una sola compra.'),
+        'es-ES': ('Paquete de bienvenida', 'Sin anuncios para siempre y 1000 monedas, en una sola compra.'),
+        'hi-IN': ('वेलकम पैक', 'हमेशा के लिए बिना विज्ञापन और 1000 सिक्के, एक ही खरीद में।'),
+        'bn-BD': ('ওয়েলকাম প্যাক', 'চিরতরে বিজ্ঞাপন ছাড়া আর ১০০০ কয়েন, এক কেনাতেই।'),
+        'ne-NP': ('स्वागत प्याक', 'सधैँका लागि विज्ञापन बिना र 1000 सिक्का, एउटै किनमेलमा।'),
+    }),
     ('remove_ads', (0, 990_000_000), {
         'pt-BR': ('Sem anúncios', 'Tira os banners e os anúncios entre partidas, para sempre.'),
         'en-US': ('No ads', 'Removes banners and ads between matches, forever.'),
@@ -56,10 +65,10 @@ PRODUCTS = [
 # o casual tier-3 paga (Ludo King vende a partir de INR 9; GDD prevê INR 49 a 99
 # para "sem anúncios"). Valores em unidades da moeda que a Play usa no país.
 REGIONAL = {
-    'IN': {'remove_ads': 49, 'coins_300': 39, 'coins_1000': 99, 'coins_3000': 199},
-    'BD': {'remove_ads': 60, 'coins_300': 50, 'coins_1000': 120, 'coins_3000': 240},
+    'IN': {'starter_pack': 89, 'remove_ads': 49, 'coins_300': 39, 'coins_1000': 99, 'coins_3000': 199},
+    'BD': {'starter_pack': 110, 'remove_ads': 60, 'coins_300': 50, 'coins_1000': 120, 'coins_3000': 240},
     # O Nepal é cobrado em dólar pela Play.
-    'NP': {'remove_ads': 0.49, 'coins_300': 0.49, 'coins_1000': 0.99, 'coins_3000': 1.99},
+    'NP': {'starter_pack': 0.99, 'remove_ads': 0.49, 'coins_300': 0.49, 'coins_1000': 0.99, 'coins_3000': 1.99},
 }
 
 COIN_WORD = {

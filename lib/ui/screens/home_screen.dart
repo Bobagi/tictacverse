@@ -520,8 +520,9 @@ class _HomeScreenState extends State<HomeScreen> {
       key: const ValueKey<String>('home-challenge'),
       icon: Icons.emoji_events_rounded,
       title: localization.challengeTitle,
+      subtitleLines: 2,
       subtitle: open
-          ? '${localization.challengeGoal(challenge.moveLimit)} · +$reward'
+          ? '${localization.challengeGoalShort(challenge.moveLimit)} · +$reward'
           : streak >= 2
               ? '${localization.challengeDoneHome} · '
                   '${localization.dailyStreakChip(streak)}'
@@ -638,6 +639,7 @@ class _HomeTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.subtitleLines = 1,
     required this.highlight,
     required this.onTap,
   });
@@ -645,6 +647,7 @@ class _HomeTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final int subtitleLines;
   final bool highlight;
   final VoidCallback onTap;
 
@@ -687,7 +690,7 @@ class _HomeTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  maxLines: 1,
+                  maxLines: subtitleLines,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context)
                       .textTheme

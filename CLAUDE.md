@@ -142,26 +142,53 @@ tinha onde ser gasto e o premiado "dobrar XP" teve 0 impressões em 30 dias.
 - **Home:** o MREC (300x250) só entra com tela >= 380x760; abaixo vai o banner
   comum, senão bônus e loja ficam abaixo da dobra.
 
-## Compras na Play (v1.13.0+27)
+## Compras na Play e servidor do jogo (v1.14.0+28)
 
-Aba "Moedas" da loja: `remove_ads` (compra única) e `coins_300/1000/3000`
-(consumíveis). Catálogo em `lib/models/store_product.dart`; os ids têm de existir
-iguais na Play Console (`tool/play_products_setup.py` cria/atualiza pela API).
+Aba "Moedas" da loja: `starter_pack` e `remove_ads` (compra única) e
+`coins_300/1000/3000` (consumíveis). Catálogo em `lib/models/store_product.dart`,
+espelhado em `/opt/tictacverse-api/src/catalog.js`; os ids têm de existir iguais
+na Play Console (`tool/play_products_setup.py` cria/atualiza pela API nova
+`oneTimeProducts`, com preço regional IN/BD/NP).
 
-- **Regra pura** em `EconomyEngine.applyStorePurchase` (idempotente pelo token,
-  registro com teto de 100). `PurchaseService` só faz o vai e vem com o plugin,
-  atrás de `PurchaseBackend` para o teste usar uma Play falsa.
-- **Ordem que não se inverte:** credita e grava, DEPOIS consome (pacote) ou
-  confirma (sem anúncios). `autoConsume` fica desligado de propósito: o plugin
-  consumiria antes do crédito. Sem confirmação em 3 dias a Play devolve o dinheiro.
+- **Toda compra passa pelo servidor** (`tictacverse-api`, repo privado,
+  `/opt/tictacverse-api`, container :3066, `https://tictacverse-api.bobagi.space`),
+  que confere na Play. O app só credita com `granted`. Servidor fora = a compra
+  fica paga e pendente, sem crédito e SEM finalizar na Play, e é tentada de novo.
+- **Ordem que não se inverte:** servidor confirma, app credita e grava, DEPOIS
+  consome (pacote) ou confirma (compra única). `autoConsume` fica desligado de
+  propósito. Sem confirmação em 3 dias a Play devolve o dinheiro.
+- **Estorno desfaz:** `PurchaseService.syncRevocations` na abertura;
+  `EconomyEngine.applyRevocation` tira as moedas e devolve à loja visuais e
+  temas (mais caro primeiro) até cobrir; saldo pode ficar negativo (dívida).
+- Regras puras em `EconomyEngine.applyServerGrant` (idempotente pelo token) e
+  `applyRevocation` (idempotente pelo id do resgate). `PurchaseService` fala com
+  `PurchaseBackend` (Play) e `VerseApi` (servidor), os dois trocáveis no teste.
+- O id da instalação (`StorageService.installId`, UUID v4) vai na compra como
+  `obfuscatedAccountId` e aparece como "ID de suporte" no fim das configurações.
 - `AdsConfiguration.passiveAdsEnabled` = anúncios que o jogador não pediu (banner,
   retângulo, intersticial); some com a compra. O premiado usa `adsEnabled`.
-- Visual inicial = **Neon** (`ProgressState.defaultSkinId`); a migração única do
-  Aurora mora no `fromJson` e é travada por `catalogVersion`.
-- QA visual na web: `flutter build web --dart-define=FAKE_STORE=true`. Release
-  nativo ignora a flag (`PurchaseService.useDemoStore`).
-- Pacote novo = entrada no catálogo + produto na Play pelo script. Mexeu no que
-  sai do aparelho? Data safety + política, como sempre.
+- Visual inicial = **Neon**; Aurora é o último e mais caro (1000). A migração
+  única mora no `ProgressState.fromJson`, travada por `catalogVersion` (3).
+- QA visual na web: `flutter build web --dart-define=FAKE_STORE=true` (loja e
+  servidor de mentira). Release nativo ignora a flag (`useDemoStore`).
+- Retenção: `RetentionPing` manda 1 ping por dia (só em release nativo). Ver D1/D7:
+  `docker exec tictacverse-api npm run stats`.
+
+## Desafio do dia, tutorial, compartilhar, temas (v1.14.0+28)
+
+- **Desafio do dia** (`lib/services/daily_challenge.dart`): sorteado pela data,
+  abre o `Ultimate2Screen(challenge:)` que conta as jogadas do humano e paga no
+  fim. Card na home, barra no HUD, faixa no modal de fim.
+- **Tutorial jogável** (`lib/ui/widgets/ultimate_tutorial.dart`): na 1ª abertura
+  do Super e pelo botão do "?". Roteiro em `ultimateTutorialSteps`.
+- **Compartilhar vitória** (`lib/services/share_victory.dart`): `RepaintBoundary`
+  em volta do tabuleiro; o fundo é pintado só na imagem (envolver o tabuleiro ao
+  vivo com fundo opaco vaza cantos quadrados).
+- **Temas de tabuleiro** (`lib/models/board_theme.dart`): cores da grade
+  (`NeonGridPainter`) e da moldura do Super. Aba "Tabuleiros" na loja.
+- **Pacote de boas-vindas**: convite na home pelas regras de `StarterOffer`.
+- **Modos 4x4 e Cinco em linha** (Gomoku 10x10): `LineRulesEngine` + `LineCpu`;
+  `GameBoard` desenha NxN a partir do tamanho do tabuleiro.
 
 ## Idiomas
 
@@ -207,9 +234,11 @@ O app estava certo; a declaração estava errada.
 
 O que sai do aparelho, resumido: Advertising ID, app set ID e id de conta
 logada, IP (vira localização aproximada), interações, diagnóstico e crash, tudo
-pelo Google Mobile Ads SDK; mais player ID, conquistas e nível pelo Play Games.
-Nada mais: o app **não tem cliente HTTP próprio, backend, Firebase, Crashlytics
-nem analytics**, e `shared_preferences` e `MetricsService` não saem do aparelho.
+pelo Google Mobile Ads SDK; mais player ID, conquistas e nível pelo Play Games;
+e, desde a v1.14.0, para o NOSSO servidor: id aleatório da instalação, produto e
+token de cada compra, e o ping diário (versão e idioma). O cliente HTTP próprio
+é só `lib/services/verse_api.dart`; sem Firebase, Crashlytics nem analytics de
+terceiro, e `shared_preferences` e `MetricsService` não saem do aparelho.
 
 Declaração completa, campo por campo, com o passo a passo da Play Console:
 [`docs/data-safety.md`](docs/data-safety.md). Texto publicado da política:

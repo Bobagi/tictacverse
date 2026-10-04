@@ -171,7 +171,6 @@
   "notNow": "Agora não",
   "purchaseVerifying": "Pagamento recebido. Confirmando a compra, ela chega em instantes.",
   "challengeTitle": "Desafio do dia",
-  "challengeGoal": "Vença a máquina no Super Jogo da Velha em até {limit} jogadas",
   "challengeMoves": "{used}/{limit}",
   "challengeOverLimit": "Passou de {limit} jogadas: sem prêmio desta vez",
   "challengeWon": "Desafio do dia concluído! +{coins} moedas",
@@ -196,5 +195,7 @@
   "themeSunset": "Pôr do sol",
   "themeOcean": "Oceano",
   "themeEmerald": "Esmeralda",
-  "themeRoyal": "Realeza"
+  "themeRoyal": "Realeza",
+  "challengeGoalShort": "Vença o Super em até {limit} jogadas",
+  "supportIdLabel": "ID de suporte (para ajuda com compras ou exclusão de dados)"
 }

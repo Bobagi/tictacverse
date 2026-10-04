@@ -580,11 +580,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get challengeTitle => 'আজকের চ্যালেঞ্জ';
 
   @override
-  String challengeGoal(int limit) {
-    return 'সুপার টিক ট্যাক টো-তে $limit চালের মধ্যে কম্পিউটারকে হারান';
-  }
-
-  @override
   String challengeMoves(int used, int limit) {
     return '$used/$limit';
   }
@@ -672,4 +667,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get themeRoyal => 'রাজকীয়';
+
+  @override
+  String challengeGoalShort(int limit) {
+    return 'সুপার $limit চালে জিতুন';
+  }
+
+  @override
+  String get supportIdLabel =>
+      'সাপোর্ট আইডি (কেনাকাটায় সাহায্য বা ডেটা মুছতে)';
 }

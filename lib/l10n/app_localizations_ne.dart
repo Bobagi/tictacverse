@@ -583,11 +583,6 @@ class AppLocalizationsNe extends AppLocalizations {
   String get challengeTitle => 'आजको चुनौती';
 
   @override
-  String challengeGoal(int limit) {
-    return 'सुपर टिक ट्याक टोमा $limit चालभित्र कम्प्युटरलाई हराउनुहोस्';
-  }
-
-  @override
   String challengeMoves(int used, int limit) {
     return '$used/$limit';
   }
@@ -676,4 +671,12 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get themeRoyal => 'शाही';
+
+  @override
+  String challengeGoalShort(int limit) {
+    return 'सुपर $limit चालमा जित्नुहोस्';
+  }
+
+  @override
+  String get supportIdLabel => 'सपोर्ट आईडी (किनमेलमा सहयोग वा डेटा मेटाउन)';
 }
