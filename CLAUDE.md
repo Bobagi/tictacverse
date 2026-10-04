@@ -107,6 +107,13 @@ partícula viva).
   `tudo junto na menor tela` trava isso em 6 idiomas.
 - **Toque:** `PressScale` em botão, card e célula livre; célula ocupada ou
   durante a pausa da máquina não reage (senão parece que o toque "pegou").
+- **Efeitos contínuos** (`lib/ui/widgets/juice/motion.dart`, v1.14.0): `Wobble`
+  (balanço; `active` liga/desliga sem remontar), `Bob` (flutuar), `Shine` (brilho
+  que atravessa), `Sunburst` (raios girando), `BumpOnChange` (pulinho quando o
+  valor muda). Com "reduzir animações" o relógio PARA (não só deixa de desenhar).
+  Usados na oferta de boas-vindas (`starter_offer_dialog.dart`), no cartão dela na
+  loja, no saldo de moedas (`CoinBadge` pula e conta), nos cards "prontos" da home
+  e no tutorial. Compra concluída na loja = confete; visual/tema comprado = moedas.
 - **Não fazer:** partícula em `setState` de tela inteira (cada camada tem o
   próprio controller), pulso infinito em teste sem `settle()` bounded
   (`pumpAndSettle` nunca resolve com `Pulse` na tela).
