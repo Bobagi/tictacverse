@@ -26,15 +26,35 @@ class ProgressState {
     this.dailyClaimStreak = 0,
     this.adCoinsDay,
     this.adCoinsClaimsToday = 0,
+    this.adsRemoved = false,
     Set<GameModeType>? modesPlayed,
     Set<String>? unlockedAchievements,
     Set<String>? ownedSkins,
+    List<String>? processedPurchases,
   })  : modesPlayed = modesPlayed ?? <GameModeType>{},
         unlockedAchievements = unlockedAchievements ?? <String>{},
-        ownedSkins = ownedSkins ?? <String>{defaultSkinId};
+        ownedSkins = ownedSkins ?? <String>{defaultSkinId},
+        processedPurchases = processedPurchases ?? <String>[];
 
-  /// Visual de peças que todo jogador tem desde o início.
-  static const String defaultSkinId = 'aurora';
+  /// Visual de peças que todo jogador tem desde o início (Neon desde a
+  /// v1.13.0; até a v1.12.0 era o Aurora).
+  static const String defaultSkinId = 'neon';
+
+  /// Versão do catálogo de visuais gravada junto do estado. Abaixo dela, o
+  /// [fromJson] aplica a migração da troca de visual inicial.
+  ///
+  /// 2 = Neon vira o inicial (v1.13.0, interno); 3 = Aurora vira o visual
+  /// mais caro e sai de uso de todo mundo.
+  static const int catalogVersion = 3;
+
+  /// O que o Neon custava antes de virar o visual inicial. Quem comprou recebe
+  /// de volta: pagar por algo que agora é grátis seria injusto.
+  static const int legacyNeonPrice = 120;
+
+  /// Quantos tokens de compra lembrar para não creditar a mesma compra duas
+  /// vezes. A Play reentrega só compras não consumidas, então os últimos
+  /// bastam com folga.
+  static const int processedPurchasesCap = 100;
 
   /// XP acumulado. Só cresce; o nível é derivado dele.
   int xp;
@@ -67,7 +87,8 @@ class ProgressState {
   final Set<GameModeType> modesPlayed;
   final Set<String> unlockedAchievements;
 
-  /// Moedas: ganhas jogando, no bônus diário e em anúncio premiado opt-in;
+  /// Moedas: ganhas jogando, no bônus diário, em anúncio premiado opt-in ou
+  /// compradas na loja da Play;
   /// gastas só na loja de visuais. Nunca ficam negativas.
   int coins;
 
@@ -84,6 +105,13 @@ class ProgressState {
   /// quantos resgates já foram feitos nele.
   String? adCoinsDay;
   int adCoinsClaimsToday;
+
+  /// Comprou "sem anúncios": some banner, retângulo e intersticial. O
+  /// premiado continua, porque é opt-in e paga moedas.
+  bool adsRemoved;
+
+  /// Tokens das compras da Play já creditadas, do mais antigo ao mais novo.
+  final List<String> processedPurchases;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'xp': xp,
@@ -106,6 +134,9 @@ class ProgressState {
         'dailyClaimStreak': dailyClaimStreak,
         'adCoinsDay': adCoinsDay,
         'adCoinsClaimsToday': adCoinsClaimsToday,
+        'adsRemoved': adsRemoved,
+        'processedPurchases': processedPurchases,
+        'catalogVersion': catalogVersion,
       };
 
   /// Leitura tolerante a campo com tipo errado.
@@ -125,6 +156,34 @@ class ProgressState {
         }
       }
     }
+    final Set<String> owned = <String>{
+      for (final Object? raw in _asList(json['ownedSkins']))
+        if (raw is String) raw,
+    };
+    int coins = math.max(0, _asInt(json['coins']));
+    String equipped = json['equippedSkin'] is String
+        ? json['equippedSkin'] as String
+        : 'aurora';
+    final int savedCatalog = _asInt(json['catalogVersion']);
+    if (savedCatalog < 2) {
+      // Estado gravado quando o Aurora era o visual inicial: quem já jogava
+      // continua dono dele, e quem tinha comprado o Neon (agora grátis)
+      // recebe as moedas de volta.
+      if (owned.contains('neon')) {
+        coins += legacyNeonPrice;
+      }
+      owned.add('aurora');
+    }
+    if (savedCatalog < catalogVersion && equipped == 'aurora') {
+      // Ordem do dono (2026-10-04): o Neon é a cara do jogo, então todo
+      // mundo que estava com o Aurora em uso passa para o Neon. O Aurora
+      // segue na coleção de quem já tinha, a um toque de voltar.
+      equipped = defaultSkinId;
+    }
+    if (json['equippedSkin'] is! String) {
+      equipped = defaultSkinId;
+    }
+    owned.add(defaultSkinId);
     return ProgressState(
       xp: _asInt(json['xp']),
       matches: _asInt(json['matches']),
@@ -144,19 +203,18 @@ class ProgressState {
         for (final Object? raw in _asList(json['unlocked']))
           if (raw is String) raw,
       },
-      coins: math.max(0, _asInt(json['coins'])),
-      ownedSkins: <String>{
-        defaultSkinId,
-        for (final Object? raw in _asList(json['ownedSkins']))
-          if (raw is String) raw,
-      },
-      equippedSkin: json['equippedSkin'] is String
-          ? json['equippedSkin'] as String
-          : defaultSkinId,
+      coins: coins,
+      ownedSkins: owned,
+      equippedSkin: equipped,
       lastDailyClaimDay: _asString(json['lastDailyClaimDay']),
       dailyClaimStreak: _asInt(json['dailyClaimStreak']),
       adCoinsDay: _asString(json['adCoinsDay']),
       adCoinsClaimsToday: _asInt(json['adCoinsClaimsToday']),
+      adsRemoved: json['adsRemoved'] == true,
+      processedPurchases: <String>[
+        for (final Object? raw in _asList(json['processedPurchases']))
+          if (raw is String) raw,
+      ],
     );
   }
 

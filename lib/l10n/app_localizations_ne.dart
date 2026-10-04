@@ -431,11 +431,6 @@ class AppLocalizationsNe extends AppLocalizations {
   String get shopEquipped => 'प्रयोगमा';
 
   @override
-  String shopMissing(int amount) {
-    return 'अझै $amount चाहिन्छ';
-  }
-
-  @override
   String get shopPurchased => 'नयाँ शैली अनलक भयो!';
 
   @override
@@ -495,4 +490,50 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get dailyDoubleCta => 'विज्ञापन हेरेर दोब्बर बनाउनुहोस्';
+
+  @override
+  String get shopTabSkins => 'स्टाइल';
+
+  @override
+  String get shopTabCoins => 'सिक्का';
+
+  @override
+  String coinPackTitle(int amount) {
+    return '$amount सिक्का';
+  }
+
+  @override
+  String get coinPackBestValue => 'सबैभन्दा फाइदाजनक';
+
+  @override
+  String get removeAdsTitle => 'विज्ञापन बिना';
+
+  @override
+  String get removeAdsBody =>
+      'ब्यानर र खेलबीचका विज्ञापन सधैँका लागि हट्छन्। इनाम दिने विज्ञापन तपाईंको इच्छामा रहन्छन्।';
+
+  @override
+  String get removeAdsOwned => 'विज्ञापन हटाइयो। धन्यवाद!';
+
+  @override
+  String get storeLoading => 'स्टोर लोड हुँदैछ...';
+
+  @override
+  String get storeUnavailable =>
+      'अहिले किनमेल उपलब्ध छैन। जडान जाँचेर पछि फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String get restorePurchases => 'किनमेल फिर्ता ल्याउनुहोस्';
+
+  @override
+  String get purchasePending =>
+      'भुक्तानी बाँकी छ। Google Play ले पुष्टि गर्नासाथ किनमेल आइपुग्छ।';
+
+  @override
+  String get purchaseFailed => 'किनमेल पूरा भएन।';
+
+  @override
+  String needMoreCoins(int amount) {
+    return 'यो स्टाइलका लागि $amount सिक्का अझै चाहिन्छ।';
+  }
 }

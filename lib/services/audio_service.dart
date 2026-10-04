@@ -45,6 +45,11 @@ class AudioService {
   /// contador não virar ruído nem esgotar o pool.
   static const Duration _tickThrottle = Duration(milliseconds: 45);
 
+  /// A música toca abaixo dos efeitos: no volume cheio ela cobria os sons das
+  /// jogadas (queixa do dono em 2026-10-04). 0,3 = cerca de -10 dB, a mesma
+  /// régua do controle de volume do jogador, que multiplica por cima.
+  static const double musicGain = 0.3;
+
   final AudioPlayer _musicPlayer = AudioPlayer();
   final MusicPlaylist _playlist = MusicPlaylist();
   final List<AudioPlayer> _sfxPool = <AudioPlayer>[];
@@ -77,7 +82,7 @@ class AudioService {
     _musicPlayer.setAudioContext(sharedContext);
     // `stop`, não `loop`: ao terminar uma faixa a próxima da playlist entra.
     _musicPlayer.setReleaseMode(ReleaseMode.stop);
-    _musicPlayer.setVolume(_volume.value);
+    _musicPlayer.setVolume(_volume.value * musicGain);
     for (int i = 0; i < _sfxPoolSize; i++) {
       final AudioPlayer player = AudioPlayer();
       player.setAudioContext(sharedContext);
@@ -98,7 +103,7 @@ class AudioService {
     try {
       await _musicPlayer.play(
         AssetSource(_playlist.next()),
-        volume: _volume.value,
+        volume: _volume.value * musicGain,
       );
     } catch (_) {
       // Sem música não se derruba o jogo.
@@ -113,7 +118,7 @@ class AudioService {
   }
 
   void _applyVolume(double value) {
-    _musicPlayer.setVolume(value);
+    _musicPlayer.setVolume(value * musicGain);
     for (final AudioPlayer player in _sfxPool) {
       player.setVolume(value);
     }

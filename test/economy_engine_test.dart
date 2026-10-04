@@ -93,29 +93,29 @@ void main() {
   });
 
   group('loja de visuais', () {
-    final PieceSkin neon = pieceSkinById('neon');
+    final PieceSkin paid = pieceSkinById('fireIce');
 
     test('sem saldo suficiente não debita nem entrega', () {
-      final ProgressState s = ProgressState(coins: neon.price - 1);
-      expect(engine.buySkin(s, 'neon'), SkinPurchaseResult.notEnoughCoins);
-      expect(s.coins, neon.price - 1);
-      expect(s.ownedSkins.contains('neon'), isFalse);
+      final ProgressState s = ProgressState(coins: paid.price - 1);
+      expect(engine.buySkin(s, 'fireIce'), SkinPurchaseResult.notEnoughCoins);
+      expect(s.coins, paid.price - 1);
+      expect(s.ownedSkins.contains('fireIce'), isFalse);
       expect(s.equippedSkin, ProgressState.defaultSkinId);
     });
 
     test('compra debita o preço exato, entrega e equipa', () {
-      final ProgressState s = ProgressState(coins: neon.price + 7);
-      expect(engine.buySkin(s, 'neon'), SkinPurchaseResult.purchased);
+      final ProgressState s = ProgressState(coins: paid.price + 7);
+      expect(engine.buySkin(s, 'fireIce'), SkinPurchaseResult.purchased);
       expect(s.coins, 7);
-      expect(s.ownedSkins, contains('neon'));
-      expect(s.equippedSkin, 'neon');
+      expect(s.ownedSkins, contains('fireIce'));
+      expect(s.equippedSkin, 'fireIce');
     });
 
     test('comprar de novo o que já tem não cobra outra vez', () {
-      final ProgressState s = ProgressState(coins: neon.price * 3);
-      engine.buySkin(s, 'neon');
-      expect(engine.buySkin(s, 'neon'), SkinPurchaseResult.alreadyOwned);
-      expect(s.coins, neon.price * 2);
+      final ProgressState s = ProgressState(coins: paid.price * 3);
+      engine.buySkin(s, 'fireIce');
+      expect(engine.buySkin(s, 'fireIce'), SkinPurchaseResult.alreadyOwned);
+      expect(s.coins, paid.price * 2);
     });
 
     test('id desconhecido e equipar o que não tem são recusados', () {
@@ -124,6 +124,25 @@ void main() {
       expect(s.coins, 99999);
       expect(engine.equipSkin(s, 'galaxy'), isFalse);
       expect(s.equippedSkin, ProgressState.defaultSkinId);
+    });
+
+    test('Neon é o visual inicial e o Aurora fecha o catálogo como o mais caro',
+        () {
+      final ProgressState s = ProgressState();
+      expect(ProgressState.defaultSkinId, 'neon');
+      expect(s.ownedSkins, <String>{'neon'});
+      expect(s.equippedSkin, 'neon');
+      expect(pieceSkinCatalog.first.id, 'neon');
+      expect(pieceSkinCatalog.last.id, 'aurora');
+      final int maxPrice = pieceSkinCatalog
+          .map((PieceSkin s) => s.price)
+          .reduce((int a, int b) => a > b ? a : b);
+      expect(pieceSkinById('aurora').price, maxPrice);
+      for (int i = 1; i < pieceSkinCatalog.length; i++) {
+        expect(pieceSkinCatalog[i].price,
+            greaterThanOrEqualTo(pieceSkinCatalog[i - 1].price),
+            reason: 'a loja exibe do mais barato ao mais caro');
+      }
     });
 
     test('o catálogo tem ids únicos e só o visual inicial é de graça', () {
@@ -196,8 +215,147 @@ void main() {
       });
       expect(old.xp, 500);
       expect(old.coins, 0, reason: 'saldo nunca pode nascer negativo');
-      expect(old.ownedSkins, <String>{ProgressState.defaultSkinId});
+      expect(old.ownedSkins, <String>{'aurora', 'neon'},
+          reason: 'save de antes da troca: quem já jogava fica com o Aurora');
       expect(old.equippedSkin, ProgressState.defaultSkinId);
+    });
+  });
+
+  group('migração Aurora -> Neon (v1.13.0)', () {
+    ProgressState load(Map<String, dynamic> json) => ProgressState.fromJson(
+        jsonDecode(jsonEncode(json)) as Map<String, dynamic>);
+
+    test('quem só tinha o Aurora passa a ver o Neon e mantém o Aurora', () {
+      final ProgressState s = load(<String, dynamic>{
+        'coins': 40,
+        'ownedSkins': <String>['aurora'],
+        'equippedSkin': 'aurora',
+      });
+      expect(s.equippedSkin, 'neon');
+      expect(s.ownedSkins, <String>{'aurora', 'neon'});
+      expect(s.coins, 40);
+    });
+
+    test('quem comprou o Neon recebe as 120 moedas de volta', () {
+      final ProgressState s = load(<String, dynamic>{
+        'coins': 5,
+        'ownedSkins': <String>['aurora', 'neon'],
+        'equippedSkin': 'neon',
+      });
+      expect(s.coins, 5 + ProgressState.legacyNeonPrice);
+      expect(s.equippedSkin, 'neon');
+      expect(s.ownedSkins, <String>{'aurora', 'neon'});
+    });
+
+    test('quem escolheu outro visual continua com ele', () {
+      final ProgressState s = load(<String, dynamic>{
+        'ownedSkins': <String>['aurora', 'gold'],
+        'equippedSkin': 'gold',
+      });
+      expect(s.equippedSkin, 'gold');
+    });
+
+    test('todo mundo com o Aurora em uso passa para o Neon e segue dono dele',
+        () {
+      final ProgressState chose = load(<String, dynamic>{
+        'ownedSkins': <String>['aurora', 'gold'],
+        'equippedSkin': 'aurora',
+      });
+      expect(chose.equippedSkin, 'neon');
+      expect(chose.ownedSkins, containsAll(<String>['aurora', 'gold']));
+      // Save da v1.13.0 interna (catálogo 2) com o Aurora em uso também troca.
+      final ProgressState v2 = load(<String, dynamic>{
+        'ownedSkins': <String>['neon', 'aurora'],
+        'equippedSkin': 'aurora',
+        'catalogVersion': 2,
+        'coins': 7,
+      });
+      expect(v2.equippedSkin, 'neon');
+      expect(v2.coins, 7, reason: 'o reembolso do Neon não se repete');
+    });
+
+    test('depois da migração o jogador pode voltar a usar o Aurora', () {
+      final ProgressState first = load(<String, dynamic>{
+        'ownedSkins': <String>['aurora'],
+        'equippedSkin': 'aurora',
+      });
+      first.equippedSkin = 'aurora';
+      final ProgressState again = load(first.toJson());
+      expect(again.equippedSkin, 'aurora',
+          reason: 'a troca forçada roda uma vez; depois a escolha é dele');
+    });
+
+    test('a migração roda uma vez só: salvar e reabrir não devolve de novo',
+        () {
+      final ProgressState first = load(<String, dynamic>{
+        'coins': 0,
+        'ownedSkins': <String>['aurora', 'neon'],
+        'equippedSkin': 'neon',
+      });
+      final ProgressState again = load(first.toJson());
+      expect(again.coins, ProgressState.legacyNeonPrice);
+      final ProgressState third = load(again.toJson());
+      expect(third.coins, ProgressState.legacyNeonPrice);
+    });
+
+    test('jogador novo (save já na versão nova) não ganha o Aurora', () {
+      final ProgressState fresh = load(ProgressState().toJson());
+      expect(fresh.ownedSkins, <String>{'neon'});
+      expect(fresh.equippedSkin, 'neon');
+    });
+  });
+
+  group('compras da Play', () {
+    test('pacote credita uma vez por token, mesmo entregue duas vezes', () {
+      final ProgressState s = ProgressState(coins: 10);
+      final StoreGrant g = engine.applyStorePurchase(s, 'coins_1000', 'tok-a');
+      expect(g.coins, 1000);
+      expect(s.coins, 1010);
+      final StoreGrant again =
+          engine.applyStorePurchase(s, 'coins_1000', 'tok-a');
+      expect(again.duplicate, isTrue);
+      expect(again.coins, 0);
+      expect(s.coins, 1010);
+      engine.applyStorePurchase(s, 'coins_1000', 'tok-b');
+      expect(s.coins, 2010, reason: 'compra nova do mesmo pacote paga de novo');
+    });
+
+    test('token vazio e produto desconhecido não creditam', () {
+      final ProgressState s = ProgressState();
+      expect(engine.applyStorePurchase(s, 'coins_300', '').coins, 0);
+      expect(engine.applyStorePurchase(s, 'coins_999999', 'x').unknownProduct,
+          isTrue);
+      expect(s.coins, 0);
+    });
+
+    test('"sem anúncios" liga o direito e reaplicar é inofensivo', () {
+      final ProgressState s = ProgressState();
+      final StoreGrant g = engine.applyStorePurchase(s, 'remove_ads', 't');
+      expect(g.removedAds, isTrue);
+      expect(g.duplicate, isFalse);
+      expect(s.adsRemoved, isTrue);
+      expect(s.coins, 0);
+      expect(engine.applyStorePurchase(s, 'remove_ads', 't2').duplicate,
+          isTrue);
+      final ProgressState back = ProgressState.fromJson(
+          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
+      expect(back.adsRemoved, isTrue);
+    });
+
+    test('o registro de tokens tem teto e o token velho sai primeiro', () {
+      final ProgressState s = ProgressState();
+      for (int i = 0; i < ProgressState.processedPurchasesCap + 5; i++) {
+        engine.applyStorePurchase(s, 'coins_300', 't$i');
+      }
+      expect(s.processedPurchases.length, ProgressState.processedPurchasesCap);
+      expect(s.processedPurchases.first, 't5');
+      expect(s.processedPurchases.last,
+          't${ProgressState.processedPurchasesCap + 4}');
+      final ProgressState back = ProgressState.fromJson(
+          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
+      final int before = back.coins;
+      engine.applyStorePurchase(back, 'coins_300', 't50');
+      expect(back.coins, before, reason: 'o registro sobrevive ao save');
     });
   });
 }

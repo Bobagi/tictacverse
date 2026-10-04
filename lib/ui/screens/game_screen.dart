@@ -84,14 +84,18 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      bannerAdController.loadBannerAd(
-        context: context,
-        onAdLoaded: _refreshBannerArea,
-        onAdFailed: _refreshBannerArea,
-      );
+      if (AdsConfiguration.passiveAdsEnabled) {
+        bannerAdController.loadBannerAd(
+          context: context,
+          onAdLoaded: _refreshBannerArea,
+          onAdFailed: _refreshBannerArea,
+        );
+      }
       audioService.ensureBackgroundMusic();
     });
-    interstitialAdController.loadInterstitialAd();
+    if (AdsConfiguration.passiveAdsEnabled) {
+      interstitialAdController.loadInterstitialAd();
+    }
     rewardedAdController.loadRewardedAd();
   }
 
@@ -187,7 +191,7 @@ class _GameScreenState extends State<GameScreen> {
                         ],
                       ),
                     ),
-                    if (AdsConfiguration.adsEnabled) ...<Widget>[
+                    if (AdsConfiguration.passiveAdsEnabled) ...<Widget>[
                       const SizedBox(height: 12),
                       _buildBannerArea(),
                     ],
@@ -523,7 +527,9 @@ class _GameScreenState extends State<GameScreen> {
         ReviewService.instance.maybeRequestReview();
       }
       bool interstitialShown = false;
-      if (adService.shouldShowInterstitialOnMatchEnd()) {
+      if (!AdsConfiguration.passiveAdsEnabled) {
+        // Comprou "sem anúncios": nem conta a cadência.
+      } else if (adService.shouldShowInterstitialOnMatchEnd()) {
         interstitialShown =
             interstitialAdController.showInterstitialAdIfAvailable();
       } else {

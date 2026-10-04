@@ -127,7 +127,6 @@
   "shopSubtitle": "खेलकर सिक्के कमाएँ और X और O का रूप बदलें।",
   "shopEquip": "लगाएँ",
   "shopEquipped": "चालू है",
-  "shopMissing": "{amount} और चाहिए",
   "shopPurchased": "नई स्टाइल अनलॉक हुई!",
   "skinAurora": "ऑरोरा",
   "skinNeon": "नियॉन",
@@ -145,5 +144,18 @@
   "dailyDay": "दिन {day}",
   "dailyClaim": "लें",
   "dailyHint": "रोज़ आएँ: बोनस दिन 7 तक बढ़ता है।",
-  "dailyDoubleCta": "विज्ञापन देखें और दोगुना करें"
+  "dailyDoubleCta": "विज्ञापन देखें और दोगुना करें",
+  "shopTabSkins": "स्टाइल",
+  "shopTabCoins": "सिक्के",
+  "coinPackTitle": "{amount} सिक्के",
+  "coinPackBestValue": "सबसे फ़ायदेमंद",
+  "removeAdsTitle": "बिना विज्ञापन",
+  "removeAdsBody": "बैनर और मैचों के बीच के विज्ञापन हमेशा के लिए हट जाते हैं। इनाम वाले विज्ञापन आपकी मर्ज़ी पर रहते हैं।",
+  "removeAdsOwned": "विज्ञापन हटा दिए गए। धन्यवाद!",
+  "storeLoading": "स्टोर लोड हो रहा है...",
+  "storeUnavailable": "अभी खरीदारी उपलब्ध नहीं है। कनेक्शन जाँचें और बाद में फिर कोशिश करें।",
+  "restorePurchases": "खरीदारी वापस लाएँ",
+  "purchasePending": "भुगतान बाकी है। Google Play की पुष्टि होते ही खरीदारी मिल जाएगी।",
+  "purchaseFailed": "खरीदारी पूरी नहीं हुई।",
+  "needMoreCoins": "इस स्टाइल के लिए {amount} सिक्के और चाहिए।"
 }

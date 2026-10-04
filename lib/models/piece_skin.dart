@@ -50,18 +50,13 @@ class PieceSkin {
 ///
 /// Preços pensados contra o ganho real: uma vitória rende ~12 moedas e o
 /// bônus diário 20 a 100, então o primeiro visual sai na primeira ou segunda
-/// sessão e o mais caro vira meta de algumas semanas.
+/// sessão e o mais caro vira meta de algumas semanas. Desde a v1.13.0 o Neon
+/// é o visual inicial (combina com o ícone) e as artes Aurora, o visual mais
+/// trabalhado, fecham o catálogo como o mais caro (ordem do dono).
 const List<PieceSkin> pieceSkinCatalog = <PieceSkin>[
   PieceSkin(
-    id: 'aurora',
-    price: 0,
-    style: PieceSkinStyle.artwork,
-    crossColors: <Color>[Color(0xFFFF6BD9), Color(0xFF6B8BFF)],
-    noughtColors: <Color>[Color(0xFF6BE0FF), Color(0xFFB36BFF)],
-  ),
-  PieceSkin(
     id: 'neon',
-    price: 120,
+    price: 0,
     style: PieceSkinStyle.neon,
     crossColors: <Color>[Color(0xFF6BE0FF), Color(0xFF6BE0FF)],
     noughtColors: <Color>[Color(0xFFFF6BD9), Color(0xFFFF6BD9)],
@@ -93,6 +88,13 @@ const List<PieceSkin> pieceSkinCatalog = <PieceSkin>[
     style: PieceSkinStyle.galaxy,
     crossColors: <Color>[Color(0xFFB36BFF), Color(0xFFFF6BD9)],
     noughtColors: <Color>[Color(0xFF3EF0C4), Color(0xFF6BE0FF)],
+  ),
+  PieceSkin(
+    id: 'aurora',
+    price: 1000,
+    style: PieceSkinStyle.artwork,
+    crossColors: <Color>[Color(0xFFFF6BD9), Color(0xFF6B8BFF)],
+    noughtColors: <Color>[Color(0xFF6BE0FF), Color(0xFFB36BFF)],
   ),
 ];
 

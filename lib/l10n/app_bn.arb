@@ -127,7 +127,6 @@
   "shopSubtitle": "খেলে কয়েন জিতুন আর X ও O-এর চেহারা বদলান।",
   "shopEquip": "ব্যবহার করুন",
   "shopEquipped": "চালু আছে",
-  "shopMissing": "আরও {amount} লাগবে",
   "shopPurchased": "নতুন স্টাইল আনলক হয়েছে!",
   "skinAurora": "অরোরা",
   "skinNeon": "নিয়ন",
@@ -145,5 +144,18 @@
   "dailyDay": "দিন {day}",
   "dailyClaim": "নিন",
   "dailyHint": "প্রতিদিন আসুন: বোনাস ৭ম দিন পর্যন্ত বাড়ে।",
-  "dailyDoubleCta": "বিজ্ঞাপন দেখে দ্বিগুণ করুন"
+  "dailyDoubleCta": "বিজ্ঞাপন দেখে দ্বিগুণ করুন",
+  "shopTabSkins": "স্টাইল",
+  "shopTabCoins": "কয়েন",
+  "coinPackTitle": "{amount} কয়েন",
+  "coinPackBestValue": "সেরা অফার",
+  "removeAdsTitle": "বিজ্ঞাপন ছাড়া",
+  "removeAdsBody": "ব্যানার আর ম্যাচের মাঝের বিজ্ঞাপন চিরতরে সরে যায়। পুরস্কারের বিজ্ঞাপন আপনার ইচ্ছায় থাকে।",
+  "removeAdsOwned": "বিজ্ঞাপন সরানো হয়েছে। ধন্যবাদ!",
+  "storeLoading": "স্টোর লোড হচ্ছে...",
+  "storeUnavailable": "এখন কেনাকাটা করা যাচ্ছে না। সংযোগ দেখে পরে আবার চেষ্টা করুন।",
+  "restorePurchases": "কেনাকাটা ফিরিয়ে আনুন",
+  "purchasePending": "পেমেন্ট বাকি আছে। Google Play নিশ্চিত করলেই কেনাকাটা পৌঁছে যাবে।",
+  "purchaseFailed": "কেনাকাটা সম্পূর্ণ হয়নি।",
+  "needMoreCoins": "এই স্টাইলের জন্য আরও {amount} কয়েন লাগবে।"
 }

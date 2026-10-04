@@ -127,7 +127,6 @@
   "shopSubtitle": "Ganhe moedas jogando e mude o visual do X e do O.",
   "shopEquip": "Usar",
   "shopEquipped": "Em uso",
-  "shopMissing": "Faltam {amount}",
   "shopPurchased": "Visual novo desbloqueado!",
   "skinAurora": "Aurora",
   "skinNeon": "Neon",
@@ -145,5 +144,18 @@
   "dailyDay": "Dia {day}",
   "dailyClaim": "Resgatar",
   "dailyHint": "Volte todo dia: o bônus cresce até o dia 7.",
-  "dailyDoubleCta": "Ver anúncio e dobrar"
+  "dailyDoubleCta": "Ver anúncio e dobrar",
+  "shopTabSkins": "Visuais",
+  "shopTabCoins": "Moedas",
+  "coinPackTitle": "{amount} moedas",
+  "coinPackBestValue": "Melhor oferta",
+  "removeAdsTitle": "Sem anúncios",
+  "removeAdsBody": "Tira os banners e os anúncios entre partidas, para sempre. Anúncios com recompensa continuam opcionais.",
+  "removeAdsOwned": "Anúncios removidos. Obrigado!",
+  "storeLoading": "Carregando a loja...",
+  "storeUnavailable": "As compras não estão disponíveis agora. Confira a conexão e tente mais tarde.",
+  "restorePurchases": "Restaurar compras",
+  "purchasePending": "Pagamento pendente. A compra entra assim que o Google Play confirmar.",
+  "purchaseFailed": "A compra não foi concluída.",
+  "needMoreCoins": "Faltam {amount} moedas para este visual."
 }

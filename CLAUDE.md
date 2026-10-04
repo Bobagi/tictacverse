@@ -60,7 +60,9 @@ partícula viva).
   Pool de 4 tocadores em rodízio; `Sfx.xpTick` tem throttle. Som novo = arquivo
   ogg mono normalizado + entrada no enum + linha no CREDITS.
 - **Música:** 8 trilhas em `assets/audio/music/` tocadas por `MusicPlaylist`
-  (embaralha, toca todas antes de repetir, nunca emenda a mesma). **Só entra
+  (embaralha, toca todas antes de repetir, nunca emenda a mesma), a
+  `AudioService.musicGain` (0,3, cerca de -10 dB) do volume dos efeitos: no
+  volume cheio a música cobria as jogadas (queixa do dono, 2026-10-04). **Só entra
   faixa CC0 ou própria**: licença que exige crédito (CC BY) obrigaria texto na
   tela, e o dono não quer texto de crédito nas configurações (2026-09-26; as 3
   trilhas CC BY da v24 foram trocadas). Trilha nova = confirme CC0 na página do
@@ -136,6 +138,27 @@ tinha onde ser gasto e o premiado "dobrar XP" teve 0 impressões em 30 dias.
   no desenho, rode o script e depois `dart run flutter_launcher_icons`.
 - **Home:** o MREC (300x250) só entra com tela >= 380x760; abaixo vai o banner
   comum, senão bônus e loja ficam abaixo da dobra.
+
+## Compras na Play (v1.13.0+27)
+
+Aba "Moedas" da loja: `remove_ads` (compra única) e `coins_300/1000/3000`
+(consumíveis). Catálogo em `lib/models/store_product.dart`; os ids têm de existir
+iguais na Play Console (`tool/play_products_setup.py` cria/atualiza pela API).
+
+- **Regra pura** em `EconomyEngine.applyStorePurchase` (idempotente pelo token,
+  registro com teto de 100). `PurchaseService` só faz o vai e vem com o plugin,
+  atrás de `PurchaseBackend` para o teste usar uma Play falsa.
+- **Ordem que não se inverte:** credita e grava, DEPOIS consome (pacote) ou
+  confirma (sem anúncios). `autoConsume` fica desligado de propósito: o plugin
+  consumiria antes do crédito. Sem confirmação em 3 dias a Play devolve o dinheiro.
+- `AdsConfiguration.passiveAdsEnabled` = anúncios que o jogador não pediu (banner,
+  retângulo, intersticial); some com a compra. O premiado usa `adsEnabled`.
+- Visual inicial = **Neon** (`ProgressState.defaultSkinId`); a migração única do
+  Aurora mora no `fromJson` e é travada por `catalogVersion`.
+- QA visual na web: `flutter build web --dart-define=FAKE_STORE=true`. Release
+  nativo ignora a flag (`PurchaseService.useDemoStore`).
+- Pacote novo = entrada no catálogo + produto na Play pelo script. Mexeu no que
+  sai do aparelho? Data safety + política, como sempre.
 
 ## Idiomas
 

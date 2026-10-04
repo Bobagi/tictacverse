@@ -97,18 +97,23 @@ impressões em 30 dias.
 - Toda partida paga moedas = teto(XP ganho / 3). Atrelado ao XP de propósito: o
   carro-chefe e o Impossível já rendem mais, sem uma segunda tabela para manter.
 - O saldo nunca fica negativo e só é gasto na loja.
+- Também se compram moedas com dinheiro (seção 6).
 
 **Loja de visuais das peças** (`lib/models/piece_skin.dart`). Visual só muda aparência,
 nunca dá vantagem.
 
 | Visual | Preço | Estilo |
 |---|---|---|
-| Aurora | grátis | as artes PNG originais |
-| Neon | 120 | traço fino com miolo branco, ciano e rosa |
+| Neon | grátis (inicial desde a v1.13.0) | traço fino com miolo branco, ciano e rosa |
+| Aurora | 50 | as artes PNG originais (era o inicial até a v1.12.0) |
 | Fogo e gelo | 250 | degradê laranja/amarelo e azul/branco |
 | Bala | 350 | traço grosso arredondado com reflexo, menta e morango |
 | Ouro e prata | 500 | degradê metálico |
 | Galáxia | 800 | degradê violeta/ciano com anel interno e brilhos |
+
+**Troca do visual inicial (v1.13.0, ordem do dono):** o Neon combina com o ícone novo, então virou o
+padrão. Migração única (`catalogVersion` no save): quem já jogava continua dono do Aurora; quem nunca
+escolheu outro visual passa a ver o Neon; quem tinha comprado o Neon recebe as 120 moedas de volta.
 
 Comprar debita o preço exato e já equipa. Visual comprado vale em todas as telas de jogo
 (tabuleiro, Super Jogo da Velha, avatar, modal de fim).
@@ -122,12 +127,31 @@ visual sai na primeira ou segunda sessão e o mais caro vira meta de algumas sem
 
 ## 6. Monetização
 
-Só anúncio (Google AdMob). Compras dentro do app: ainda não (ver Roadmap).
+Anúncio (Google AdMob) e, desde a v1.13.0, compras pelo Google Play Billing.
+
+**Compras dentro do app** (aba "Moedas" da loja; o saldo no topo da home abre direto nela):
+
+| Produto (id na Play) | Tipo | Entrega | Preço base |
+|---|---|---|---|
+| `remove_ads` | compra única, volta ao reinstalar | some banner, retângulo médio e intersticial; o premiado continua opt-in | US$ 0,99 |
+| `coins_300` | consumível | 300 moedas | US$ 0,99 |
+| `coins_1000` | consumível | 1000 moedas | US$ 2,49 |
+| `coins_3000` | consumível ("Melhor oferta") | 3000 moedas | US$ 4,99 |
+
+Preço por país = conversão da própria Play a partir do preço base (o app mostra o preço formatado que
+a Play devolve, nunca um número fixo). Regras que não se quebram:
+- Crédito gravado no aparelho ANTES de consumir/confirmar na Play, idempotente pelo token da compra.
+- Pagamento pendente (comum na Índia) não credita; credita quando a Play confirmar, mesmo com a loja
+  fechada (a escuta começa no `main`).
+- Os botões de preço só valem 600 ms depois de a aba aparecer (ela surge sob o dedo ao tocar num visual
+  trancado). Toque duplo abre uma compra só.
+- Sem servidor: direito e moedas ficam no aparelho. Reembolso na Play não tira o que foi entregue.
+- `--dart-define=FAKE_STORE=true` liga uma loja de mentira para QA na web; release nativo ignora.
 
 | Formato | Onde | Regra |
 |---|---|---|
-| Banner / retângulo médio | Base da home, da seleção de modo e das telas de jogo | 300x250 só com tela >= 380x760; abaixo, banner 320x50 |
-| Intersticial | Fim de partida | A cada 3 partidas (contador global, sobrevive à troca de tela) |
+| Banner / retângulo médio | Base da home e das telas de jogo | 300x250 só com tela >= 380x760; abaixo, banner 320x50. Some com "sem anúncios" |
+| Intersticial | Fim de partida | A cada 3 partidas (contador global, sobrevive à troca de tela). Some com "sem anúncios" |
 | Premiado "dobrar XP e moedas" | Modal de fim de partida | A cada 4 partidas, só se houver XP ganho, só com anúncio carregado, nunca na partida em que o intersticial apareceu |
 | Premiado "dobrar o bônus" | Bônus diário, depois do resgate | Uma vez por resgate |
 | Premiado "+25 moedas" | Loja | Teto de 5 por dia |
@@ -165,7 +189,8 @@ por dia; em tier 3, perto do piso. O gargalo é volume e retenção, não format
 ## 8. Game feel
 
 Detalhes técnicos no `CLAUDE.md`, seção "Game feel".
-- Sons Kenney (CC0) em toda ação; 8 músicas CC0 em playlist embaralhada. Só entra faixa CC0
+- Sons Kenney (CC0) em toda ação; 8 músicas CC0 em playlist embaralhada, tocadas a 0,3 do volume
+  dos efeitos (`AudioService.musicGain`, desde a v1.13.0: antes cobriam as jogadas). Só entra faixa CC0
   ou própria (o dono não quer texto de crédito na tela).
 - Vibração por evento (ligável nas configurações).
 - Partículas na peça e na captura, confete na vitória e no bônus, brilho na subida de nível.
@@ -186,7 +211,9 @@ Detalhes técnicos no `CLAUDE.md`, seção "Game feel".
 - **Notas de versão por idioma**, nunca um texto só replicado.
 - **Data safety e política de privacidade** andam junto com o código (ver
   `docs/data-safety.md`): mexeu em SDK, permissão ou algo que sai do aparelho, refaz os dois
-  na mesma tarefa. Moedas, visuais e bônus ficam só no aparelho e não mudam a declaração.
+  na mesma tarefa. Moedas, visuais e bônus ficam só no aparelho e não mudam a declaração. As
+  compras (v1.13.0) também não mudam o formulário: pagamento é do Google Play e o token fica no
+  aparelho; a política ganhou a seção 2.3.
 
 ## 10. Política de lançamento
 
@@ -214,8 +241,7 @@ AD_UNIT`), receita diária, crashes na Play Console.
 ## 12. Roadmap
 
 Em ordem de impacto, da pesquisa de 2026-10-03:
-1. **Compra "remover anúncios"** com preço regional (~US$0,99; ~INR 49 a 99). Exige refazer
-   Data safety e política de privacidade na mesma tarefa.
+1. ~~Compra "remover anúncios"~~ feita na v1.13.0, junto com os pacotes de moedas.
 2. **Teste A/B do ícone** novo contra o antigo pelo Store Listing Experiments.
 3. **Desafio diário do Super Jogo da Velha** ("vença em N jogadas") usando a sequência de
    dias que já existe.
@@ -235,3 +261,4 @@ Em ordem de impacto, da pesquisa de 2026-10-03:
 | 1.10.0+21 / 1.10.1+22 | 2026-08-27 | Premiado "dobrar XP"; contador de intersticial global |
 | 1.11.0+23 a 1.11.2+25 | 2026-09-25/26 | Passe de game feel (sons, música, vibração, partículas, confete, sequências); botão de atualizar sempre visível; aviso de versão nova |
 | **1.12.0+26** | **2026-10-03/04** | **Moedas, loja de 5 visuais, bônus diário de 7 dias, premiado dobra XP e moedas, home compacta, ícone novo, ficha nova. Produção a 100%.** |
+| **1.13.0+27** | **2026-10-04** | **Compras na Play (sem anúncios + 3 pacotes de moedas), Neon vira o visual inicial e Aurora custa 50, música 10 dB abaixo dos efeitos** |

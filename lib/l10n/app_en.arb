@@ -231,14 +231,6 @@
   "shopSubtitle": "Earn coins by playing and change how X and O look.",
   "shopEquip": "Use",
   "shopEquipped": "In use",
-  "shopMissing": "{amount} to go",
-  "@shopMissing": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "shopPurchased": "New style unlocked!",
   "skinAurora": "Aurora",
   "skinNeon": "Neon",
@@ -277,5 +269,32 @@
   },
   "dailyClaim": "Claim",
   "dailyHint": "Come back every day: the bonus grows until day 7.",
-  "dailyDoubleCta": "Watch an ad and double it"
+  "dailyDoubleCta": "Watch an ad and double it",
+  "shopTabSkins": "Styles",
+  "shopTabCoins": "Coins",
+  "coinPackTitle": "{amount} coins",
+  "@coinPackTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "coinPackBestValue": "Best value",
+  "removeAdsTitle": "No ads",
+  "removeAdsBody": "Removes banners and ads between matches, forever. Reward ads stay optional.",
+  "removeAdsOwned": "Ads removed. Thank you!",
+  "storeLoading": "Loading the store...",
+  "storeUnavailable": "Purchases are not available right now. Check your connection and try again later.",
+  "restorePurchases": "Restore purchases",
+  "purchasePending": "Payment pending. Your purchase arrives as soon as Google Play confirms it.",
+  "purchaseFailed": "The purchase was not completed.",
+  "needMoreCoins": "You need {amount} more coins for this style.",
+  "@needMoreCoins": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -1,9 +1,28 @@
 import '../models/piece_skin.dart';
 import '../models/progress_state.dart';
+import '../models/store_product.dart';
 import 'progression_engine.dart';
 
 /// Resultado de tentar comprar ou equipar um visual.
 enum SkinPurchaseResult { purchased, alreadyOwned, notEnoughCoins, unknownSkin }
+
+/// O que uma compra da Play rendeu ao ser aplicada.
+class StoreGrant {
+  const StoreGrant({
+    this.coins = 0,
+    this.removedAds = false,
+    this.duplicate = false,
+    this.unknownProduct = false,
+  });
+
+  final int coins;
+  final bool removedAds;
+
+  /// Token já creditado antes (a Play reentrega compra não consumida): nada
+  /// novo foi pago, mas a compra ainda precisa ser finalizada na Play.
+  final bool duplicate;
+  final bool unknownProduct;
+}
 
 /// Regras das moedas, do bônus diário e da loja de visuais.
 ///
@@ -140,5 +159,39 @@ class EconomyEngine {
       }
     }
     return null;
+  }
+
+  /// Aplica uma compra confirmada pela Play. Idempotente por [purchaseToken]:
+  /// a mesma compra entregue duas vezes (reabrir o app antes do consumo,
+  /// "restaurar compras") credita uma vez só. Token vazio não credita nada,
+  /// porque sem ele não há como garantir isso.
+  StoreGrant applyStorePurchase(
+    ProgressState state,
+    String productId,
+    String purchaseToken,
+  ) {
+    final StoreProduct? product = storeProductById(productId);
+    if (product == null) {
+      return const StoreGrant(unknownProduct: true);
+    }
+    if (product.kind == StoreProductKind.removeAds) {
+      // Direito permanente: reaplicar é inofensivo e é o que devolve o "sem
+      // anúncios" a quem reinstalou (o registro local foi junto).
+      final bool wasRemoved = state.adsRemoved;
+      state.adsRemoved = true;
+      return StoreGrant(removedAds: true, duplicate: wasRemoved);
+    }
+    if (purchaseToken.isEmpty ||
+        state.processedPurchases.contains(purchaseToken)) {
+      return const StoreGrant(duplicate: true);
+    }
+    state.processedPurchases.add(purchaseToken);
+    final int overflow =
+        state.processedPurchases.length - ProgressState.processedPurchasesCap;
+    if (overflow > 0) {
+      state.processedPurchases.removeRange(0, overflow);
+    }
+    state.coins += product.coins;
+    return StoreGrant(coins: product.coins);
   }
 }

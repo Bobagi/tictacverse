@@ -874,12 +874,6 @@ abstract class AppLocalizations {
   /// **'In use'**
   String get shopEquipped;
 
-  /// No description provided for @shopMissing.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} to go'**
-  String shopMissing(int amount);
-
   /// No description provided for @shopPurchased.
   ///
   /// In en, this message translates to:
@@ -987,6 +981,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Watch an ad and double it'**
   String get dailyDoubleCta;
+
+  /// No description provided for @shopTabSkins.
+  ///
+  /// In en, this message translates to:
+  /// **'Styles'**
+  String get shopTabSkins;
+
+  /// No description provided for @shopTabCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins'**
+  String get shopTabCoins;
+
+  /// No description provided for @coinPackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} coins'**
+  String coinPackTitle(int amount);
+
+  /// No description provided for @coinPackBestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Best value'**
+  String get coinPackBestValue;
+
+  /// No description provided for @removeAdsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads'**
+  String get removeAdsTitle;
+
+  /// No description provided for @removeAdsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes banners and ads between matches, forever. Reward ads stay optional.'**
+  String get removeAdsBody;
+
+  /// No description provided for @removeAdsOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads removed. Thank you!'**
+  String get removeAdsOwned;
+
+  /// No description provided for @storeLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the store...'**
+  String get storeLoading;
+
+  /// No description provided for @storeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases are not available right now. Check your connection and try again later.'**
+  String get storeUnavailable;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get restorePurchases;
+
+  /// No description provided for @purchasePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment pending. Your purchase arrives as soon as Google Play confirms it.'**
+  String get purchasePending;
+
+  /// No description provided for @purchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase was not completed.'**
+  String get purchaseFailed;
+
+  /// No description provided for @needMoreCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'You need {amount} more coins for this style.'**
+  String needMoreCoins(int amount);
 }
 
 class _AppLocalizationsDelegate

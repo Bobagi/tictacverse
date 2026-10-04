@@ -85,14 +85,18 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
     super.initState();
     state = engine.start();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      bannerAdController.loadBannerAd(
-        context: context,
-        onAdLoaded: _refresh,
-        onAdFailed: _refresh,
-      );
+      if (AdsConfiguration.passiveAdsEnabled) {
+        bannerAdController.loadBannerAd(
+          context: context,
+          onAdLoaded: _refresh,
+          onAdFailed: _refresh,
+        );
+      }
       audioService.ensureBackgroundMusic();
     });
-    interstitialAdController.loadInterstitialAd();
+    if (AdsConfiguration.passiveAdsEnabled) {
+      interstitialAdController.loadInterstitialAd();
+    }
     // O carro-chefe rende 50% mais XP: é onde a oferta de dobrar mais vale.
     rewardedAdController.loadRewardedAd();
   }
@@ -232,7 +236,9 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
         ReviewService.instance.maybeRequestReview();
       }
       bool interstitialShown = false;
-      if (adService.shouldShowInterstitialOnMatchEnd()) {
+      if (!AdsConfiguration.passiveAdsEnabled) {
+        // Comprou "sem anúncios": nem conta a cadência.
+      } else if (adService.shouldShowInterstitialOnMatchEnd()) {
         interstitialShown =
             interstitialAdController.showInterstitialAdIfAvailable();
       } else {
@@ -364,7 +370,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                         },
                       ),
                     ),
-                    if (AdsConfiguration.adsEnabled) ...<Widget>[
+                    if (AdsConfiguration.passiveAdsEnabled) ...<Widget>[
                       const SizedBox(height: 10),
                       GlassPanel(
                         padding: EdgeInsets.zero,

@@ -428,11 +428,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopEquipped => 'In use';
 
   @override
-  String shopMissing(int amount) {
-    return '$amount to go';
-  }
-
-  @override
   String get shopPurchased => 'New style unlocked!';
 
   @override
@@ -492,4 +487,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyDoubleCta => 'Watch an ad and double it';
+
+  @override
+  String get shopTabSkins => 'Styles';
+
+  @override
+  String get shopTabCoins => 'Coins';
+
+  @override
+  String coinPackTitle(int amount) {
+    return '$amount coins';
+  }
+
+  @override
+  String get coinPackBestValue => 'Best value';
+
+  @override
+  String get removeAdsTitle => 'No ads';
+
+  @override
+  String get removeAdsBody =>
+      'Removes banners and ads between matches, forever. Reward ads stay optional.';
+
+  @override
+  String get removeAdsOwned => 'Ads removed. Thank you!';
+
+  @override
+  String get storeLoading => 'Loading the store...';
+
+  @override
+  String get storeUnavailable =>
+      'Purchases are not available right now. Check your connection and try again later.';
+
+  @override
+  String get restorePurchases => 'Restore purchases';
+
+  @override
+  String get purchasePending =>
+      'Payment pending. Your purchase arrives as soon as Google Play confirms it.';
+
+  @override
+  String get purchaseFailed => 'The purchase was not completed.';
+
+  @override
+  String needMoreCoins(int amount) {
+    return 'You need $amount more coins for this style.';
+  }
 }

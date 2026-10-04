@@ -12,7 +12,8 @@ Ele tem de bater linha a linha com `docs/data-safety.md`, porque o Google exige
 que a política e a declaração de Segurança de dados digam a mesma coisa. Mexeu
 em um, mexa no outro.
 
-Atualizado em 25/09/2026 para cobrir o que a declaração passou a dizer:
+Atualizado em 04/10/2026 com a seção 2.3 (compras pelo Google Play Billing, v1.13.0).
+Antes, em 25/09/2026, foi reescrito para cobrir o que a declaração passou a dizer:
 localização aproximada derivada do IP, dados do Play Games, compartilhamento com
 o Google e parceiros de anúncio, consentimento (UMP) e os caminhos de exclusão.
 
@@ -23,8 +24,8 @@ o Google e parceiros de anúncio, consentimento (UMP) e os caminhos de exclusão
 **App:** Tic Tac Verse (`com.bobagi.tictacverse`)
 **Developer:** Bobagi (Gustavo Perin)
 **Contact:** bobagi.contact@gmail.com
-**Effective date:** September 25, 2026
-**Last updated:** September 25, 2026
+**Effective date:** October 4, 2026
+**Last updated:** October 4, 2026
 
 ## 1. Summary
 
@@ -73,12 +74,25 @@ developer.
 This is optional. Your progress is stored on your device first and the game
 works identically if Play Games is unavailable or you decline to sign in.
 
-### 2.3 Data that never leaves your device
+### 2.3 In-app purchases (Google Play Billing)
 
-Your game progress, experience points, unlocked achievements, chosen language,
-and sound settings are stored only on your device, using the operating system's
-local storage. They are not transmitted anywhere, the developer cannot see them,
-and they are removed when you uninstall the app.
+The app offers optional purchases (coin packs and removal of ads). Payments are
+handled entirely by Google Play under its own terms: the app never sees your
+card number or any other payment details. After a purchase, Google Play tells
+the app which product was bought and gives it a purchase token. The app keeps
+that token and what you bought (your coins and the "no ads" option) only on your
+device, to deliver the purchase and avoid crediting it twice, and never sends
+them to the developer or anyone else. Your purchase history is available in your
+Google Play account, and "Restore purchases" in the app asks Google Play to
+deliver it again, for example after reinstalling.
+
+### 2.4 Data that never leaves your device
+
+Your game progress, experience points, coins, purchased items, unlocked
+achievements, chosen language, and sound settings are stored only on your
+device, using the operating system's local storage. They are not transmitted
+anywhere, the developer cannot see them, and they are removed when you uninstall
+the app.
 
 ## 3. Who receives the data
 

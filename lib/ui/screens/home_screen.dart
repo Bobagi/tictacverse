@@ -56,11 +56,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      bannerAdController.loadBannerAd(
-        context: context,
-        onAdLoaded: _refreshBannerArea,
-        onAdFailed: _refreshBannerArea,
-      );
+      if (AdsConfiguration.passiveAdsEnabled) {
+        bannerAdController.loadBannerAd(
+          context: context,
+          onAdLoaded: _refreshBannerArea,
+          onAdFailed: _refreshBannerArea,
+        );
+      }
       audioService.ensureBackgroundMusic();
       _maybeSuggestLanguage();
       _maybePromptUpdate();
@@ -148,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 coins: EconomyService.instance.coins,
                 semanticLabel:
                     '${EconomyService.instance.coins} ${localization.coinsLabel}. ${localization.shopTitle}',
-                onTap: () => _openShop(localization),
+                onTap: () => _openShop(localization, initialTab: ShopTab.coins),
               ),
             ),
           ),
@@ -346,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }),
                 ),
-                if (AdsConfiguration.adsEnabled) ...<Widget>[
+                if (AdsConfiguration.passiveAdsEnabled) ...<Widget>[
                   const SizedBox(height: 16),
                   GlassPanel(
                     padding: EdgeInsets.zero,
@@ -426,10 +428,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _openShop(AppLocalizations localization) {
+  void _openShop(AppLocalizations localization,
+      {ShopTab initialTab = ShopTab.skins}) {
     audioService.playUiClick();
     HapticsService.instance.play(HapticCue.tap);
-    showShopSheet(context, localization, rewarded: _rewarded);
+    showShopSheet(context, localization,
+            rewarded: _rewarded, initialTab: initialTab)
+        // Quem comprou "sem anúncios" volta para a home já sem o banner.
+        .then((_) => _refreshBannerArea());
   }
 
   void _openDaily(AppLocalizations localization) {

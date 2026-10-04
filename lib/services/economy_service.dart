@@ -51,6 +51,22 @@ class EconomyService {
     return result;
   }
 
+  bool get adsRemoved => _state.adsRemoved;
+
+  /// Credita uma compra da Play e grava ANTES de ela ser consumida/finalizada
+  /// lá: se o app morrer no meio, a Play reentrega e o token impede o crédito
+  /// em dobro.
+  Future<StoreGrant> applyStorePurchase(
+      String productId, String purchaseToken) async {
+    final StoreGrant grant =
+        engine.applyStorePurchase(_state, productId, purchaseToken);
+    if (grant.coins > 0 || (grant.removedAds && !grant.duplicate)) {
+      await StorageService.instance.saveProgress();
+      ProgressionService.instance.revision.value += 1;
+    }
+    return grant;
+  }
+
   bool equip(PieceSkin skin) {
     final bool ok = engine.equipSkin(_state, skin.id);
     if (ok) {

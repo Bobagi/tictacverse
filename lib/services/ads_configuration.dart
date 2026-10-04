@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'storage_service.dart';
+
 enum AdsMode { off, test, real }
 
 class AdsConfiguration {
@@ -11,6 +13,12 @@ class AdsConfiguration {
   static const bool adsSuspended = false;
 
   static bool get adsEnabled => activeAdsMode != AdsMode.off;
+
+  /// Banner, retângulo médio e intersticial: os anúncios que o jogador não
+  /// pediu. Somem com a compra "sem anúncios"; o premiado (opt-in, paga
+  /// moedas) continua dependendo só de [adsEnabled].
+  static bool get passiveAdsEnabled =>
+      adsEnabled && !StorageService.instance.progress.adsRemoved;
 
   static AdsMode get activeAdsMode {
     if (adsSuspended) {

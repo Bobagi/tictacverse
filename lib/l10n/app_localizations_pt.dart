@@ -434,11 +434,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shopEquipped => 'Em uso';
 
   @override
-  String shopMissing(int amount) {
-    return 'Faltam $amount';
-  }
-
-  @override
   String get shopPurchased => 'Visual novo desbloqueado!';
 
   @override
@@ -498,4 +493,50 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get dailyDoubleCta => 'Ver anúncio e dobrar';
+
+  @override
+  String get shopTabSkins => 'Visuais';
+
+  @override
+  String get shopTabCoins => 'Moedas';
+
+  @override
+  String coinPackTitle(int amount) {
+    return '$amount moedas';
+  }
+
+  @override
+  String get coinPackBestValue => 'Melhor oferta';
+
+  @override
+  String get removeAdsTitle => 'Sem anúncios';
+
+  @override
+  String get removeAdsBody =>
+      'Tira os banners e os anúncios entre partidas, para sempre. Anúncios com recompensa continuam opcionais.';
+
+  @override
+  String get removeAdsOwned => 'Anúncios removidos. Obrigado!';
+
+  @override
+  String get storeLoading => 'Carregando a loja...';
+
+  @override
+  String get storeUnavailable =>
+      'As compras não estão disponíveis agora. Confira a conexão e tente mais tarde.';
+
+  @override
+  String get restorePurchases => 'Restaurar compras';
+
+  @override
+  String get purchasePending =>
+      'Pagamento pendente. A compra entra assim que o Google Play confirmar.';
+
+  @override
+  String get purchaseFailed => 'A compra não foi concluída.';
+
+  @override
+  String needMoreCoins(int amount) {
+    return 'Faltam $amount moedas para este visual.';
+  }
 }

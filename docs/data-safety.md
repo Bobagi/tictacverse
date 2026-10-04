@@ -11,6 +11,11 @@ formulário está errado.
 > (`docs/privacy-policy.md`) na mesma tarefa. Foi a dessincronização disso que
 > gerou o aviso de política de 24/09/2026.
 
+> **v1.13.0 (2026-10-04), compras no app:** entrou o Google Play Billing (permissão
+> `com.android.vending.BILLING`). **O formulário não muda**: nenhum tipo de dado novo sai
+> do aparelho para nós (ver "Financial info" em "O que NÃO declarar"). A política de
+> privacidade ganhou a seção de compras e foi republicada no mesmo dia.
+
 ## Por que esta declaração existe
 
 Aviso do Google Play em **24/09/2026**, prazo **08/10/2026**:
@@ -38,6 +43,7 @@ foi para o AAB.
 | `games_services` (Play Games Services v2) | plugin 5.1.0 | **Sim** | Player ID; conquistas desbloqueadas e nível enviados ao placar; analytics/diagnóstico do próprio SDK |
 | `in_app_update` (Play Core) | 4.2.5 | Fluxo da própria Play Store | Checagem de update. Dado da Play Store, não dado do app |
 | `in_app_review` (Play In-App Review) | 2.0.12 | Fluxo da própria Play Store | Avaliação, **iniciada pelo usuário** |
+| `in_app_purchase` (Google Play Billing, desde a v1.13.0) | plugin 3.3.1, `billing:8.0.0` | Fluxo da própria Play Store | Compra de moedas e de "sem anúncios", **iniciada pelo usuário**. Pagamento coletado e processado pelo Google Play; o app nunca vê cartão nem dado de pagamento. O token da compra e o direito ("sem anúncios", moedas) ficam só no `shared_preferences` |
 | `url_launcher` | 6.3.2 | Abre a ficha da Play no navegador | Nada do app |
 | `shared_preferences` / `StorageService` | 2.5.5 | **Não** | Progressão, XP, conquistas, idioma, áudio: só no aparelho |
 | `MetricsService` | interno | **Não** | Contadores em memória, zerados ao fechar |
@@ -180,10 +186,10 @@ Play Games (esse é o `App functionality`).
 | --- | --- |
 | Personal info → Name, Email address | O apelido do Play Games **entra** no app vindo do Google; o app nunca o manda para fora (não há backend nem cliente HTTP). Receber não é coletar |
 | Photos and videos | A foto do perfil do Play Games também só entra |
-| Financial info | Não há compra no app |
+| Financial info (inclusive Purchase history) | As compras (desde a v1.13.0) passam pelo Google Play Billing: pela regra oficial do formulário, dado que o serviço de pagamento coleta direto do usuário, sob os termos dele, e que o app não acessa, **não se declara**. O que o app recebe (id do produto e token) fica só no aparelho, sem servidor nosso: exceção de on-device processing. Se um dia houver validação de compra num servidor nosso, aí passa a ser **Purchase history** coletado |
 | Messages, Contacts, Calendar, Health, Files, Audio, Web browsing | Nada disso é tocado |
 | Qualquer coisa do `shared_preferences` (progressão, XP, idioma, áudio) e do `MetricsService` | Exceção de **on-device access/processing**: não sai do aparelho |
-| `in_app_update`, `in_app_review`, `url_launcher` | Fluxos da própria Play Store, e a avaliação é iniciada pelo usuário |
+| `in_app_update`, `in_app_review`, `in_app_purchase`, `url_launcher` | Fluxos da própria Play Store, e a avaliação e a compra são iniciadas pelo usuário |
 
 ### Armadilha a lembrar
 

@@ -127,7 +127,6 @@
   "shopSubtitle": "Gana monedas jugando y cambia el estilo de la X y la O.",
   "shopEquip": "Usar",
   "shopEquipped": "En uso",
-  "shopMissing": "Faltan {amount}",
   "shopPurchased": "¡Nuevo estilo desbloqueado!",
   "skinAurora": "Aurora",
   "skinNeon": "Neón",
@@ -145,5 +144,18 @@
   "dailyDay": "Día {day}",
   "dailyClaim": "Reclamar",
   "dailyHint": "Vuelve cada día: el bono crece hasta el día 7.",
-  "dailyDoubleCta": "Ver anuncio y duplicar"
+  "dailyDoubleCta": "Ver anuncio y duplicar",
+  "shopTabSkins": "Estilos",
+  "shopTabCoins": "Monedas",
+  "coinPackTitle": "{amount} monedas",
+  "coinPackBestValue": "Mejor oferta",
+  "removeAdsTitle": "Sin anuncios",
+  "removeAdsBody": "Quita los banners y los anuncios entre partidas, para siempre. Los anuncios con recompensa siguen siendo opcionales.",
+  "removeAdsOwned": "Anuncios eliminados. ¡Gracias!",
+  "storeLoading": "Cargando la tienda...",
+  "storeUnavailable": "Las compras no están disponibles ahora. Revisa tu conexión e inténtalo más tarde.",
+  "restorePurchases": "Restaurar compras",
+  "purchasePending": "Pago pendiente. La compra llega en cuanto Google Play la confirme.",
+  "purchaseFailed": "La compra no se completó.",
+  "needMoreCoins": "Te faltan {amount} monedas para este estilo."
 }

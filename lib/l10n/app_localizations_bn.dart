@@ -429,11 +429,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shopEquipped => 'চালু আছে';
 
   @override
-  String shopMissing(int amount) {
-    return 'আরও $amount লাগবে';
-  }
-
-  @override
   String get shopPurchased => 'নতুন স্টাইল আনলক হয়েছে!';
 
   @override
@@ -493,4 +488,50 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get dailyDoubleCta => 'বিজ্ঞাপন দেখে দ্বিগুণ করুন';
+
+  @override
+  String get shopTabSkins => 'স্টাইল';
+
+  @override
+  String get shopTabCoins => 'কয়েন';
+
+  @override
+  String coinPackTitle(int amount) {
+    return '$amount কয়েন';
+  }
+
+  @override
+  String get coinPackBestValue => 'সেরা অফার';
+
+  @override
+  String get removeAdsTitle => 'বিজ্ঞাপন ছাড়া';
+
+  @override
+  String get removeAdsBody =>
+      'ব্যানার আর ম্যাচের মাঝের বিজ্ঞাপন চিরতরে সরে যায়। পুরস্কারের বিজ্ঞাপন আপনার ইচ্ছায় থাকে।';
+
+  @override
+  String get removeAdsOwned => 'বিজ্ঞাপন সরানো হয়েছে। ধন্যবাদ!';
+
+  @override
+  String get storeLoading => 'স্টোর লোড হচ্ছে...';
+
+  @override
+  String get storeUnavailable =>
+      'এখন কেনাকাটা করা যাচ্ছে না। সংযোগ দেখে পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get restorePurchases => 'কেনাকাটা ফিরিয়ে আনুন';
+
+  @override
+  String get purchasePending =>
+      'পেমেন্ট বাকি আছে। Google Play নিশ্চিত করলেই কেনাকাটা পৌঁছে যাবে।';
+
+  @override
+  String get purchaseFailed => 'কেনাকাটা সম্পূর্ণ হয়নি।';
+
+  @override
+  String needMoreCoins(int amount) {
+    return 'এই স্টাইলের জন্য আরও $amount কয়েন লাগবে।';
+  }
 }
