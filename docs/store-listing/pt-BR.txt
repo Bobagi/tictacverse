@@ -1,24 +1,33 @@
 SUPER JOGO DA VELHA
 O carro-chefe do Tic Tac Verse: 9 tabuleiros dentro de um tabuleiro grande. A casa que você marca decide onde o rival joga em seguida. Vença os tabuleiros pequenos para conquistar casas no grande e faça três em linha para vencer. O jogo da velha (XO) vira estratégia de verdade: fácil de aprender, difícil de dominar.
 
-MAIS 4 MODOS
+MAIS 6 MODOS
 • Clássico: o 3x3 tradicional com visual neon.
 • Shift: só 3 peças por jogador, a mais antiga some. Chega de empate.
 • Caos: eventos aleatórios mudam as regras no meio da partida.
 • Ultimate Mini: condições de vitória especiais que mudam a cada rodada.
+• 4x4: quatro em linha num tabuleiro maior.
+• Cinco em linha (Gomoku): alinhe cinco num tabuleiro 10x10.
+
+DESAFIO DO DIA
+• Todo dia um desafio novo no Super Jogo da Velha: vença a máquina em poucas jogadas e ganhe moedas. Dias seguidos rendem mais.
+• Tutorial jogável que ensina a regra do Super em um minuto.
 
 DO SEU JEITO
 • Contra o computador em 3 níveis: Fácil, Médio e Impossível (tente vencer!).
 • 2 jogadores no mesmo celular: desafie amigos e família.
 
 GANHE, COLECIONE, VOLTE
-• Ganhe moedas em toda partida e desbloqueie visuais novos para as peças: Neon, Fogo e gelo, Bala, Ouro e prata, Galáxia.
+• Ganhe moedas em toda partida e desbloqueie visuais novos para as peças: Neon, Fogo e gelo, Bala, Ouro e prata, Galáxia e Aurora.
+• Temas de tabuleiro: Pôr do sol, Oceano, Esmeralda e Realeza.
 • Bônus diário que cresce a cada dia que você volta, até um prêmio grande no dia 7.
 • Níveis, XP e 16 conquistas no Google Play Games.
 • Sequências de vitórias e de dias com confete, sons e vibração.
 
 FEITO PARA PARTIDAS RÁPIDAS
 • Offline, leve, grátis, sem cadastro.
+• Compartilhe suas vitórias com os amigos.
+• Opção de remover os anúncios para sempre.
 • Em português, inglês, espanhol, hindi, bengali e nepalês.
 
 Feito pelo Bobagi. Deixe sua avaliação, ajuda muito!

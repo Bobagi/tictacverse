@@ -1,24 +1,33 @@
 ULTIMATE TIC TAC TOE
 The flagship of Tic Tac Verse: 9 boards inside one big board. The cell you mark decides where your rival plays next. Win the small boards to claim cells on the big one and line up three to win. Tic tac toe (XO, noughts and crosses) becomes a real strategy game: easy to learn, hard to master.
 
-4 MORE MODES
+6 MORE MODES
 • Classic: the traditional 3x3 game with a neon look.
 • Shift: only 3 marks per player, the oldest disappears. No boring draws.
 • Chaos: random events change the rules mid-match.
 • Ultimate Mini: special winning conditions that change every round.
+• 4x4: four in a row on a bigger board.
+• Five in a row (Gomoku): line up five on a 10x10 board.
+
+DAILY CHALLENGE
+• A new Ultimate Tic Tac Toe challenge every day: beat the CPU in few moves and earn coins. Daily streaks pay more.
+• Playable tutorial that teaches the Ultimate rule in one minute.
 
 PLAY YOUR WAY
 • Versus the computer with 3 levels: Easy, Medium and Impossible (try to beat it!).
 • 2 players on the same phone: challenge friends and family.
 
 EARN, COLLECT, COME BACK
-• Win coins in every match and unlock new piece styles: Neon, Fire and Ice, Candy, Gold and Silver, Galaxy.
+• Win coins in every match and unlock new piece styles: Neon, Fire and Ice, Candy, Gold and Silver, Galaxy and Aurora.
+• Board themes: Sunset, Ocean, Emerald and Royal.
 • Daily bonus that grows every day you come back, up to a big reward on day 7.
 • Levels, XP and 16 achievements on Google Play Games.
 • Win streaks and daily streaks with confetti, sounds and vibration.
 
 MADE FOR QUICK MATCHES
 • Offline, lightweight, free, no sign-up.
+• Share your wins with friends.
+• Option to remove ads for good.
 • Available in English, Portuguese, Spanish, Hindi, Bengali and Nepali.
 
 Made by Bobagi. Leave a review, it really helps!
