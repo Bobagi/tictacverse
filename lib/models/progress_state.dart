@@ -27,14 +27,19 @@ class ProgressState {
     this.adCoinsDay,
     this.adCoinsClaimsToday = 0,
     this.adsRemoved = false,
+    this.lastChallengeDay,
+    this.challengeStreak = 0,
+    this.bestChallengeStreak = 0,
     Set<GameModeType>? modesPlayed,
     Set<String>? unlockedAchievements,
     Set<String>? ownedSkins,
     List<String>? processedPurchases,
+    List<String>? appliedRevocations,
   })  : modesPlayed = modesPlayed ?? <GameModeType>{},
         unlockedAchievements = unlockedAchievements ?? <String>{},
         ownedSkins = ownedSkins ?? <String>{defaultSkinId},
-        processedPurchases = processedPurchases ?? <String>[];
+        processedPurchases = processedPurchases ?? <String>[],
+        appliedRevocations = appliedRevocations ?? <String>[];
 
   /// Visual de peças que todo jogador tem desde o início (Neon desde a
   /// v1.13.0; até a v1.12.0 era o Aurora).
@@ -88,8 +93,8 @@ class ProgressState {
   final Set<String> unlockedAchievements;
 
   /// Moedas: ganhas jogando, no bônus diário, em anúncio premiado opt-in ou
-  /// compradas na loja da Play;
-  /// gastas só na loja de visuais. Nunca ficam negativas.
+  /// compradas na loja da Play; gastas só na loja. Só ficam negativas como
+  /// dívida de uma compra estornada.
   int coins;
 
   /// Visuais de peça comprados (o padrão sempre incluso) e o que está em uso.
@@ -112,6 +117,14 @@ class ProgressState {
 
   /// Tokens das compras da Play já creditadas, do mais antigo ao mais novo.
   final List<String> processedPurchases;
+
+  /// Desafio diário: último dia concluído e dias seguidos concluídos.
+  String? lastChallengeDay;
+  int challengeStreak;
+  int bestChallengeStreak;
+
+  /// Estornos (ids de resgate do servidor) já descontados aqui.
+  final List<String> appliedRevocations;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'xp': xp,
@@ -136,6 +149,10 @@ class ProgressState {
         'adCoinsClaimsToday': adCoinsClaimsToday,
         'adsRemoved': adsRemoved,
         'processedPurchases': processedPurchases,
+        'appliedRevocations': appliedRevocations,
+        'lastChallengeDay': lastChallengeDay,
+        'challengeStreak': challengeStreak,
+        'bestChallengeStreak': bestChallengeStreak,
         'catalogVersion': catalogVersion,
       };
 
@@ -160,7 +177,10 @@ class ProgressState {
       for (final Object? raw in _asList(json['ownedSkins']))
         if (raw is String) raw,
     };
-    int coins = math.max(0, _asInt(json['coins']));
+    // Saldo negativo só existe como dívida de estorno (ver
+    // `EconomyEngine.applyRevocation`) e precisa sobreviver ao save; o teto
+    // de baixo evita que lixo no campo vire uma dívida absurda.
+    int coins = math.max(-1000000, _asInt(json['coins']));
     String equipped = json['equippedSkin'] is String
         ? json['equippedSkin'] as String
         : 'aurora';
@@ -211,8 +231,15 @@ class ProgressState {
       adCoinsDay: _asString(json['adCoinsDay']),
       adCoinsClaimsToday: _asInt(json['adCoinsClaimsToday']),
       adsRemoved: json['adsRemoved'] == true,
+      lastChallengeDay: _asString(json['lastChallengeDay']),
+      challengeStreak: _asInt(json['challengeStreak']),
+      bestChallengeStreak: _asInt(json['bestChallengeStreak']),
       processedPurchases: <String>[
         for (final Object? raw in _asList(json['processedPurchases']))
+          if (raw is String) raw,
+      ],
+      appliedRevocations: <String>[
+        for (final Object? raw in _asList(json['appliedRevocations']))
           if (raw is String) raw,
       ],
     );

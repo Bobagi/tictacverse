@@ -8,12 +8,23 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import '../models/store_product.dart';
 import 'economy_engine.dart';
 import 'economy_service.dart';
+import 'storage_service.dart';
+import 'verse_api.dart';
 
 /// Estado da loja de compras.
 enum StoreAvailability { loading, ready, unavailable }
 
 /// O que aconteceu com a última compra, para a tela dar o retorno certo.
-enum PurchaseOutcomeKind { coins, adsRemoved, pending, canceled, failed }
+enum PurchaseOutcomeKind {
+  coins,
+  adsRemoved,
+  pending,
+
+  /// Pago na Play, esperando o servidor confirmar (sem rede, servidor fora).
+  verifying,
+  canceled,
+  failed,
+}
 
 class PurchaseOutcome {
   const PurchaseOutcome(this.kind, {this.coins = 0});
@@ -28,7 +39,11 @@ abstract class PurchaseBackend {
   Stream<List<PurchaseDetails>> get purchaseStream;
   Future<bool> isAvailable();
   Future<List<ProductDetails>> queryProducts(Set<String> ids);
-  Future<bool> buy(ProductDetails product, {required bool consumable});
+
+  /// [accountId] vai para a Play como `obfuscatedAccountId`: o servidor só
+  /// aceita um pacote de moedas na instalação que o comprou.
+  Future<bool> buy(ProductDetails product,
+      {required bool consumable, required String accountId});
   Future<void> restore();
 
   /// Consome um pacote de moedas (libera a recompra e conta como confirmação).
@@ -54,11 +69,12 @@ class PlayPurchaseBackend implements PurchaseBackend {
   }
 
   @override
-  Future<bool> buy(ProductDetails product, {required bool consumable}) {
-    final PurchaseParam param = PurchaseParam(productDetails: product);
-    // autoConsume DESLIGADO: o plugin consumiria antes de o app creditar, e um
-    // app fechado nesse meio perderia as moedas. O consumo é manual, depois
-    // do crédito gravado.
+  Future<bool> buy(ProductDetails product,
+      {required bool consumable, required String accountId}) {
+    final PurchaseParam param =
+        PurchaseParam(productDetails: product, applicationUserName: accountId);
+    // autoConsume DESLIGADO: o plugin consumiria antes de o servidor
+    // confirmar e o app creditar. O consumo é manual, depois do crédito.
     return consumable
         ? _iap.buyConsumable(purchaseParam: param, autoConsume: false)
         : _iap.buyNonConsumable(purchaseParam: param);
@@ -80,15 +96,25 @@ class PlayPurchaseBackend implements PurchaseBackend {
       _iap.completePurchase(purchase);
 }
 
-/// Compras dentro do app pela Play: pacotes de moedas e "sem anúncios".
+/// Compras dentro do app pela Play: pacotes de moedas, "sem anúncios" e o
+/// pacote de boas-vindas.
 ///
-/// Sem servidor: o direito fica no `ProgressState` (aparelho) e a Play é quem
-/// cobra. A regra de crédito é a do [EconomyEngine.applyStorePurchase]
-/// (idempotente por token); aqui só fica o vai e vem com o plugin.
+/// Toda compra é validada no servidor do jogo (`tictacverse-api`), que
+/// consulta a Play: token falso, de outra instalação, já resgatado ou
+/// estornado não entrega nada. Ordem que não se inverte: servidor confirma,
+/// app credita e grava, e SÓ ENTÃO a compra é consumida/confirmada na Play.
+/// Servidor fora do ar = a compra fica pendente e é tentada de novo (a Play
+/// reentrega o que não foi finalizado).
 class PurchaseService {
-  PurchaseService({PurchaseBackend? backend, EconomyService? economy})
-      : _backendOverride = backend,
-        _economy = economy ?? EconomyService.instance;
+  PurchaseService({
+    PurchaseBackend? backend,
+    EconomyService? economy,
+    VerseApi? api,
+    String Function()? installId,
+  })  : _backendOverride = backend,
+        _economy = economy ?? EconomyService.instance,
+        _apiOverride = api,
+        _installId = installId ?? (() => StorageService.instance.installId);
 
   static final PurchaseService instance = PurchaseService();
 
@@ -98,7 +124,7 @@ class PurchaseService {
 
   /// A loja de mentira só liga na web ou em build de debug. Um APK/AAB de
   /// release compilado por engano com `FAKE_STORE=true` continua cobrando
-  /// pela Play: a flag sozinha não pode dar moeda de graça a ninguém.
+  /// pela Play e validando no servidor: a flag sozinha não dá moeda a ninguém.
   @visibleForTesting
   static bool useDemoStore({
     required bool requested,
@@ -107,10 +133,34 @@ class PurchaseService {
   }) =>
       requested && (isWeb || !isRelease);
 
+  static bool get _demo => useDemoStore(
+        requested: _fakeStore,
+        isWeb: kIsWeb,
+        isRelease: kReleaseMode,
+      );
+
+  /// Esperas entre as novas tentativas quando o servidor não respondeu.
+  static const List<Duration> retryDelays = <Duration>[
+    Duration(seconds: 20),
+    Duration(minutes: 2),
+    Duration(minutes: 10),
+  ];
+
   final PurchaseBackend? _backendOverride;
   PurchaseBackend? _backend;
   final EconomyService _economy;
+  final VerseApi? _apiOverride;
+  late final VerseApi _api =
+      _apiOverride ?? (_demo ? DemoVerseApi() : HttpVerseApi());
+  final String Function() _installId;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
+  Timer? _retryTimer;
+  int _retryAttempt = 0;
+  bool _syncingRevocations = false;
+
+  /// Compras pagas que o servidor ainda não confirmou, por token.
+  final Map<String, PurchaseDetails> _awaitingServer =
+      <String, PurchaseDetails>{};
 
   final ValueNotifier<StoreAvailability> availability =
       ValueNotifier<StoreAvailability>(StoreAvailability.loading);
@@ -128,20 +178,17 @@ class PurchaseService {
 
   ProductDetails? productFor(String id) => _products[id];
 
-  /// Liga a escuta das compras e carrega os preços. Chame cedo no `main`: a
-  /// Play entrega na abertura compras que ficaram pela metade (app fechado no
-  /// meio, pagamento em dinheiro que caiu depois) e elas precisam ser
-  /// creditadas e finalizadas.
+  bool get hasPendingVerification => _awaitingServer.isNotEmpty;
+
+  /// Liga a escuta das compras, carrega os preços e sincroniza estornos.
+  /// Chame cedo no `main`: a Play entrega na abertura compras que ficaram
+  /// pela metade e elas precisam ser validadas e finalizadas.
   Future<void> initialize() async {
     if (_subscription != null) {
       return;
     }
     final PurchaseBackend? backend = _backendOverride ??
-        (useDemoStore(
-          requested: _fakeStore,
-          isWeb: kIsWeb,
-          isRelease: kReleaseMode,
-        )
+        (_demo
             ? _DemoPurchaseBackend()
             : !kIsWeb && defaultTargetPlatform == TargetPlatform.android
                 ? PlayPurchaseBackend()
@@ -171,8 +218,11 @@ class PurchaseService {
       availability.value = _products.isEmpty
           ? StoreAvailability.unavailable
           : StoreAvailability.ready;
-      // Devolve o "sem anúncios" a quem reinstalou e recolhe pacote de moedas
-      // pago e não consumido.
+      // Estornos primeiro: se o "sem anúncios" foi estornado e o jogador tem
+      // outro válido, o restore logo em seguida devolve o direito.
+      await syncRevocations();
+      // Devolve o "sem anúncios" a quem reinstalou e recolhe compra paga e
+      // não finalizada.
       await backend.restore();
     } catch (_) {
       availability.value = StoreAvailability.unavailable;
@@ -190,14 +240,15 @@ class PurchaseService {
         buying.value != null) {
       return false;
     }
-    if (product.kind == StoreProductKind.removeAds && _economy.adsRemoved) {
+    if (!product.isConsumable && product.removeAds && _economy.adsRemoved) {
+      // Já tem o direito: não deixa pagar de novo por ele.
       return false;
     }
     buying.value = productId;
     lastOutcome.value = null;
     try {
-      final bool started =
-          await backend.buy(details, consumable: product.isConsumable);
+      final bool started = await backend.buy(details,
+          consumable: product.isConsumable, accountId: _installId());
       if (!started) {
         buying.value = null;
       }
@@ -217,9 +268,47 @@ class PurchaseService {
     }
   }
 
+  /// Busca no servidor as compras desta instalação que foram estornadas e as
+  /// desfaz aqui. Seguro chamar várias vezes (cada estorno vale uma vez).
+  Future<void> syncRevocations() async {
+    if (_syncingRevocations) {
+      return;
+    }
+    _syncingRevocations = true;
+    try {
+      final List<Revocation>? list = await _api.revocations(_installId());
+      if (list == null) {
+        return;
+      }
+      bool lostAds = false;
+      for (final Revocation r in list) {
+        final RevocationEffect effect = await _economy.applyRevocation(
+            redemptionId: r.redemptionId,
+            coins: r.coins,
+            removeAds: r.removeAds);
+        lostAds = lostAds || effect.lostAdsRemoval;
+      }
+      if (lostAds) {
+        // Se houver outra compra válida de "sem anúncios", ela volta aqui.
+        await restore();
+      }
+    } finally {
+      _syncingRevocations = false;
+    }
+  }
+
   @visibleForTesting
   Future<void> handlePurchases(List<PurchaseDetails> purchases) =>
       _onPurchases(purchases);
+
+  /// Tenta de novo, agora, as compras pagas que o servidor não confirmou.
+  @visibleForTesting
+  Future<void> retryPendingVerifications() async {
+    final List<PurchaseDetails> waiting = _awaitingServer.values.toList();
+    for (final PurchaseDetails purchase in waiting) {
+      await _handle(purchase);
+    }
+  }
 
   Future<void> _onPurchases(List<PurchaseDetails> purchases) async {
     for (final PurchaseDetails purchase in purchases) {
@@ -266,17 +355,64 @@ class PurchaseService {
     bool isCurrentBuy,
   ) async {
     final StoreProduct? product = storeProductById(purchase.productID);
-    if (product == null) {
+    final String token = purchase.verificationData.serverVerificationData;
+    if (product == null || token.isEmpty) {
       // Produto que este app não conhece: só finaliza para não ficar preso.
       if (purchase.pendingCompletePurchase) {
         await _safe(() => backend.complete(purchase));
       }
+      if (isCurrentBuy) {
+        buying.value = null;
+      }
       return;
     }
+    final VerifyResult verdict = await _api.verifyPurchase(
+      installId: _installId(),
+      productId: purchase.productID,
+      purchaseToken: token,
+    );
+    switch (verdict.status) {
+      case VerifyStatus.retry:
+        // Pago na Play, servidor sem resposta: NÃO credita e NÃO finaliza.
+        // A Play guarda a compra; tentamos de novo daqui a pouco e a cada
+        // abertura do app.
+        _awaitingServer[token] = purchase;
+        _scheduleRetry();
+        if (isCurrentBuy) {
+          buying.value = null;
+          lastOutcome.value =
+              const PurchaseOutcome(PurchaseOutcomeKind.verifying);
+        }
+        return;
+      case VerifyStatus.pending:
+        _awaitingServer.remove(token);
+        if (isCurrentBuy) {
+          buying.value = null;
+          lastOutcome.value =
+              const PurchaseOutcome(PurchaseOutcomeKind.pending);
+        }
+        return;
+      case VerifyStatus.invalid:
+      case VerifyStatus.revoked:
+        // Nada a entregar. Também não finaliza: compra que a Play diz não
+        // valer não deve ser confirmada por nós.
+        _awaitingServer.remove(token);
+        if (isCurrentBuy) {
+          buying.value = null;
+          lastOutcome.value = const PurchaseOutcome(PurchaseOutcomeKind.failed);
+        }
+        return;
+      case VerifyStatus.granted:
+        break;
+    }
+    _awaitingServer.remove(token);
     // 1) credita e grava; 2) só então consome/confirma na Play. Na ordem
     // inversa, um app fechado no meio perderia o que o jogador pagou.
-    final StoreGrant grant = await _economy.applyStorePurchase(
-        purchase.productID, purchase.verificationData.serverVerificationData);
+    final StoreGrant grant = await _economy.applyServerGrant(
+      purchaseToken: token,
+      coins: verdict.coins,
+      removeAds: verdict.removeAds,
+    );
     if (product.isConsumable) {
       // Consumir também confirma; falhou, a Play reentrega e o token barra o
       // crédito em dobro.
@@ -284,9 +420,7 @@ class PurchaseService {
     } else if (purchase.pendingCompletePurchase) {
       await _safe(() => backend.complete(purchase));
     }
-    final bool paidNow =
-        grant.coins > 0 || (grant.removedAds && !grant.duplicate);
-    if (isCurrentBuy || paidNow) {
+    if (isCurrentBuy || !grant.duplicate) {
       buying.value = null;
     }
     if (grant.coins > 0) {
@@ -297,6 +431,25 @@ class PurchaseService {
     }
   }
 
+  void _scheduleRetry() {
+    if (_retryTimer?.isActive ?? false) {
+      return;
+    }
+    final Duration wait =
+        retryDelays[_retryAttempt.clamp(0, retryDelays.length - 1)];
+    _retryAttempt++;
+    _retryTimer = Timer(wait, () async {
+      await retryPendingVerifications();
+      if (_awaitingServer.isEmpty) {
+        _retryAttempt = 0;
+      } else if (_retryAttempt < retryDelays.length) {
+        _scheduleRetry();
+      }
+      // Esgotou as tentativas desta sessão: a próxima abertura do app
+      // (restore) entrega a compra de novo.
+    });
+  }
+
   static Future<void> _safe(Future<Object?> Function() call) async {
     try {
       await call();
@@ -305,20 +458,8 @@ class PurchaseService {
     }
   }
 
-  @visibleForTesting
-  void debugSetProducts(List<ProductDetails> products,
-      {PurchaseBackend? backend}) {
-    _backend = backend ?? _backend;
-    _products
-      ..clear()
-      ..addEntries(products.map(
-          (ProductDetails d) => MapEntry<String, ProductDetails>(d.id, d)));
-    availability.value = products.isEmpty
-        ? StoreAvailability.unavailable
-        : StoreAvailability.ready;
-  }
-
   void dispose() {
+    _retryTimer?.cancel();
     _subscription?.cancel();
     _subscription = null;
   }
@@ -330,11 +471,12 @@ class _DemoPurchaseBackend implements PurchaseBackend {
       StreamController<List<PurchaseDetails>>.broadcast();
   int _serial = 0;
 
-  static const Map<String, String> _prices = <String, String>{
-    'remove_ads': r'R$ 4,99',
-    'coins_300': r'R$ 4,99',
-    'coins_1000': r'R$ 11,99',
-    'coins_3000': r'R$ 24,99',
+  static const Map<String, double> _prices = <String, double>{
+    'starter_pack': 9.99,
+    'remove_ads': 4.99,
+    'coins_300': 4.99,
+    'coins_1000': 12.99,
+    'coins_3000': 25.99,
   };
 
   @override
@@ -351,13 +493,15 @@ class _DemoPurchaseBackend implements PurchaseBackend {
               id: id,
               title: id,
               description: id,
-              price: _prices[id] ?? '-',
-              rawPrice: 0,
+              price:
+                  'R\$ ${(_prices[id] ?? 0).toStringAsFixed(2).replaceAll('.', ',')}',
+              rawPrice: _prices[id] ?? 0,
               currencyCode: 'BRL'),
       ];
 
   @override
-  Future<bool> buy(ProductDetails product, {required bool consumable}) async {
+  Future<bool> buy(ProductDetails product,
+      {required bool consumable, required String accountId}) async {
     _serial++;
     Timer(const Duration(milliseconds: 600), () {
       _controller.add(<PurchaseDetails>[
@@ -385,4 +529,34 @@ class _DemoPurchaseBackend implements PurchaseBackend {
 
   @override
   Future<void> complete(PurchaseDetails purchase) async {}
+}
+
+/// Servidor de mentira do `FAKE_STORE` (revisão de tela na web): confirma o
+/// que o catálogo diz. Só existe no modo de QA.
+class DemoVerseApi implements VerseApi {
+  @override
+  Future<VerifyResult> verifyPurchase({
+    required String installId,
+    required String productId,
+    required String purchaseToken,
+  }) async {
+    final StoreProduct? p = storeProductById(productId);
+    if (p == null) {
+      return const VerifyResult(VerifyStatus.invalid);
+    }
+    return VerifyResult(VerifyStatus.granted,
+        coins: p.coins, removeAds: p.removeAds, redemptionId: purchaseToken);
+  }
+
+  @override
+  Future<List<Revocation>?> revocations(String installId) async =>
+      const <Revocation>[];
+
+  @override
+  Future<bool> ping({
+    required String installId,
+    required String appVersion,
+    required String locale,
+  }) async =>
+      true;
 }

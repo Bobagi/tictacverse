@@ -539,4 +539,103 @@ class AppLocalizationsEs extends AppLocalizations {
   String needMoreCoins(int amount) {
     return 'Te faltan $amount monedas para este estilo.';
   }
+
+  @override
+  String get starterTitle => 'Paquete de bienvenida';
+
+  @override
+  String starterBody(int amount) {
+    return 'Sin anuncios para siempre + $amount monedas, en una sola compra.';
+  }
+
+  @override
+  String starterSave(int percent) {
+    return 'Ahorra $percent%';
+  }
+
+  @override
+  String get starterSee => 'Ver oferta';
+
+  @override
+  String get notNow => 'Ahora no';
+
+  @override
+  String get purchaseVerifying =>
+      'Pago recibido. Confirmando la compra, llega en un momento.';
+
+  @override
+  String get challengeTitle => 'Desafío del día';
+
+  @override
+  String challengeGoal(int limit) {
+    return 'Gana a la máquina en el Súper Tres en Raya en $limit jugadas o menos';
+  }
+
+  @override
+  String challengeMoves(int used, int limit) {
+    return '$used/$limit';
+  }
+
+  @override
+  String challengeOverLimit(int limit) {
+    return 'Pasaste de $limit jugadas: sin premio esta vez';
+  }
+
+  @override
+  String challengeWon(int coins) {
+    return '¡Desafío del día completado! +$coins monedas';
+  }
+
+  @override
+  String challengeLate(int limit) {
+    return 'Ganaste, pero pasaste de $limit jugadas. ¡Inténtalo otra vez!';
+  }
+
+  @override
+  String get challengeAlreadyDone =>
+      'El desafío de hoy ya está completado. ¡Vuelve mañana!';
+
+  @override
+  String get challengeDoneHome => '¡Hecho! Vuelve mañana';
+
+  @override
+  String get shareVictory => 'Compartir';
+
+  @override
+  String get shareMessage => '¡Acabo de ganar en Tic Tac Verse! ¿Me ganas?';
+
+  @override
+  String get tutorialTitle => 'Cómo funciona el Súper Tres en Raya';
+
+  @override
+  String get tutorialIntro =>
+      'Hay 9 tableros pequeños dentro de uno grande. Gana uno pequeño para quedártelo, y consigue 3 en línea para ganar.';
+
+  @override
+  String get tutorialTapFirst =>
+      'Tu turno. Toca la casilla que brilla: la esquina superior derecha del tablero del medio.';
+
+  @override
+  String get tutorialSent =>
+      'Jugaste en la esquina superior derecha, así que el rival ahora debe jugar en el TABLERO superior derecho. La casilla que eliges decide dónde juega el otro.';
+
+  @override
+  String get tutorialTapSecond =>
+      'El rival jugó en la casilla del centro, así que ahora TÚ vas al tablero del medio. Toca la casilla que brilla.';
+
+  @override
+  String get tutorialFinal =>
+      '¡Eso es todo! Si te mandan a un tablero ya ganado o lleno, puedes jugar en cualquiera. Piensa por adelantado: cada jugada manda al rival a algún sitio.';
+
+  @override
+  String get tutorialSkip => 'Saltar';
+
+  @override
+  String get tutorialNext => 'Siguiente';
+
+  @override
+  String get tutorialPlay => '¡A jugar!';
+
+  @override
+  String get tutorialReplay => 'Ver el tutorial';
 }

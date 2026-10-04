@@ -34,6 +34,9 @@ class GameOverModal extends StatefulWidget {
     this.isNewBestStreak = false,
     this.dailyStreak = 0,
     this.celebrate = false,
+    this.banner,
+    this.bannerSuccess = true,
+    this.onShare,
   });
 
   final String title;
@@ -67,6 +70,14 @@ class GameOverModal extends StatefulWidget {
 
   /// A partida foi uma vitória a comemorar (título com brilho, carimbo).
   final bool celebrate;
+
+  /// Faixa extra logo abaixo do título (resultado do desafio diário).
+  final String? banner;
+  final bool bannerSuccess;
+
+  /// Compartilhar a vitória (imagem do tabuleiro + link da loja). Nulo =
+  /// sem botão (empate, derrota).
+  final Future<void> Function()? onShare;
 
   @override
   State<GameOverModal> createState() => _GameOverModalState();
@@ -231,6 +242,7 @@ class _GameOverModalState extends State<GameOverModal> {
                               ),
                             ),
                             const SizedBox(height: 8),
+                            if (widget.banner != null) _buildBanner(context),
                             _buildWinnerDetails(context),
                             _buildStreaks(context, localization),
                             _buildProgressionRewards(context, localization),
@@ -272,6 +284,16 @@ class _GameOverModalState extends State<GameOverModal> {
                           },
                           child: Text(localization.backToMenu),
                         ),
+                        if (widget.onShare != null)
+                          TextButton.icon(
+                            key: const ValueKey<String>('game-over-share'),
+                            onPressed: () {
+                              AudioService.instance.playUiClick();
+                              widget.onShare!();
+                            },
+                            icon: const Icon(Icons.share_rounded, size: 18),
+                            label: Text(localization.shareVictory),
+                          ),
                       ],
                     ),
                   ],
@@ -280,6 +302,43 @@ class _GameOverModalState extends State<GameOverModal> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBanner(BuildContext context) {
+    final Color tint =
+        widget.bannerSuccess ? VerseColors.coin : Colors.white70;
+    return PopIn(
+      delay: const Duration(milliseconds: 200),
+      beginScale: 0.6,
+      child: Container(
+        key: const ValueKey<String>('game-over-banner'),
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: tint.withOpacity(0.14),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: tint.withOpacity(0.7)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(
+                widget.bannerSuccess
+                    ? Icons.emoji_events_rounded
+                    : Icons.timer_off_rounded,
+                color: tint,
+                size: 20),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(widget.banner!,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: tint, fontWeight: FontWeight.w800)),
+            ),
+          ],
         ),
       ),
     );

@@ -534,4 +534,103 @@ class AppLocalizationsBn extends AppLocalizations {
   String needMoreCoins(int amount) {
     return 'এই স্টাইলের জন্য আরও $amount কয়েন লাগবে।';
   }
+
+  @override
+  String get starterTitle => 'ওয়েলকাম প্যাক';
+
+  @override
+  String starterBody(int amount) {
+    return 'চিরতরে বিজ্ঞাপন ছাড়া + $amount কয়েন, এক কেনাতেই।';
+  }
+
+  @override
+  String starterSave(int percent) {
+    return '$percent% সাশ্রয়';
+  }
+
+  @override
+  String get starterSee => 'অফার দেখুন';
+
+  @override
+  String get notNow => 'এখন না';
+
+  @override
+  String get purchaseVerifying =>
+      'পেমেন্ট পাওয়া গেছে। কেনাকাটা নিশ্চিত করা হচ্ছে, একটু পরেই পৌঁছাবে।';
+
+  @override
+  String get challengeTitle => 'আজকের চ্যালেঞ্জ';
+
+  @override
+  String challengeGoal(int limit) {
+    return 'সুপার টিক ট্যাক টো-তে $limit চালের মধ্যে কম্পিউটারকে হারান';
+  }
+
+  @override
+  String challengeMoves(int used, int limit) {
+    return '$used/$limit';
+  }
+
+  @override
+  String challengeOverLimit(int limit) {
+    return '$limit চাল পার: এবার পুরস্কার নেই';
+  }
+
+  @override
+  String challengeWon(int coins) {
+    return 'আজকের চ্যালেঞ্জ শেষ! +$coins কয়েন';
+  }
+
+  @override
+  String challengeLate(int limit) {
+    return 'জিতেছেন, কিন্তু $limit-এর বেশি চাল লেগেছে। আবার চেষ্টা করুন!';
+  }
+
+  @override
+  String get challengeAlreadyDone => 'আজকের চ্যালেঞ্জ আগেই শেষ। কাল আবার আসুন!';
+
+  @override
+  String get challengeDoneHome => 'শেষ! কাল আবার আসুন';
+
+  @override
+  String get shareVictory => 'শেয়ার করুন';
+
+  @override
+  String get shareMessage =>
+      'আমি এইমাত্র Tic Tac Verse-এ জিতলাম! আমাকে হারাতে পারবেন?';
+
+  @override
+  String get tutorialTitle => 'সুপার টিক ট্যাক টো কীভাবে খেলবেন';
+
+  @override
+  String get tutorialIntro =>
+      'একটা বড় বোর্ডের ভেতরে ৯টা ছোট বোর্ড। ছোট বোর্ড জিতলে সেটা আপনার, আর এক লাইনে ৩টা জিতলে খেলা আপনার।';
+
+  @override
+  String get tutorialTapFirst =>
+      'আপনার পালা। জ্বলজ্বলে ঘরে ট্যাপ করুন: মাঝের বোর্ডের উপর-ডান কোণ।';
+
+  @override
+  String get tutorialSent =>
+      'আপনি উপর-ডান কোণে খেলেছেন, তাই প্রতিপক্ষকে এখন উপর-ডান বোর্ডে খেলতে হবে। আপনি যে ঘর বাছেন, সেটাই ঠিক করে অন্যজন কোথায় খেলবে।';
+
+  @override
+  String get tutorialTapSecond =>
+      'প্রতিপক্ষ মাঝের ঘরে খেলেছে, তাই এখন আপনি মাঝের বোর্ডে যাবেন। জ্বলজ্বলে ঘরে ট্যাপ করুন।';
+
+  @override
+  String get tutorialFinal =>
+      'এটুকুই! যদি এমন বোর্ডে পাঠানো হয় যা আগেই জেতা বা ভরা, তাহলে যেকোনো বোর্ডে খেলতে পারেন। আগে থেকে ভাবুন: প্রতিটি চাল প্রতিপক্ষকে কোথাও পাঠায়।';
+
+  @override
+  String get tutorialSkip => 'বাদ দিন';
+
+  @override
+  String get tutorialNext => 'পরের';
+
+  @override
+  String get tutorialPlay => 'চলুন খেলি!';
+
+  @override
+  String get tutorialReplay => 'টিউটোরিয়াল দেখুন';
 }

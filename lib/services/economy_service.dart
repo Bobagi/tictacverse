@@ -53,18 +53,37 @@ class EconomyService {
 
   bool get adsRemoved => _state.adsRemoved;
 
-  /// Credita uma compra da Play e grava ANTES de ela ser consumida/finalizada
-  /// lá: se o app morrer no meio, a Play reentrega e o token impede o crédito
-  /// em dobro.
-  Future<StoreGrant> applyStorePurchase(
-      String productId, String purchaseToken) async {
-    final StoreGrant grant =
-        engine.applyStorePurchase(_state, productId, purchaseToken);
-    if (grant.coins > 0 || (grant.removedAds && !grant.duplicate)) {
-      await StorageService.instance.saveProgress();
-      ProgressionService.instance.revision.value += 1;
-    }
+  /// Entrega o que o servidor confirmou e grava ANTES de a compra ser
+  /// consumida/finalizada na Play: se o app morrer no meio, a Play reentrega,
+  /// o servidor confirma de novo e o token impede o crédito em dobro.
+  Future<StoreGrant> applyServerGrant({
+    required String purchaseToken,
+    required int coins,
+    required bool removeAds,
+  }) async {
+    final StoreGrant grant = engine.applyServerGrant(_state,
+        purchaseToken: purchaseToken, coins: coins, removeAds: removeAds);
+    await _persist();
     return grant;
+  }
+
+  /// Desfaz uma compra estornada (ver [EconomyEngine.applyRevocation]).
+  Future<RevocationEffect> applyRevocation({
+    required String redemptionId,
+    required int coins,
+    required bool removeAds,
+  }) async {
+    final RevocationEffect effect = engine.applyRevocation(_state,
+        redemptionId: redemptionId, coins: coins, removeAds: removeAds);
+    if (effect.applied) {
+      await _persist();
+    }
+    return effect;
+  }
+
+  Future<void> _persist() async {
+    await StorageService.instance.saveProgress();
+    ProgressionService.instance.revision.value += 1;
   }
 
   bool equip(PieceSkin skin) {

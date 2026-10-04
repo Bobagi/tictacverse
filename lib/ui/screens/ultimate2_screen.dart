@@ -15,6 +15,7 @@ import '../../models/progress_state.dart';
 import '../../services/ad_service.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
+import '../../services/daily_challenge.dart';
 import '../../services/double_xp_offer.dart';
 import '../../services/haptics_service.dart';
 import '../../services/match_feedback.dart';
@@ -22,6 +23,7 @@ import '../../services/metrics_service.dart';
 import '../../services/progression_engine.dart';
 import '../../services/progression_service.dart';
 import '../../services/review_service.dart';
+import '../../services/share_victory.dart';
 import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
 import '../widgets/board_shake.dart';
@@ -33,6 +35,7 @@ import '../widgets/modern_background.dart';
 import '../widgets/neon_win_line.dart';
 import '../widgets/piece_glyph.dart';
 import '../widgets/pop_in.dart';
+import '../widgets/ultimate_tutorial.dart';
 
 class Ultimate2Screen extends StatefulWidget {
   const Ultimate2Screen({
@@ -40,11 +43,16 @@ class Ultimate2Screen extends StatefulWidget {
     required this.playAgainstCpu,
     required this.cpuDifficulty,
     required this.metricsService,
+    this.challenge,
   });
 
   final bool playAgainstCpu;
   final CpuDifficulty cpuDifficulty;
   final MetricsService metricsService;
+
+  /// Desafio diário: a partida vale o prêmio se o jogador vencer a máquina
+  /// em até `moveLimit` jogadas. Nulo = partida normal.
+  final DailyChallenge? challenge;
 
   @override
   State<Ultimate2Screen> createState() => _Ultimate2ScreenState();
@@ -73,6 +81,12 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   bool _cpuThinking = false;
   int _shakeTick = 0;
 
+  /// Jogadas do humano na partida (o desafio diário conta isso).
+  int _humanMoves = 0;
+
+  /// Moldura do tabuleiro que vira a imagem do "compartilhar vitória".
+  final GlobalKey _boardShotKey = GlobalKey();
+
   /// Recompensa da última partida, exibida dentro do modal de fim.
   ProgressionResult? _progressionResult;
 
@@ -93,6 +107,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
         );
       }
       audioService.ensureBackgroundMusic();
+      _maybeShowTutorial();
     });
     if (AdsConfiguration.passiveAdsEnabled) {
       interstitialAdController.loadInterstitialAd();
@@ -113,6 +128,19 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
     super.dispose();
   }
 
+  /// Na primeira vez, o tutorial jogável: a regra de "a casa manda o outro
+  /// para o tabuleiro" é a que mais faz o jogador novo desistir.
+  Future<void> _maybeShowTutorial() async {
+    if (StorageService.instance.ultimateTutorialDone || !mounted) {
+      return;
+    }
+    await StorageService.instance.markUltimateTutorialDone();
+    if (!mounted) {
+      return;
+    }
+    await showUltimateTutorial(context, AppLocalizations.of(context)!);
+  }
+
   void _refresh() {
     if (mounted) {
       setState(() {});
@@ -127,6 +155,10 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
     final Ultimate2State previous = state;
     setState(() {
       state = engine.handleMove(state, board, cell);
+      if (!widget.playAgainstCpu ||
+          previous.currentPlayer == PlayerMarker.cross) {
+        _humanMoves++;
+      }
     });
     audioService.playMoveSfx(
         isNought: previous.currentPlayer == PlayerMarker.nought);
@@ -200,6 +232,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       ),
     );
     _progressionResult = progression;
+    _settleChallenge();
     _doubleXpOffer.onMatchEnded(progression);
     // Celebração antes do modal: shake + linha neon do macro-tabuleiro
     // desenhando por inteiro; review/interstitial só depois.
@@ -232,7 +265,10 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       if (!mounted) {
         return;
       }
-      if (vsCpu && finalResult.winner == PlayerMarker.cross) {
+      if (ReviewService.isGoodMoment(
+        humanWonVsCpu: vsCpu && finalResult.winner == PlayerMarker.cross,
+        newAchievements: _progressionResult?.newlyUnlocked.length ?? 0,
+      )) {
         ReviewService.instance.maybeRequestReview();
       }
       bool interstitialShown = false;
@@ -247,6 +283,44 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       _doubleXpOffer.onCelebrationDone(interstitialShown: interstitialShown);
       _showGameOverSheet(kind);
     });
+  }
+
+  /// Texto da faixa do desafio no modal de fim (nulo fora do desafio).
+  String? _challengeBanner;
+  bool _challengeBannerSuccess = true;
+
+  void _settleChallenge() {
+    final DailyChallenge? challenge = widget.challenge;
+    _challengeBanner = null;
+    if (challenge == null || !mounted) {
+      return;
+    }
+    final AppLocalizations l = AppLocalizations.of(context)!;
+    const DailyChallengeEngine rules = DailyChallengeEngine();
+    final ProgressState progress = StorageService.instance.progress;
+    final DateTime now = DateTime.now();
+    final bool won = state.result.resolution == GameResolution.victory &&
+        state.result.winner == PlayerMarker.cross;
+    final bool alreadyDone = !rules.canComplete(progress, now);
+    final int reward = rules.complete(progress, now,
+        won: won, humanMoves: _humanMoves, challenge: challenge);
+    if (reward > 0) {
+      StorageService.instance.saveProgress();
+      ProgressionService.instance.revision.value += 1;
+      _challengeBanner = l.challengeWon(reward);
+      _challengeBannerSuccess = true;
+    } else if (alreadyDone && won) {
+      _challengeBanner = l.challengeAlreadyDone;
+      _challengeBannerSuccess = true;
+    } else if (won) {
+      _challengeBanner = l.challengeLate(challenge.moveLimit);
+      _challengeBannerSuccess = false;
+    }
+  }
+
+  Future<void> _shareVictory() {
+    final AppLocalizations l = AppLocalizations.of(context)!;
+    return ShareVictory.share(_boardShotKey, message: l.shareMessage);
   }
 
   void _showGameOverSheet(MatchEndKind kind) {
@@ -277,6 +351,12 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
             ProgressionEngine.effectiveDailyStreak(progress, DateTime.now()),
         celebrate:
             kind == MatchEndKind.humanWin || kind == MatchEndKind.twoPlayerWin,
+        banner: _challengeBanner,
+        bannerSuccess: _challengeBannerSuccess,
+        onShare: kind == MatchEndKind.humanWin ||
+                kind == MatchEndKind.twoPlayerWin
+            ? _shareVictory
+            : null,
         onPlayAgain: () {
           Navigator.of(context).pop();
           _cpuMoveTimer?.cancel();
@@ -284,6 +364,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
           setState(() {
             state = engine.start();
             _cpuThinking = false;
+            _humanMoves = 0;
           });
         },
         onBackToMenu: () {
@@ -344,6 +425,10 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     _buildHud(localization),
+                    if (widget.challenge != null) ...<Widget>[
+                      const SizedBox(height: 8),
+                      _buildChallengeBar(localization, widget.challenge!),
+                    ],
                     const SizedBox(height: 10),
                     Expanded(
                       child: LayoutBuilder(
@@ -356,13 +441,22 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                               height: size,
                               child: BoardShake(
                                 trigger: _shakeTick,
-                                child: _MacroBoard(
-                                  state: state,
-                                  visualAssets: visualAssets,
-                                  onCellTap: _handleTap,
-                                  particles: _boardParticles,
-                                  interactive:
-                                      !_cpuThinking && !state.result.isFinal,
+                                // Fundo opaco só para a foto do compartilhar
+                                // não sair com o tabuleiro sobre transparente.
+                                child: RepaintBoundary(
+                                  key: _boardShotKey,
+                                  child: DecoratedBox(
+                                    decoration: const BoxDecoration(
+                                        color: VerseColors.bgTop),
+                                    child: _MacroBoard(
+                                      state: state,
+                                      visualAssets: visualAssets,
+                                      onCellTap: _handleTap,
+                                      particles: _boardParticles,
+                                      interactive: !_cpuThinking &&
+                                          !state.result.isFinal,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -444,6 +538,40 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
     );
   }
 
+  Widget _buildChallengeBar(
+      AppLocalizations localization, DailyChallenge challenge) {
+    final bool over = _humanMoves > challenge.moveLimit;
+    final Color tint = over ? VerseColors.danger : VerseColors.coin;
+    return GlassPanel(
+      key: const ValueKey<String>('challenge-bar'),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Row(
+        children: <Widget>[
+          Icon(Icons.emoji_events_rounded, color: tint, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              over
+                  ? localization.challengeOverLimit(challenge.moveLimit)
+                  : localization.challengeTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: tint, fontWeight: FontWeight.w700),
+            ),
+          ),
+          Text(
+            localization.challengeMoves(_humanMoves, challenge.moveLimit),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: tint, fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showHelp(AppLocalizations localization) {
     showDialog<void>(
       context: context,
@@ -468,6 +596,16 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                         .textTheme
                         .bodyMedium
                         ?.copyWith(color: Colors.white70)),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const ValueKey<String>('help-tutorial'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    showUltimateTutorial(this.context, localization);
+                  },
+                  icon: const Icon(Icons.school_rounded),
+                  label: Text(localization.tutorialReplay),
+                ),
                 const SizedBox(height: 10),
                 Align(
                   alignment: Alignment.centerRight,

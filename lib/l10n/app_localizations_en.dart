@@ -533,4 +533,104 @@ class AppLocalizationsEn extends AppLocalizations {
   String needMoreCoins(int amount) {
     return 'You need $amount more coins for this style.';
   }
+
+  @override
+  String get starterTitle => 'Welcome pack';
+
+  @override
+  String starterBody(int amount) {
+    return 'No ads forever + $amount coins, in one purchase.';
+  }
+
+  @override
+  String starterSave(int percent) {
+    return 'Save $percent%';
+  }
+
+  @override
+  String get starterSee => 'See offer';
+
+  @override
+  String get notNow => 'Not now';
+
+  @override
+  String get purchaseVerifying =>
+      'Payment received. Confirming your purchase, it arrives in a moment.';
+
+  @override
+  String get challengeTitle => 'Daily challenge';
+
+  @override
+  String challengeGoal(int limit) {
+    return 'Beat the CPU in Super Tic Tac Toe in $limit moves or fewer';
+  }
+
+  @override
+  String challengeMoves(int used, int limit) {
+    return '$used/$limit';
+  }
+
+  @override
+  String challengeOverLimit(int limit) {
+    return 'Over $limit moves: no prize this time';
+  }
+
+  @override
+  String challengeWon(int coins) {
+    return 'Daily challenge done! +$coins coins';
+  }
+
+  @override
+  String challengeLate(int limit) {
+    return 'You won, but took more than $limit moves. Try again!';
+  }
+
+  @override
+  String get challengeAlreadyDone =>
+      'Today\'s challenge is already done. Come back tomorrow!';
+
+  @override
+  String get challengeDoneHome => 'Done! Come back tomorrow';
+
+  @override
+  String get shareVictory => 'Share';
+
+  @override
+  String get shareMessage =>
+      'I just won at Tic Tac Verse! Think you can beat me?';
+
+  @override
+  String get tutorialTitle => 'How Super Tic Tac Toe works';
+
+  @override
+  String get tutorialIntro =>
+      'There are 9 small boards inside a big one. Win a small board to claim it, and claim 3 in a row to win the game.';
+
+  @override
+  String get tutorialTapFirst =>
+      'Your turn. Tap the glowing square: the top-right corner of the middle board.';
+
+  @override
+  String get tutorialSent =>
+      'You played in the top-right corner, so your opponent must now play in the top-right BOARD. The square you pick decides where the other player goes.';
+
+  @override
+  String get tutorialTapSecond =>
+      'Your opponent played in the centre square, so now YOU go to the middle board. Tap the glowing square.';
+
+  @override
+  String get tutorialFinal =>
+      'That\'s it! If you are sent to a board that is already won or full, you may play on any board. Think ahead: every move sends your opponent somewhere.';
+
+  @override
+  String get tutorialSkip => 'Skip';
+
+  @override
+  String get tutorialNext => 'Next';
+
+  @override
+  String get tutorialPlay => 'Let\'s play!';
+
+  @override
+  String get tutorialReplay => 'See the tutorial';
 }

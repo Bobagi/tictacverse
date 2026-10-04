@@ -57,7 +57,8 @@ class FakePurchaseBackend implements PurchaseBackend {
       .toList();
 
   @override
-  Future<bool> buy(ProductDetails product, {required bool consumable}) async {
+  Future<bool> buy(ProductDetails product,
+      {required bool consumable, required String accountId}) async {
     buys++;
     return true;
   }
@@ -201,7 +202,10 @@ void main() {
 
     setUp(() async {
       play = FakePurchaseBackend();
-      store = PurchaseService(backend: play);
+      store = PurchaseService(
+          backend: play,
+          api: DemoVerseApi(),
+          installId: () => '1b4e28ba-2fa1-4d3b-a3f5-ef19b5a7633b');
       await store.initialize();
     });
 
@@ -237,6 +241,9 @@ void main() {
       await openCoins(tester);
       final Finder buy =
           find.byKey(const ValueKey<String>('store-buy-coins_1000'));
+      await tester.ensureVisible(buy);
+      await settle(tester);
+      expect(buy.hitTestable(), findsOneWidget);
       await tester.tap(buy);
       await tester.pump();
       await tester.tap(buy, warnIfMissed: false);
@@ -247,8 +254,11 @@ void main() {
     testWidgets('comprou: as moedas entram e a tela agradece',
         (WidgetTester tester) async {
       await openCoins(tester);
-      await tester
-          .tap(find.byKey(const ValueKey<String>('store-buy-coins_300')));
+      final Finder buy300 =
+          find.byKey(const ValueKey<String>('store-buy-coins_300'));
+      await tester.ensureVisible(buy300);
+      await settle(tester);
+      await tester.tap(buy300);
       await settle(tester);
       await store.handlePurchases(
           <PurchaseDetails>[purchase('coins_300', PurchaseStatus.purchased)]);
@@ -269,7 +279,10 @@ void main() {
     testWidgets('Play fora do ar: avisa em vez de mostrar botão morto',
         (WidgetTester tester) async {
       play = FakePurchaseBackend()..available = false;
-      store = PurchaseService(backend: play);
+      store = PurchaseService(
+          backend: play,
+          api: DemoVerseApi(),
+          installId: () => '1b4e28ba-2fa1-4d3b-a3f5-ef19b5a7633b');
       await store.initialize();
       await openCoins(tester);
       expect(find.byKey(const ValueKey<String>('store-unavailable')),
@@ -317,8 +330,9 @@ void main() {
       await tester.tap(find.text('Galáxia'));
       await tester.pump(const Duration(milliseconds: 120));
       final Finder price =
-          find.byKey(const ValueKey<String>('store-buy-coins_3000'));
-      expect(price, findsOneWidget);
+          find.byKey(const ValueKey<String>('store-buy-coins_300'));
+      expect(price.hitTestable(), findsOneWidget,
+          reason: 'o toque tem de cair no preço, senão o teste passa à toa');
       await tester.tap(price);
       await tester.pump(const Duration(milliseconds: 120));
       expect(play.buys, 0, reason: 'o segundo toque do dedo caiu no preço');

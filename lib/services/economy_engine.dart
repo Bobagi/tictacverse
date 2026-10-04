@@ -1,6 +1,5 @@
 import '../models/piece_skin.dart';
 import '../models/progress_state.dart';
-import '../models/store_product.dart';
 import 'progression_engine.dart';
 
 /// Resultado de tentar comprar ou equipar um visual.
@@ -12,7 +11,6 @@ class StoreGrant {
     this.coins = 0,
     this.removedAds = false,
     this.duplicate = false,
-    this.unknownProduct = false,
   });
 
   final int coins;
@@ -21,7 +19,6 @@ class StoreGrant {
   /// Token já creditado antes (a Play reentrega compra não consumida): nada
   /// novo foi pago, mas a compra ainda precisa ser finalizada na Play.
   final bool duplicate;
-  final bool unknownProduct;
 }
 
 /// Regras das moedas, do bônus diário e da loja de visuais.
@@ -161,37 +158,109 @@ class EconomyEngine {
     return null;
   }
 
-  /// Aplica uma compra confirmada pela Play. Idempotente por [purchaseToken]:
-  /// a mesma compra entregue duas vezes (reabrir o app antes do consumo,
-  /// "restaurar compras") credita uma vez só. Token vazio não credita nada,
-  /// porque sem ele não há como garantir isso.
-  StoreGrant applyStorePurchase(
-    ProgressState state,
-    String productId,
-    String purchaseToken,
-  ) {
-    final StoreProduct? product = storeProductById(productId);
-    if (product == null) {
-      return const StoreGrant(unknownProduct: true);
-    }
-    if (product.kind == StoreProductKind.removeAds) {
-      // Direito permanente: reaplicar é inofensivo e é o que devolve o "sem
-      // anúncios" a quem reinstalou (o registro local foi junto).
-      final bool wasRemoved = state.adsRemoved;
-      state.adsRemoved = true;
-      return StoreGrant(removedAds: true, duplicate: wasRemoved);
-    }
-    if (purchaseToken.isEmpty ||
-        state.processedPurchases.contains(purchaseToken)) {
+  /// Entrega o que o SERVIDOR confirmou para uma compra da Play.
+  ///
+  /// Idempotente por [purchaseToken]: o servidor reentrega a mesma compra
+  /// (app fechado antes de gravar, restaurar compras) e o registro local
+  /// garante que as moedas entram uma vez só. O "sem anúncios" é um direito,
+  /// reaplicar é inofensivo. Token vazio não credita nada.
+  StoreGrant applyServerGrant(
+    ProgressState state, {
+    required String purchaseToken,
+    required int coins,
+    required bool removeAds,
+  }) {
+    if (purchaseToken.isEmpty) {
       return const StoreGrant(duplicate: true);
     }
-    state.processedPurchases.add(purchaseToken);
-    final int overflow =
-        state.processedPurchases.length - ProgressState.processedPurchasesCap;
-    if (overflow > 0) {
-      state.processedPurchases.removeRange(0, overflow);
+    final bool wasRemoved = state.adsRemoved;
+    if (removeAds) {
+      state.adsRemoved = true;
     }
-    state.coins += product.coins;
-    return StoreGrant(coins: product.coins);
+    final bool removedNow = removeAds && !wasRemoved;
+    if (state.processedPurchases.contains(purchaseToken)) {
+      return StoreGrant(removedAds: removeAds, duplicate: !removedNow);
+    }
+    _remember(state.processedPurchases, purchaseToken);
+    final int credited = coins > 0 ? coins : 0;
+    state.coins += credited;
+    return StoreGrant(
+      coins: credited,
+      removedAds: removeAds,
+      duplicate: credited == 0 && !removedNow,
+    );
   }
+
+  /// Desfaz uma compra que a Play reembolsou ou estornou. Idempotente por
+  /// [redemptionId].
+  ///
+  /// As moedas saem do saldo. Se o jogador já gastou, os visuais comprados
+  /// voltam para a loja, do mais caro para o mais barato, devolvendo o preço
+  /// ao saldo, até cobrir a diferença: reembolsar e ficar com o que comprou
+  /// não pode existir. Se nem assim cobrir, o saldo fica negativo e as
+  /// próximas moedas pagam a dívida.
+  RevocationEffect applyRevocation(
+    ProgressState state, {
+    required String redemptionId,
+    required int coins,
+    required bool removeAds,
+  }) {
+    if (redemptionId.isEmpty ||
+        state.appliedRevocations.contains(redemptionId)) {
+      return const RevocationEffect();
+    }
+    _remember(state.appliedRevocations, redemptionId);
+    final List<String> lostSkins = <String>[];
+    if (coins > 0) {
+      state.coins -= coins;
+      final List<PieceSkin> owned = pieceSkinCatalog
+          .where(
+              (PieceSkin s) => s.price > 0 && state.ownedSkins.contains(s.id))
+          .toList()
+        ..sort((PieceSkin a, PieceSkin b) => b.price.compareTo(a.price));
+      for (final PieceSkin skin in owned) {
+        if (state.coins >= 0) {
+          break;
+        }
+        state.ownedSkins.remove(skin.id);
+        state.coins += skin.price;
+        lostSkins.add(skin.id);
+        if (state.equippedSkin == skin.id) {
+          state.equippedSkin = ProgressState.defaultSkinId;
+        }
+      }
+    }
+    final bool lostAds = removeAds && state.adsRemoved;
+    if (removeAds) {
+      state.adsRemoved = false;
+    }
+    return RevocationEffect(
+        applied: true,
+        coinsRemoved: coins,
+        lostSkins: lostSkins,
+        lostAdsRemoval: lostAds);
+  }
+
+  static void _remember(List<String> ledger, String id) {
+    ledger.add(id);
+    final int overflow = ledger.length - ProgressState.processedPurchasesCap;
+    if (overflow > 0) {
+      ledger.removeRange(0, overflow);
+    }
+  }
+}
+
+/// O que um estorno desfez (para testes e log).
+class RevocationEffect {
+  const RevocationEffect({
+    this.applied = false,
+    this.coinsRemoved = 0,
+    this.lostSkins = const <String>[],
+    this.lostAdsRemoval = false,
+  });
+
+  final bool applied;
+  final int coinsRemoved;
+  final List<String> lostSkins;
+  final bool lostAdsRemoval;
 }

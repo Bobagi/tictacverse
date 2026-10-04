@@ -536,4 +536,104 @@ class AppLocalizationsNe extends AppLocalizations {
   String needMoreCoins(int amount) {
     return 'यो स्टाइलका लागि $amount सिक्का अझै चाहिन्छ।';
   }
+
+  @override
+  String get starterTitle => 'स्वागत प्याक';
+
+  @override
+  String starterBody(int amount) {
+    return 'सधैँका लागि विज्ञापन बिना + $amount सिक्का, एउटै किनमेलमा।';
+  }
+
+  @override
+  String starterSave(int percent) {
+    return '$percent% बचत';
+  }
+
+  @override
+  String get starterSee => 'अफर हेर्नुहोस्';
+
+  @override
+  String get notNow => 'अहिले होइन';
+
+  @override
+  String get purchaseVerifying =>
+      'भुक्तानी प्राप्त भयो। किनमेल पुष्टि हुँदैछ, केही बेरमा आइपुग्छ।';
+
+  @override
+  String get challengeTitle => 'आजको चुनौती';
+
+  @override
+  String challengeGoal(int limit) {
+    return 'सुपर टिक ट्याक टोमा $limit चालभित्र कम्प्युटरलाई हराउनुहोस्';
+  }
+
+  @override
+  String challengeMoves(int used, int limit) {
+    return '$used/$limit';
+  }
+
+  @override
+  String challengeOverLimit(int limit) {
+    return '$limit चाल नाघ्यो: यसपटक इनाम छैन';
+  }
+
+  @override
+  String challengeWon(int coins) {
+    return 'आजको चुनौती पूरा! +$coins सिक्का';
+  }
+
+  @override
+  String challengeLate(int limit) {
+    return 'जित्नुभयो, तर $limit भन्दा बढी चाल लाग्यो। फेरि प्रयास गर्नुहोस्!';
+  }
+
+  @override
+  String get challengeAlreadyDone =>
+      'आजको चुनौती पहिले नै पूरा भयो। भोलि फेरि आउनुहोस्!';
+
+  @override
+  String get challengeDoneHome => 'पूरा! भोलि फेरि आउनुहोस्';
+
+  @override
+  String get shareVictory => 'सेयर गर्नुहोस्';
+
+  @override
+  String get shareMessage =>
+      'मैले भर्खरै Tic Tac Verse मा जितेँ! मलाई हराउन सक्नुहुन्छ?';
+
+  @override
+  String get tutorialTitle => 'सुपर टिक ट्याक टो कसरी खेल्ने';
+
+  @override
+  String get tutorialIntro =>
+      'ठूलो बोर्डभित्र ९ वटा साना बोर्ड छन्। सानो बोर्ड जिते त्यो तपाईंको, र एक लाइनमा ३ जिते खेल तपाईंको।';
+
+  @override
+  String get tutorialTapFirst =>
+      'तपाईंको पालो। चम्किरहेको कोठामा ट्याप गर्नुहोस्: बीचको बोर्डको माथि-दायाँ कुना।';
+
+  @override
+  String get tutorialSent =>
+      'तपाईंले माथि-दायाँ कुनामा खेल्नुभयो, त्यसैले विपक्षीले अब माथि-दायाँ बोर्डमा खेल्नुपर्छ। तपाईंले छान्ने कोठाले अर्को खेलाडी कहाँ खेल्ने भन्ने तय गर्छ।';
+
+  @override
+  String get tutorialTapSecond =>
+      'विपक्षीले बीचको कोठामा खेल्यो, त्यसैले अब तपाईं बीचको बोर्डमा जानुहुन्छ। चम्किरहेको कोठामा ट्याप गर्नुहोस्।';
+
+  @override
+  String get tutorialFinal =>
+      'यति नै हो! यदि तपाईंलाई पहिले नै जितिएको वा भरिएको बोर्डमा पठाइयो भने, जुनसुकै बोर्डमा खेल्न सक्नुहुन्छ। अगाडि सोच्नुहोस्: हरेक चालले विपक्षीलाई कतै पठाउँछ।';
+
+  @override
+  String get tutorialSkip => 'छोड्नुहोस्';
+
+  @override
+  String get tutorialNext => 'अर्को';
+
+  @override
+  String get tutorialPlay => 'खेलौँ!';
+
+  @override
+  String get tutorialReplay => 'ट्युटोरियल हेर्नुहोस्';
 }

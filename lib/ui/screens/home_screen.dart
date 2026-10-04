@@ -3,8 +3,13 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
 import '../../controllers/rewarded_ad_controller.dart';
+import '../../models/store_product.dart';
+import '../../services/progression_engine.dart';
+import '../../services/purchase_service.dart';
+import '../../services/starter_offer.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
+import '../../services/daily_challenge.dart';
 import '../../services/economy_service.dart';
 import '../../services/haptics_service.dart';
 import '../../services/language_suggestion.dart';
@@ -25,6 +30,7 @@ import '../widgets/shop_sheet.dart';
 import '../widgets/stats_sheet.dart';
 import '../widgets/update_available_dialog.dart';
 import 'mode_select_screen.dart';
+import 'ultimate2_screen.dart';
 
 /// Tela inicial enxuta: escolha do oponente (máquina ou amigo). Os modos de
 /// jogo moram na ModeSelectScreen, com espaço de sobra.
@@ -66,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
       audioService.ensureBackgroundMusic();
       _maybeSuggestLanguage();
       _maybePromptUpdate();
+      _maybeOfferStarter();
     });
   }
 
@@ -123,6 +130,67 @@ class _HomeScreenState extends State<HomeScreen> {
       show: () =>
           showUpdateAvailableDialog(context, AppLocalizations.of(context)!),
     ).run();
+  }
+
+  /// Convite do pacote de boas-vindas (regras em [StarterOffer]). Espera a
+  /// loja carregar os preços e nunca abre por cima de outro diálogo (idioma,
+  /// versão nova): se a home não estiver no topo, fica para a próxima.
+  Future<void> _maybeOfferStarter() async {
+    final StorageService storage = StorageService.instance;
+    final PurchaseService store = PurchaseService.instance;
+    await Future<void>.delayed(const Duration(seconds: 3));
+    for (int i = 0;
+        i < 10 && store.availability.value == StoreAvailability.loading;
+        i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+    final DateTime now = DateTime.now();
+    if (!mounted ||
+        !(ModalRoute.of(context)?.isCurrent ?? false) ||
+        !StarterOffer.shouldShow(
+          sessions: storage.sessions,
+          shows: storage.starterOfferShows,
+          lastShownDay: storage.starterOfferLastDay,
+          now: now,
+          adsRemoved: EconomyService.instance.adsRemoved,
+          productAvailable: store.productFor(starterPackProductId) != null,
+        )) {
+      return;
+    }
+    await storage.markStarterOfferShown(ProgressionEngine.dayKey(now));
+    if (!mounted) {
+      return;
+    }
+    final AppLocalizations l = AppLocalizations.of(context)!;
+    final bool? open = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        key: const ValueKey<String>('starter-offer-dialog'),
+        backgroundColor: const Color(0xFF241048),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: const Icon(Icons.card_giftcard_rounded,
+            color: VerseColors.coin, size: 40),
+        title: Text(l.starterTitle, textAlign: TextAlign.center),
+        content: Text(
+          l.starterBody(storeProductById(starterPackProductId)!.coins),
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l.notNow),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l.starterSee),
+          ),
+        ],
+      ),
+    );
+    if (open == true && mounted) {
+      _openShop(l, initialTab: ShopTab.coins);
+    }
   }
 
   @override
@@ -314,6 +382,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               },
                             ),
+                            const SizedBox(height: 12),
+                            ValueListenableBuilder<int>(
+                              valueListenable:
+                                  ProgressionService.instance.revision,
+                              builder:
+                                  (BuildContext context, int _, Widget? __) =>
+                                      _buildChallengeTile(localization),
+                            ),
                             const SizedBox(height: 14),
                             // O nível é a porta de entrada das conquistas: fica no
                             // corpo da home, e não num ícone da AppBar, para o
@@ -425,6 +501,44 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.of(context).pop();
         },
       ),
+    );
+  }
+
+  /// Desafio do dia: um card largo, abaixo dos atalhos, porque é o motivo de
+  /// voltar amanhã. Concluído, mostra a sequência e "volte amanhã".
+  Widget _buildChallengeTile(AppLocalizations localization) {
+    const DailyChallengeEngine rules = DailyChallengeEngine();
+    final DateTime now = DateTime.now();
+    final DailyChallenge challenge = rules.forDay(now);
+    final bool open =
+        rules.canComplete(StorageService.instance.progress, now);
+    final int streak =
+        rules.currentStreak(StorageService.instance.progress, now);
+    final int reward = DailyChallengeEngine.rewardForStreak(
+        rules.nextStreak(StorageService.instance.progress, now));
+    return _HomeTile(
+      key: const ValueKey<String>('home-challenge'),
+      icon: Icons.emoji_events_rounded,
+      title: localization.challengeTitle,
+      subtitle: open
+          ? '${localization.challengeGoal(challenge.moveLimit)} · +$reward'
+          : streak >= 2
+              ? '${localization.challengeDoneHome} · '
+                  '${localization.dailyStreakChip(streak)}'
+              : localization.challengeDoneHome,
+      highlight: open,
+      onTap: () {
+        audioService.playUiClick();
+        HapticsService.instance.play(HapticCue.tap);
+        Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (BuildContext context) => Ultimate2Screen(
+            playAgainstCpu: true,
+            cpuDifficulty: challenge.difficulty,
+            metricsService: widget.metricsService,
+            challenge: challenge,
+          ),
+        ));
+      },
     );
   }
 

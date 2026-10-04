@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart' show ProductDetails;
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/rewarded_ad_controller.dart';
@@ -17,6 +18,29 @@ import 'coin_badge.dart';
 import 'juice/press_scale.dart';
 import 'modern_background.dart';
 import 'piece_glyph.dart';
+
+/// Quanto o pacote de boas-vindas economiza contra comprar as partes
+/// separadas, pelos preços reais da Play na moeda do jogador. `null` quando
+/// falta algum preço ou não há desconto (a tela não inventa número).
+int? starterSavingPercent({
+  required ProductDetails? bundle,
+  required List<ProductDetails?> parts,
+}) {
+  if (bundle == null || parts.any((ProductDetails? p) => p == null)) {
+    return null;
+  }
+  if (parts
+      .any((ProductDetails? p) => p!.currencyCode != bundle.currencyCode)) {
+    return null;
+  }
+  final double separate =
+      parts.fold(0, (double sum, ProductDetails? p) => sum + p!.rawPrice);
+  if (separate <= 0 || bundle.rawPrice >= separate) {
+    return null;
+  }
+  final int percent = ((1 - bundle.rawPrice / separate) * 100).floor();
+  return percent >= 5 ? percent : null;
+}
 
 /// Abas da loja: visuais (gastar moedas) e moedas (compras na Play).
 enum ShopTab { skins, coins }
@@ -124,6 +148,7 @@ class _ShopSheetState extends State<ShopSheet> {
         // seria a mesma frase duas vezes.
         PurchaseOutcomeKind.adsRemoved => null,
         PurchaseOutcomeKind.pending => l.purchasePending,
+        PurchaseOutcomeKind.verifying => l.purchaseVerifying,
         PurchaseOutcomeKind.failed => l.purchaseFailed,
         PurchaseOutcomeKind.canceled => null,
       };
@@ -401,7 +426,7 @@ class _ShopSheetState extends State<ShopSheet> {
           builder: (BuildContext context, String? buying, _) {
             final List<Widget> packs = <Widget>[
               for (final StoreProduct product in storeCatalog)
-                if (product.kind == StoreProductKind.coins &&
+                if (product.isCoinPack &&
                     _purchases.productFor(product.id) != null)
                   _CoinPackTile(
                     product: product,
@@ -415,14 +440,38 @@ class _ShopSheetState extends State<ShopSheet> {
             ];
             final StoreProduct removeAds =
                 storeProductById(removeAdsProductId)!;
+            final StoreProduct starter =
+                storeProductById(starterPackProductId)!;
             final String? removeAdsPrice =
                 _purchases.productFor(removeAdsProductId)?.price;
+            final String? starterPrice =
+                _purchases.productFor(starterPackProductId)?.price;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 if (_message != null) ...<Widget>[
                   _buildMessage(context),
                   const SizedBox(height: 12),
+                ],
+                // Boas-vindas só para quem ainda vê anúncio: para quem já tirou,
+                // seria pagar de novo pelo mesmo direito.
+                if (!_economy.adsRemoved && starterPrice != null) ...<Widget>[
+                  _StarterPackCard(
+                    price: starterPrice,
+                    savingPercent: starterSavingPercent(
+                      bundle: _purchases.productFor(starterPackProductId),
+                      parts: <ProductDetails?>[
+                        _purchases.productFor(removeAdsProductId),
+                        _purchases.productFor('coins_1000'),
+                      ],
+                    ),
+                    coins: starter.coins,
+                    busy: buying == starterPackProductId,
+                    enabled: buying == null,
+                    localization: l,
+                    onBuy: () => _buyProduct(starter),
+                  ),
+                  const SizedBox(height: 10),
                 ],
                 if (_economy.adsRemoved || removeAdsPrice != null)
                   _RemoveAdsCard(
@@ -541,9 +590,8 @@ class _SkinCard extends StatelessWidget {
       // barra de progressão). Sem saldo, o toque leva aos pacotes de moedas.
       action = _pill(context, '${skin.price}',
           affordable ? VerseColors.coin : Colors.white70,
-          icon: affordable
-              ? Icons.monetization_on_rounded
-              : Icons.lock_rounded);
+          icon:
+              affordable ? Icons.monetization_on_rounded : Icons.lock_rounded);
     }
     return Semantics(
       button: true,
@@ -882,6 +930,87 @@ class _CoinPackTile extends StatelessWidget {
           const SizedBox(width: 10),
           _PriceButton(
             buttonKey: ValueKey<String>('store-buy-${product.id}'),
+            price: price,
+            busy: busy,
+            enabled: enabled,
+            onPressed: onBuy,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StarterPackCard extends StatelessWidget {
+  const _StarterPackCard({
+    required this.price,
+    required this.savingPercent,
+    required this.coins,
+    required this.busy,
+    required this.enabled,
+    required this.localization,
+    required this.onBuy,
+  });
+
+  final String price;
+  final int? savingPercent;
+  final int coins;
+  final bool busy;
+  final bool enabled;
+  final AppLocalizations localization;
+  final VoidCallback onBuy;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l = localization;
+    return Container(
+      key: const ValueKey<String>('store-starter-card'),
+      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: <Color>[
+          VerseColors.coin.withOpacity(0.22),
+          const Color(0xFFFF6BD9).withOpacity(0.18),
+        ]),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: VerseColors.coin, width: 1.6),
+      ),
+      child: Row(
+        children: <Widget>[
+          const Icon(Icons.card_giftcard_rounded,
+              color: VerseColors.coin, size: 32),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(l.starterTitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 2),
+                Text(l.starterBody(coins),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.white)),
+                if (savingPercent != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(l.starterSave(savingPercent!),
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                color: VerseColors.coin,
+                                fontWeight: FontWeight.w800)),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          _PriceButton(
+            buttonKey: const ValueKey<String>('store-buy-starter_pack'),
             price: price,
             busy: busy,
             enabled: enabled,

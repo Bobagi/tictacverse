@@ -1059,6 +1059,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You need {amount} more coins for this style.'**
   String needMoreCoins(int amount);
+
+  /// No description provided for @starterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome pack'**
+  String get starterTitle;
+
+  /// No description provided for @starterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads forever + {amount} coins, in one purchase.'**
+  String starterBody(int amount);
+
+  /// No description provided for @starterSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {percent}%'**
+  String starterSave(int percent);
+
+  /// No description provided for @starterSee.
+  ///
+  /// In en, this message translates to:
+  /// **'See offer'**
+  String get starterSee;
+
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNow;
+
+  /// No description provided for @purchaseVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received. Confirming your purchase, it arrives in a moment.'**
+  String get purchaseVerifying;
+
+  /// No description provided for @challengeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily challenge'**
+  String get challengeTitle;
+
+  /// No description provided for @challengeGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Beat the CPU in Super Tic Tac Toe in {limit} moves or fewer'**
+  String challengeGoal(int limit);
+
+  /// No description provided for @challengeMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'{used}/{limit}'**
+  String challengeMoves(int used, int limit);
+
+  /// No description provided for @challengeOverLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Over {limit} moves: no prize this time'**
+  String challengeOverLimit(int limit);
+
+  /// No description provided for @challengeWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily challenge done! +{coins} coins'**
+  String challengeWon(int coins);
+
+  /// No description provided for @challengeLate.
+  ///
+  /// In en, this message translates to:
+  /// **'You won, but took more than {limit} moves. Try again!'**
+  String challengeLate(int limit);
+
+  /// No description provided for @challengeAlreadyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s challenge is already done. Come back tomorrow!'**
+  String get challengeAlreadyDone;
+
+  /// No description provided for @challengeDoneHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Done! Come back tomorrow'**
+  String get challengeDoneHome;
+
+  /// No description provided for @shareVictory.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareVictory;
+
+  /// No description provided for @shareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'I just won at Tic Tac Verse! Think you can beat me?'**
+  String get shareMessage;
+
+  /// No description provided for @tutorialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How Super Tic Tac Toe works'**
+  String get tutorialTitle;
+
+  /// No description provided for @tutorialIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'There are 9 small boards inside a big one. Win a small board to claim it, and claim 3 in a row to win the game.'**
+  String get tutorialIntro;
+
+  /// No description provided for @tutorialTapFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Your turn. Tap the glowing square: the top-right corner of the middle board.'**
+  String get tutorialTapFirst;
+
+  /// No description provided for @tutorialSent.
+  ///
+  /// In en, this message translates to:
+  /// **'You played in the top-right corner, so your opponent must now play in the top-right BOARD. The square you pick decides where the other player goes.'**
+  String get tutorialSent;
+
+  /// No description provided for @tutorialTapSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'Your opponent played in the centre square, so now YOU go to the middle board. Tap the glowing square.'**
+  String get tutorialTapSecond;
+
+  /// No description provided for @tutorialFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s it! If you are sent to a board that is already won or full, you may play on any board. Think ahead: every move sends your opponent somewhere.'**
+  String get tutorialFinal;
+
+  /// No description provided for @tutorialSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tutorialSkip;
+
+  /// No description provided for @tutorialNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tutorialNext;
+
+  /// No description provided for @tutorialPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s play!'**
+  String get tutorialPlay;
+
+  /// No description provided for @tutorialReplay.
+  ///
+  /// In en, this message translates to:
+  /// **'See the tutorial'**
+  String get tutorialReplay;
 }
 
 class _AppLocalizationsDelegate

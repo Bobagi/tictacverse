@@ -539,4 +539,104 @@ class AppLocalizationsPt extends AppLocalizations {
   String needMoreCoins(int amount) {
     return 'Faltam $amount moedas para este visual.';
   }
+
+  @override
+  String get starterTitle => 'Pacote de boas-vindas';
+
+  @override
+  String starterBody(int amount) {
+    return 'Sem anúncios para sempre + $amount moedas, numa compra só.';
+  }
+
+  @override
+  String starterSave(int percent) {
+    return 'Economize $percent%';
+  }
+
+  @override
+  String get starterSee => 'Ver oferta';
+
+  @override
+  String get notNow => 'Agora não';
+
+  @override
+  String get purchaseVerifying =>
+      'Pagamento recebido. Confirmando a compra, ela chega em instantes.';
+
+  @override
+  String get challengeTitle => 'Desafio do dia';
+
+  @override
+  String challengeGoal(int limit) {
+    return 'Vença a máquina no Super Jogo da Velha em até $limit jogadas';
+  }
+
+  @override
+  String challengeMoves(int used, int limit) {
+    return '$used/$limit';
+  }
+
+  @override
+  String challengeOverLimit(int limit) {
+    return 'Passou de $limit jogadas: sem prêmio desta vez';
+  }
+
+  @override
+  String challengeWon(int coins) {
+    return 'Desafio do dia concluído! +$coins moedas';
+  }
+
+  @override
+  String challengeLate(int limit) {
+    return 'Venceu, mas passou de $limit jogadas. Tente de novo!';
+  }
+
+  @override
+  String get challengeAlreadyDone =>
+      'O desafio de hoje já foi concluído. Volte amanhã!';
+
+  @override
+  String get challengeDoneHome => 'Concluído! Volte amanhã';
+
+  @override
+  String get shareVictory => 'Compartilhar';
+
+  @override
+  String get shareMessage =>
+      'Acabei de ganhar no Tic Tac Verse! Duvido você ganhar de mim!';
+
+  @override
+  String get tutorialTitle => 'Como funciona o Super Jogo da Velha';
+
+  @override
+  String get tutorialIntro =>
+      'São 9 tabuleiros pequenos dentro de um grande. Ganhe um pequeno para ficar com ele, e fique com 3 em linha para vencer.';
+
+  @override
+  String get tutorialTapFirst =>
+      'Sua vez. Toque na casa que pisca: o canto de cima à direita do tabuleiro do meio.';
+
+  @override
+  String get tutorialSent =>
+      'Você jogou no canto de cima à direita, então o adversário agora é obrigado a jogar no TABULEIRO de cima à direita. A casa que você escolhe decide onde o outro joga.';
+
+  @override
+  String get tutorialTapSecond =>
+      'O adversário jogou na casa do meio, então agora VOCÊ vai para o tabuleiro do meio. Toque na casa que pisca.';
+
+  @override
+  String get tutorialFinal =>
+      'É isso! Se você for mandado para um tabuleiro já ganho ou cheio, pode jogar em qualquer um. Pense adiante: toda jogada manda o adversário para algum lugar.';
+
+  @override
+  String get tutorialSkip => 'Pular';
+
+  @override
+  String get tutorialNext => 'Próximo';
+
+  @override
+  String get tutorialPlay => 'Bora jogar!';
+
+  @override
+  String get tutorialReplay => 'Ver o tutorial';
 }
