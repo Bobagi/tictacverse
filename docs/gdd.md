@@ -229,7 +229,7 @@ por dia; em tier 3, perto do piso. O gargalo é volume e retenção, não format
   base.
 - **Ícone (desde v1.12.0):** X ciano e O rosa em neon sobre grade 3x3, fundo roxo, sem
   moldura nem texto, legível em 48px. É o sinal que quem busca "tic tac toe" reconhece.
-  Gerado por `tool/icon/make_app_icon.py` em camadas (fundo e peças) para o ícone adaptativo.
+  Desde a v1.14.0: peças com volume (degradê, brilho especular, sombra) sobre grade de vidro e faíscas, em `tool/icon/icon.svg`, renderizado em camadas (fundo e peças a 72%) por `tool/icon/render_icon.mjs`.
 - **Configurações:** abrem sempre por `showSettingsSheet()`; "Buscar atualizações" é o
   primeiro item e tem de estar visível sem rolar em toda tela e idioma.
 

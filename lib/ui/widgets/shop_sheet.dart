@@ -17,7 +17,10 @@ import '../../services/progression_service.dart';
 import '../../services/purchase_service.dart';
 import 'coin_badge.dart';
 import 'game_board.dart' show NeonGridPainter;
+import 'juice/motion.dart';
+import 'juice/particles.dart';
 import 'juice/press_scale.dart';
+import 'juice/pulse.dart';
 import 'modern_background.dart';
 import 'piece_glyph.dart';
 
@@ -114,6 +117,9 @@ class _ShopSheetState extends State<ShopSheet> {
   bool _watching = false;
   String? _message;
 
+  /// Confete e moedas por cima da loja (compra concluída, visual novo).
+  final ParticleController _fx = ParticleController();
+
   /// O convite de anúncio só aparece com anúncio JÁ carregado (prometer e não
   /// ter o que mostrar é pior do que não oferecer). O gateway não avisa quando
   /// carrega, então a sheet confere enquanto está aberta.
@@ -142,6 +148,7 @@ class _ShopSheetState extends State<ShopSheet> {
     _purchases.lastOutcome.removeListener(_onPurchaseOutcome);
     _readyPoll?.cancel();
     _armTimer?.cancel();
+    _fx.dispose();
     super.dispose();
   }
 
@@ -167,6 +174,29 @@ class _ShopSheetState extends State<ShopSheet> {
         outcome.kind == PurchaseOutcomeKind.adsRemoved) {
       AudioService.instance.play(Sfx.levelUp);
       HapticsService.instance.play(HapticCue.capture);
+      _celebrate(big: true);
+    }
+  }
+
+  /// Compra com dinheiro: chuva de confete dourado. Visual comprado com
+  /// moedas: explosão de moedas no meio da loja.
+  void _celebrate({required bool big}) {
+    if (big) {
+      _fx.confetti(colors: const <Color>[
+        VerseColors.coin,
+        Color(0xFFFF6BD9),
+        Color(0xFF6BE0FF),
+        Colors.white,
+      ], count: 70);
+    } else {
+      _fx.burst(
+        center: _fx.viewport.center(Offset.zero),
+        color: VerseColors.coin,
+        accent: Colors.white,
+        count: 30,
+        speed: 1.6,
+        size: 6,
+      );
     }
   }
 
@@ -239,6 +269,7 @@ class _ShopSheetState extends State<ShopSheet> {
       if (result == SkinPurchaseResult.purchased) {
         AudioService.instance.play(Sfx.achievement);
         HapticsService.instance.play(HapticCue.capture);
+        _celebrate(big: false);
         _message = l.shopPurchased;
       } else if (result == SkinPurchaseResult.notEnoughCoins &&
           _purchases.availability.value == StoreAvailability.ready) {
@@ -290,74 +321,81 @@ class _ShopSheetState extends State<ShopSheet> {
   Widget build(BuildContext context) {
     final AppLocalizations l = widget.localization;
     final double bottomInset = MediaQuery.of(context).viewPadding.bottom;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
-      child: GlassPanel(
-        padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.86,
-          ),
-          child: ValueListenableBuilder<int>(
-            valueListenable: ProgressionService.instance.revision,
-            builder: (BuildContext context, int _, Widget? __) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Row(
+    return Stack(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+          child: GlassPanel(
+            padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.86,
+              ),
+              child: ValueListenableBuilder<int>(
+                valueListenable: ProgressionService.instance.revision,
+                builder: (BuildContext context, int _, Widget? __) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Icon(
-                          switch (_tab) {
-                            ShopTab.skins => Icons.palette_rounded,
-                            ShopTab.boards => Icons.grid_on_rounded,
-                            ShopTab.coins => Icons.storefront_rounded,
-                          },
-                          color: VerseColors.coin),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                            switch (_tab) {
-                              ShopTab.skins => l.shopTitle,
-                              ShopTab.boards => l.shopTabBoards,
-                              ShopTab.coins => l.shopTabCoins,
-                            },
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleLarge),
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                              switch (_tab) {
+                                ShopTab.skins => Icons.palette_rounded,
+                                ShopTab.boards => Icons.grid_on_rounded,
+                                ShopTab.coins => Icons.storefront_rounded,
+                              },
+                              color: VerseColors.coin),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                                switch (_tab) {
+                                  ShopTab.skins => l.shopTitle,
+                                  ShopTab.boards => l.shopTabBoards,
+                                  ShopTab.coins => l.shopTabCoins,
+                                },
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.titleLarge),
+                          ),
+                          CoinBadge(coins: _economy.coins),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            tooltip: l.closeLabel,
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ],
                       ),
-                      CoinBadge(coins: _economy.coins),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        tooltip: l.closeLabel,
-                        onPressed: () => Navigator.of(context).pop(),
+                      const SizedBox(height: 6),
+                      _ShopTabs(
+                        selected: _tab,
+                        skinsLabel: l.shopTabSkins,
+                        boardsLabel: l.shopTabBoards,
+                        coinsLabel: l.shopTabCoins,
+                        onSelect: _selectTab,
+                      ),
+                      const SizedBox(height: 12),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: switch (_tab) {
+                            ShopTab.skins => _buildSkinsTab(context, l),
+                            ShopTab.boards => _buildBoardsTab(context, l),
+                            ShopTab.coins => _buildCoinsTab(context, l),
+                          },
+                        ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 6),
-                  _ShopTabs(
-                    selected: _tab,
-                    skinsLabel: l.shopTabSkins,
-                    boardsLabel: l.shopTabBoards,
-                    coinsLabel: l.shopTabCoins,
-                    onSelect: _selectTab,
-                  ),
-                  const SizedBox(height: 12),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: switch (_tab) {
-                        ShopTab.skins => _buildSkinsTab(context, l),
-                        ShopTab.boards => _buildBoardsTab(context, l),
-                        ShopTab.coins => _buildCoinsTab(context, l),
-                      },
-                    ),
-                  ),
-                ],
-              );
-            },
+                  );
+                },
+              ),
+            ),
           ),
         ),
-      ),
+        Positioned.fill(
+          child: IgnorePointer(child: ParticleField(controller: _fx)),
+        ),
+      ],
     );
   }
 
@@ -1063,60 +1101,67 @@ class _StarterPackCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l = localization;
-    return Container(
-      key: const ValueKey<String>('store-starter-card'),
-      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: <Color>[
-          VerseColors.coin.withOpacity(0.22),
-          const Color(0xFFFF6BD9).withOpacity(0.18),
-        ]),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: VerseColors.coin, width: 1.6),
-      ),
-      child: Row(
-        children: <Widget>[
-          const Icon(Icons.card_giftcard_rounded,
-              color: VerseColors.coin, size: 32),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(l.starterTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 2),
-                Text(l.starterBody(coins),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.white)),
-                if (savingPercent != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(l.starterSave(savingPercent!),
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                color: VerseColors.coin,
-                                fontWeight: FontWeight.w800)),
-                  ),
-              ],
+    return Shine(
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        key: const ValueKey<String>('store-starter-card'),
+        padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: <Color>[
+            VerseColors.coin.withOpacity(0.22),
+            const Color(0xFFFF6BD9).withOpacity(0.18),
+          ]),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: VerseColors.coin, width: 1.6),
+        ),
+        child: Row(
+          children: <Widget>[
+            const Wobble(
+              child: Icon(Icons.card_giftcard_rounded,
+                  color: VerseColors.coin, size: 32),
             ),
-          ),
-          const SizedBox(width: 10),
-          _PriceButton(
-            buttonKey: const ValueKey<String>('store-buy-starter_pack'),
-            price: price,
-            busy: busy,
-            enabled: enabled,
-            onPressed: onBuy,
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(l.starterTitle,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 2),
+                  Text(l.starterBody(coins),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Colors.white)),
+                  if (savingPercent != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Pulse(
+                          maxScale: 1.08,
+                          child: Text(l.starterSave(savingPercent!),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(
+                                      color: VerseColors.coin,
+                                      fontWeight: FontWeight.w800))),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            _PriceButton(
+              buttonKey: const ValueKey<String>('store-buy-starter_pack'),
+              price: price,
+              busy: busy,
+              enabled: enabled,
+              onPressed: onBuy,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -49,7 +49,7 @@ flutter_launcher_icons:
   android: true
   ios: false
   image_path_android: "assets/icon/app_icon.png"
-  # Camadas geradas por tool/icon/make_app_icon.py (fundo com grade + peças).
+  # Camadas geradas por tool/icon/render_icon.mjs a partir de tool/icon/icon.svg.
   adaptive_icon_background: "assets/icon/icon_bg.png"
   adaptive_icon_foreground: "assets/icon/icon_fg.png"
 

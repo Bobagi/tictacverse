@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart' show ProductDetails;
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
@@ -21,12 +22,14 @@ import '../../services/update_service.dart';
 import '../widgets/achievements_sheet.dart';
 import '../widgets/coin_badge.dart';
 import '../widgets/daily_bonus_sheet.dart';
+import '../widgets/juice/motion.dart';
 import '../widgets/juice/press_scale.dart';
 import '../widgets/juice/pulse.dart';
 import '../widgets/language_selector_sheet.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/settings_sheet.dart';
 import '../widgets/shop_sheet.dart';
+import '../widgets/starter_offer_dialog.dart';
 import '../widgets/stats_sheet.dart';
 import '../widgets/update_available_dialog.dart';
 import 'mode_select_screen.dart';
@@ -162,29 +165,16 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
     final AppLocalizations l = AppLocalizations.of(context)!;
-    final bool? open = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) => AlertDialog(
-        key: const ValueKey<String>('starter-offer-dialog'),
-        backgroundColor: const Color(0xFF241048),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        icon: const Icon(Icons.card_giftcard_rounded,
-            color: VerseColors.coin, size: 40),
-        title: Text(l.starterTitle, textAlign: TextAlign.center),
-        content: Text(
-          l.starterBody(storeProductById(starterPackProductId)!.coins),
-          textAlign: TextAlign.center,
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l.notNow),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l.starterSee),
-          ),
+    final bool? open = await showStarterOfferDialog(
+      context,
+      localization: l,
+      coins: storeProductById(starterPackProductId)!.coins,
+      price: store.productFor(starterPackProductId)?.price,
+      savingPercent: starterSavingPercent(
+        bundle: store.productFor(starterPackProductId),
+        parts: <ProductDetails?>[
+          store.productFor(removeAdsProductId),
+          store.productFor('coins_1000'),
         ],
       ),
     );
@@ -670,8 +660,13 @@ class _HomeTile extends StatelessWidget {
             isLabelVisible: highlight,
             smallSize: 9,
             backgroundColor: Colors.redAccent,
-            child: Icon(icon,
-                color: highlight ? VerseColors.coin : Colors.white, size: 26),
+            // Card "pronto para resgatar" balança o ícone: o olho vai nele.
+            child: Wobble(
+              active: highlight,
+              angle: 0.16,
+              child: Icon(icon,
+                  color: highlight ? VerseColors.coin : Colors.white, size: 26),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(

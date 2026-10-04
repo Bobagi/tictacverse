@@ -5,6 +5,7 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../services/audio_service.dart';
 import '../../services/haptics_service.dart';
+import 'juice/particles.dart';
 import 'modern_background.dart';
 
 /// Abre o tutorial jogável do Super Jogo da Velha. Devolve quando o jogador
@@ -70,17 +71,23 @@ class _UltimateTutorialState extends State<UltimateTutorial>
   Timer? _reply;
   bool _waitingReply = false;
 
+  /// Explosão na casa certa: o acerto do jogador tem de ser comemorado.
+  final ParticleController _fx = ParticleController();
+  double _boardSize = 0;
+
   TutorialStep get _current => ultimateTutorialSteps[_step];
 
   @override
   void dispose() {
     _pulse.dispose();
     _reply?.cancel();
+    _fx.dispose();
     super.dispose();
   }
 
   void _advance() {
     if (_step >= ultimateTutorialSteps.length - 1) {
+      AudioService.instance.play(Sfx.achievement);
       Navigator.of(context).pop();
       return;
     }
@@ -93,8 +100,22 @@ class _UltimateTutorialState extends State<UltimateTutorial>
       return;
     }
     AudioService.instance.playMoveSfx();
-    HapticsService.instance.play(HapticCue.place);
+    AudioService.instance.play(Sfx.capture);
+    HapticsService.instance.play(HapticCue.capture);
     setState(() => _pieces[(board, cell)] = 'X');
+    if (_boardSize > 0) {
+      final double c = _boardSize / 9;
+      final int row = (board ~/ 3) * 3 + cell ~/ 3;
+      final int col = (board % 3) * 3 + cell % 3;
+      _fx.burst(
+        center: Offset((col + 0.5) * c, (row + 0.5) * c),
+        color: VerseColors.cross,
+        accent: VerseColors.coin,
+        count: 22,
+        speed: 0.9,
+        size: 4,
+      );
+    }
     if (_step == 1) {
       // A resposta do adversário acontece na frente do jogador: ele foi
       // mandado para o tabuleiro 2 e joga no centro dele, o que manda o
@@ -161,6 +182,7 @@ class _UltimateTutorialState extends State<UltimateTutorial>
                 LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints c) {
                     final double size = c.maxWidth.clamp(0, 340).toDouble();
+                    _boardSize = size;
                     return Center(
                       child: SizedBox(
                         width: size,
@@ -177,16 +199,29 @@ class _UltimateTutorialState extends State<UltimateTutorial>
                             final int inner = (row % 3) * 3 + col % 3;
                             _onCellTap(board, inner);
                           },
-                          child: AnimatedBuilder(
-                            animation: _pulse,
-                            builder: (BuildContext context, _) => CustomPaint(
-                              painter: _TutorialBoardPainter(
-                                pieces: _pieces,
-                                activeBoard: _current.activeBoard,
-                                target: _waitingReply ? null : _current.target,
-                                pulse: _pulse.value,
+                          child: Stack(
+                            children: <Widget>[
+                              Positioned.fill(
+                                child: AnimatedBuilder(
+                                  animation: _pulse,
+                                  builder: (BuildContext context, _) =>
+                                      CustomPaint(
+                                    painter: _TutorialBoardPainter(
+                                      pieces: _pieces,
+                                      activeBoard: _current.activeBoard,
+                                      target: _waitingReply
+                                          ? null
+                                          : _current.target,
+                                      pulse: _pulse.value,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                    child: ParticleField(controller: _fx)),
+                              ),
+                            ],
                           ),
                         ),
                       ),

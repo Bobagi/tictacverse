@@ -136,9 +136,10 @@ tinha onde ser gasto e o premiado "dobrar XP" teve 0 impressões em 30 dias.
   trava de toque duplo antes do `await`. `test/economy_engine_test.dart` e
   `test/shop_and_daily_sheet_test.dart` travam isso (mutantes conferidos).
 - Nada disso sai do aparelho: **Data safety não muda**.
-- **Ícone:** gerado por `tool/icon/make_app_icon.py` (X e O neon sobre grade,
+- **Ícone:** desenhado em `tool/icon/icon.svg` e renderizado por `tool/icon/render_icon.mjs` (Chrome headless) (X e O neon sobre grade,
   sem moldura nem texto; camadas `icon_bg`/`icon_fg` para o adaptativo). Mexeu
-  no desenho, rode o script e depois `dart run flutter_launcher_icons`.
+  no SVG: `PATH=/opt/node-v22/bin:$PATH node tool/icon/render_icon.mjs`, depois
+  `dart run flutter_launcher_icons` e `dart run flutter_native_splash:create`.
 - **Home:** o MREC (300x250) só entra com tela >= 380x760; abaixo vai o banner
   comum, senão bônus e loja ficam abaixo da dobra.
 

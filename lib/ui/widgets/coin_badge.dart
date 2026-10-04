@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'juice/count_up_text.dart';
+import 'juice/motion.dart';
 import 'modern_background.dart';
 
 /// Saldo de moedas em pílula. Com [onTap], vira botão (atalho para a loja).
@@ -23,13 +25,22 @@ class CoinBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const Icon(Icons.monetization_on_rounded,
-              color: VerseColors.coin, size: 22),
+          // Saldo mudou (compra, prêmio, bônus): a moeda dá um pulinho e o
+          // número conta até o valor novo.
+          BumpOnChange(
+            value: coins,
+            scale: 1.35,
+            child: const Icon(Icons.monetization_on_rounded,
+                color: VerseColors.coin, size: 22),
+          ),
           const SizedBox(width: 4),
-          Text(
-            '$coins',
+          CountUpText(
+            value: coins,
+            format: (int v) => '$v',
+            duration: const Duration(milliseconds: 650),
+            animateFirst: false,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
+                  color: coins < 0 ? VerseColors.danger : Colors.white,
                   fontWeight: FontWeight.w800,
                 ),
           ),

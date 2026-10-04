@@ -11,6 +11,7 @@ class CountUpText extends StatefulWidget {
     this.duration = const Duration(milliseconds: 900),
     this.onTick,
     this.textAlign,
+    this.animateFirst = true,
   });
 
   final int value;
@@ -20,13 +21,16 @@ class CountUpText extends StatefulWidget {
   final VoidCallback? onTick;
   final TextAlign? textAlign;
 
+  /// `false` = aparece já no valor e só anima as MUDANÇAS (saldo no topo).
+  final bool animateFirst;
+
   @override
   State<CountUpText> createState() => _CountUpTextState();
 }
 
 class _CountUpTextState extends State<CountUpText> {
-  int _from = 0;
-  int _lastShown = 0;
+  late int _from = widget.animateFirst ? 0 : widget.value;
+  late int _lastShown = _from;
 
   @override
   void didUpdateWidget(CountUpText oldWidget) {

@@ -310,6 +310,22 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       ProgressionService.instance.revision.value += 1;
       _challengeBanner = l.challengeWon(reward);
       _challengeBannerSuccess = true;
+      // Conquista do dia: som de conquista e faíscas, um pouco depois do
+      // confete da vitória para os dois não brigarem.
+      Timer(const Duration(milliseconds: 1400), () {
+        if (mounted) {
+          audioService.play(Sfx.achievement);
+          haptics.play(HapticCue.capture);
+          _screenParticles.burst(
+            center: _screenParticles.viewport.center(Offset.zero),
+            color: VerseColors.coin,
+            accent: Colors.white,
+            count: 40,
+            speed: 2,
+            size: 6,
+          );
+        }
+      });
     } else if (alreadyDone && won) {
       _challengeBanner = l.challengeAlreadyDone;
       _challengeBannerSuccess = true;

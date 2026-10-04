@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0" stop-color="#6A2BC0"/>
+      <stop offset="0.45" stop-color="#3A1170"/>
+      <stop offset="1" stop-color="#140726"/>
+    </radialGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="xg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B8F6FF"/>
+      <stop offset="0.45" stop-color="#4FD8FF"/>
+      <stop offset="1" stop-color="#2A6BFF"/>
+    </linearGradient>
+    <linearGradient id="og" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFC2F2"/>
+      <stop offset="0.45" stop-color="#FF5FD2"/>
+      <stop offset="1" stop-color="#C21C86"/>
+    </linearGradient>
+    <filter id="glowX" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="22" result="b"/>
+      <feFlood flood-color="#3CCBFF" flood-opacity="0.9"/>
+      <feComposite in2="b" operator="in" result="g"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowO" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="22" result="b"/>
+      <feFlood flood-color="#FF4FD8" flood-opacity="0.9"/>
+      <feComposite in2="b" operator="in" result="g"/>
+      <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g id="background">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <!-- feixes de luz diagonais -->
+    <g opacity="0.05" fill="#FFFFFF">
+      <polygon points="430,0 560,0 120,1024 -10,1024"/>
+      <polygon points="700,0 760,0 400,1024 340,1024"/>
+    </g>
+    <!-- grade de vidro 3x3 -->
+    <g transform="translate(152,152)">
+      <g fill="url(#tile)" stroke="#C9A6FF" stroke-opacity="0.35" stroke-width="4">
+        <rect x="0" y="0" width="226" height="226" rx="40"/>
+        <rect x="247" y="0" width="226" height="226" rx="40"/>
+        <rect x="494" y="0" width="226" height="226" rx="40"/>
+        <rect x="0" y="247" width="226" height="226" rx="40"/>
+        <rect x="247" y="247" width="226" height="226" rx="40"/>
+        <rect x="494" y="247" width="226" height="226" rx="40"/>
+        <rect x="0" y="494" width="226" height="226" rx="40"/>
+        <rect x="247" y="494" width="226" height="226" rx="40"/>
+        <rect x="494" y="494" width="226" height="226" rx="40"/>
+      </g>
+    </g>
+    <!-- faíscas -->
+    <g fill="#FFE27A">
+      <path d="M842 150 l14 44 44 14 -44 14 -14 44 -14 -44 -44 -14 44 -14z"/>
+      <path d="M156 820 l10 30 30 10 -30 10 -10 30 -10 -30 -30 -10 30 -10z" opacity="0.85"/>
+      <path d="M880 760 l7 22 22 7 -22 7 -7 22 -7 -22 -22 -7 22 -7z" opacity="0.7"/>
+      <circle cx="190" cy="210" r="7" opacity="0.8"/>
+      <circle cx="800" cy="560" r="5" opacity="0.6"/>
+    </g>
+  </g>
+
+  <g id="pieces">
+    <!-- X: traços grossos com volume -->
+    <g transform="translate(330,540) rotate(-8)" filter="url(#shadow)">
+      <g filter="url(#glowX)">
+        <g stroke="url(#xg)" stroke-width="92" stroke-linecap="round">
+          <line x1="-150" y1="-150" x2="150" y2="150"/>
+          <line x1="150" y1="-150" x2="-150" y2="150"/>
+        </g>
+      </g>
+      <!-- brilho especular -->
+      <g stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="20" stroke-linecap="round" filter="url(#soft)">
+        <line x1="-138" y1="-150" x2="-30" y2="-42"/>
+        <line x1="110" y1="-146" x2="40" y2="-76"/>
+      </g>
+    </g>
+    <!-- O: anel grosso com volume -->
+    <g transform="translate(700,470) rotate(8)" filter="url(#shadow)">
+      <g filter="url(#glowO)">
+        <circle r="150" fill="none" stroke="url(#og)" stroke-width="92"/>
+      </g>
+      <path d="M -150 -40 A 160 160 0 0 1 -40 -150" fill="none" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="22" stroke-linecap="round" filter="url(#soft)"/>
+      <path d="M 120 90 A 150 150 0 0 1 60 140" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round" filter="url(#soft)"/>
+    </g>
+  </g>
+</svg>

@@ -308,37 +308,42 @@ class _GameOverModalState extends State<GameOverModal> {
   }
 
   Widget _buildBanner(BuildContext context) {
-    final Color tint =
-        widget.bannerSuccess ? VerseColors.coin : Colors.white70;
+    final Color tint = widget.bannerSuccess ? VerseColors.coin : Colors.white70;
     return PopIn(
       delay: const Duration(milliseconds: 200),
       beginScale: 0.6,
-      child: Container(
-        key: const ValueKey<String>('game-over-banner'),
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: tint.withOpacity(0.14),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: tint.withOpacity(0.7)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(
-                widget.bannerSuccess
-                    ? Icons.emoji_events_rounded
-                    : Icons.timer_off_rounded,
-                color: tint,
-                size: 20),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(widget.banner!,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: tint, fontWeight: FontWeight.w800)),
-            ),
-          ],
+      child: Pulse(
+        active: widget.bannerSuccess,
+        maxScale: 1.05,
+        child: Container(
+          key: const ValueKey<String>('game-over-banner'),
+          margin: const EdgeInsets.only(bottom: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: tint.withOpacity(0.14),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: tint.withOpacity(0.7)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                  widget.bannerSuccess
+                      ? Icons.emoji_events_rounded
+                      : Icons.timer_off_rounded,
+                  color: tint,
+                  size: 20),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(widget.banner!,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: tint, fontWeight: FontWeight.w800)),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -573,7 +578,8 @@ class _GameOverModalState extends State<GameOverModal> {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: VerseColors.mutedText.withOpacity(0.7), width: 2),
+            border: Border.all(
+                color: VerseColors.mutedText.withOpacity(0.7), width: 2),
             color: Colors.white.withOpacity(0.06),
           ),
           child: const Icon(Icons.handshake_rounded,
