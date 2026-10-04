@@ -124,3 +124,7 @@ dist/
 
 # Relatórios locais das skills (screenshots, varreduras)
 .claude/
+
+# Prints e vídeos da ficha: pesados, regeneráveis por tool/store_shots (README).
+docs/store-listing/shots-*/
+docs/store-listing/video-*/

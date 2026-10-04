@@ -5,11 +5,13 @@
 //            record:false, steps:[ {tap:[x,y], wait:ms} | {wait:ms} | {shot:"nome"} |
 //            {swipe:[x1,y1,x2,y2], wait:ms} | {mark:"texto"} ] }
 // BASE (env) = URL da build servida (padrao http://127.0.0.1:8931/).
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+const here = path.dirname(fileURLToPath(import.meta.url));
 const skillDir = path.join(os.homedir(), '.claude/skills/frontend-review');
 const m = await import(path.join(skillDir, 'node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js'));
 const puppeteer = m.default || m;
@@ -18,7 +20,8 @@ const [,, scenFile, outDir] = process.argv;
 const sc = JSON.parse(readFileSync(scenFile, 'utf8'));
 mkdirSync(outDir, { recursive: true });
 const base = process.env.BASE || 'http://127.0.0.1:8931/';
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const SLOW = Number(process.env.SLOW || 1); // multiplica as esperas em maquina carregada
+const sleep = (ms) => new Promise(r => setTimeout(r, ms * SLOW));
 const [w, h] = (sc.viewport || '390x844').split('x').map(Number);
 
 const b = await puppeteer.launch({ executablePath: chrome, headless: true,
@@ -59,6 +62,19 @@ for (const s of sc.steps || []) {
     for (let i = 1; i <= steps; i++) { await p.touchscreen.touchMove(x1 + (x2 - x1) * i / steps, y1 + (y2 - y1) * i / steps); await sleep(16); }
     await p.touchscreen.touchEnd();
     await sleep(s.wait ?? 1200);
+  }
+  else if (s.auto === 'ult') {
+    // Partida contra a CPU: le a tela e toca uma celula livre do tabuleiro aceso.
+    for (let i = 0; i < s.n; i++) {
+      const tmp = path.join(outDir, '_auto.png');
+      await p.screenshot({ path: tmp });
+      const out = execFileSync('python3', [path.join(here, 'ult_pick.py'), tmp, String(s.top)], { encoding: 'utf8' });
+      const pick = JSON.parse(out).tap;
+      if (!pick) break;
+      marks.push(`${Date.now() - t0}\tauto ${pick}`);
+      await p.touchscreen.tap(pick[0], pick[1]);
+      await sleep(s.wait ?? 2500);
+    }
   }
   else if (s.wait) await sleep(s.wait);
   else if (s.mark) marks.push(`${Date.now() - t0}\t${s.mark}`);
