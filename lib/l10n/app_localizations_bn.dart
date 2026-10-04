@@ -651,4 +651,25 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get tutorialReplay => 'টিউটোরিয়াল দেখুন';
+
+  @override
+  String get shopTabBoards => 'বোর্ড';
+
+  @override
+  String get boardsSubtitle => 'সব মোডে বোর্ডের রং বদলান।';
+
+  @override
+  String get themeNeonGrid => 'নিয়ন';
+
+  @override
+  String get themeSunset => 'সূর্যাস্ত';
+
+  @override
+  String get themeOcean => 'সমুদ্র';
+
+  @override
+  String get themeEmerald => 'পান্না';
+
+  @override
+  String get themeRoyal => 'রাজকীয়';
 }

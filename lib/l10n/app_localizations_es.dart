@@ -658,4 +658,26 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tutorialReplay => 'Ver el tutorial';
+
+  @override
+  String get shopTabBoards => 'Tableros';
+
+  @override
+  String get boardsSubtitle =>
+      'Cambia los colores del tablero en todos los modos.';
+
+  @override
+  String get themeNeonGrid => 'Neón';
+
+  @override
+  String get themeSunset => 'Atardecer';
+
+  @override
+  String get themeOcean => 'Océano';
+
+  @override
+  String get themeEmerald => 'Esmeralda';
+
+  @override
+  String get themeRoyal => 'Realeza';
 }

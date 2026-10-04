@@ -1,3 +1,4 @@
+import '../models/board_theme.dart';
 import '../models/piece_skin.dart';
 import '../models/progress_state.dart';
 import 'progression_engine.dart';
@@ -140,6 +141,41 @@ class EconomyEngine {
     return SkinPurchaseResult.purchased;
   }
 
+  /// Compra um tema de tabuleiro (mesmas regras do visual de peça).
+  SkinPurchaseResult buyTheme(ProgressState state, String themeId) {
+    final BoardTheme? theme = _findTheme(themeId);
+    if (theme == null) {
+      return SkinPurchaseResult.unknownSkin;
+    }
+    if (state.ownedThemes.contains(theme.id)) {
+      return SkinPurchaseResult.alreadyOwned;
+    }
+    if (state.coins < theme.price) {
+      return SkinPurchaseResult.notEnoughCoins;
+    }
+    state.coins -= theme.price;
+    state.ownedThemes.add(theme.id);
+    state.equippedTheme = theme.id;
+    return SkinPurchaseResult.purchased;
+  }
+
+  bool equipTheme(ProgressState state, String themeId) {
+    if (!state.ownedThemes.contains(themeId) || _findTheme(themeId) == null) {
+      return false;
+    }
+    state.equippedTheme = themeId;
+    return true;
+  }
+
+  static BoardTheme? _findTheme(String id) {
+    for (final BoardTheme theme in boardThemeCatalog) {
+      if (theme.id == id) {
+        return theme;
+      }
+    }
+    return null;
+  }
+
   /// Equipa um visual que o jogador já tem. Devolve `false` se não tiver.
   bool equipSkin(ProgressState state, String skinId) {
     if (!state.ownedSkins.contains(skinId) || _find(skinId) == null) {
@@ -213,20 +249,33 @@ class EconomyEngine {
     final List<String> lostSkins = <String>[];
     if (coins > 0) {
       state.coins -= coins;
-      final List<PieceSkin> owned = pieceSkinCatalog
-          .where(
-              (PieceSkin s) => s.price > 0 && state.ownedSkins.contains(s.id))
-          .toList()
-        ..sort((PieceSkin a, PieceSkin b) => b.price.compareTo(a.price));
-      for (final PieceSkin skin in owned) {
+      // Visuais de peça e temas de tabuleiro pagos, do mais caro ao mais
+      // barato.
+      final List<(String, int, bool)> owned = <(String, int, bool)>[
+        for (final PieceSkin s in pieceSkinCatalog)
+          if (s.price > 0 && state.ownedSkins.contains(s.id))
+            (s.id, s.price, true),
+        for (final BoardTheme t in boardThemeCatalog)
+          if (t.price > 0 && state.ownedThemes.contains(t.id))
+            (t.id, t.price, false),
+      ]..sort(((String, int, bool) a, (String, int, bool) b) =>
+          b.$2.compareTo(a.$2));
+      for (final (String id, int price, bool isSkin) in owned) {
         if (state.coins >= 0) {
           break;
         }
-        state.ownedSkins.remove(skin.id);
-        state.coins += skin.price;
-        lostSkins.add(skin.id);
-        if (state.equippedSkin == skin.id) {
-          state.equippedSkin = ProgressState.defaultSkinId;
+        state.coins += price;
+        lostSkins.add(id);
+        if (isSkin) {
+          state.ownedSkins.remove(id);
+          if (state.equippedSkin == id) {
+            state.equippedSkin = ProgressState.defaultSkinId;
+          }
+        } else {
+          state.ownedThemes.remove(id);
+          if (state.equippedTheme == id) {
+            state.equippedTheme = defaultBoardThemeId;
+          }
         }
       }
     }

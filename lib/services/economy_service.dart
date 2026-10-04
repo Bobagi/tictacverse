@@ -1,3 +1,4 @@
+import '../models/board_theme.dart';
 import '../models/piece_skin.dart';
 import '../models/progress_state.dart';
 import 'economy_engine.dart';
@@ -84,6 +85,26 @@ class EconomyService {
   Future<void> _persist() async {
     await StorageService.instance.saveProgress();
     ProgressionService.instance.revision.value += 1;
+  }
+
+  BoardTheme get equippedTheme => boardThemeById(_state.equippedTheme);
+
+  bool ownsTheme(BoardTheme theme) => _state.ownedThemes.contains(theme.id);
+
+  SkinPurchaseResult buyTheme(BoardTheme theme) {
+    final SkinPurchaseResult result = engine.buyTheme(_state, theme.id);
+    if (result == SkinPurchaseResult.purchased) {
+      _commit(1);
+    }
+    return result;
+  }
+
+  bool equipTheme(BoardTheme theme) {
+    final bool ok = engine.equipTheme(_state, theme.id);
+    if (ok) {
+      _commit(1);
+    }
+    return ok;
   }
 
   bool equip(PieceSkin skin) {

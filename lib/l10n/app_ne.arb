@@ -189,5 +189,12 @@
   "tutorialSkip": "छोड्नुहोस्",
   "tutorialNext": "अर्को",
   "tutorialPlay": "खेलौँ!",
-  "tutorialReplay": "ट्युटोरियल हेर्नुहोस्"
+  "tutorialReplay": "ट्युटोरियल हेर्नुहोस्",
+  "shopTabBoards": "बोर्ड",
+  "boardsSubtitle": "सबै मोडमा बोर्डको रङ बदल्नुहोस्।",
+  "themeNeonGrid": "नियोन",
+  "themeSunset": "सूर्यास्त",
+  "themeOcean": "समुद्र",
+  "themeEmerald": "पन्ना",
+  "themeRoyal": "शाही"
 }

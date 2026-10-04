@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'board_theme.dart';
 import 'game_mode.dart';
 
 /// Estado persistido da progressão (XP, contadores e conquistas desbloqueadas).
@@ -30,16 +31,19 @@ class ProgressState {
     this.lastChallengeDay,
     this.challengeStreak = 0,
     this.bestChallengeStreak = 0,
+    this.equippedTheme = defaultBoardThemeId,
     Set<GameModeType>? modesPlayed,
     Set<String>? unlockedAchievements,
     Set<String>? ownedSkins,
     List<String>? processedPurchases,
     List<String>? appliedRevocations,
+    Set<String>? ownedThemes,
   })  : modesPlayed = modesPlayed ?? <GameModeType>{},
         unlockedAchievements = unlockedAchievements ?? <String>{},
         ownedSkins = ownedSkins ?? <String>{defaultSkinId},
         processedPurchases = processedPurchases ?? <String>[],
-        appliedRevocations = appliedRevocations ?? <String>[];
+        appliedRevocations = appliedRevocations ?? <String>[],
+        ownedThemes = ownedThemes ?? <String>{defaultBoardThemeId};
 
   /// Visual de peças que todo jogador tem desde o início (Neon desde a
   /// v1.13.0; até a v1.12.0 era o Aurora).
@@ -118,6 +122,10 @@ class ProgressState {
   /// Tokens das compras da Play já creditadas, do mais antigo ao mais novo.
   final List<String> processedPurchases;
 
+  /// Temas de tabuleiro comprados (o inicial sempre incluso) e o em uso.
+  final Set<String> ownedThemes;
+  String equippedTheme;
+
   /// Desafio diário: último dia concluído e dias seguidos concluídos.
   String? lastChallengeDay;
   int challengeStreak;
@@ -153,6 +161,8 @@ class ProgressState {
         'lastChallengeDay': lastChallengeDay,
         'challengeStreak': challengeStreak,
         'bestChallengeStreak': bestChallengeStreak,
+        'ownedThemes': ownedThemes.toList(),
+        'equippedTheme': equippedTheme,
         'catalogVersion': catalogVersion,
       };
 
@@ -234,6 +244,12 @@ class ProgressState {
       lastChallengeDay: _asString(json['lastChallengeDay']),
       challengeStreak: _asInt(json['challengeStreak']),
       bestChallengeStreak: _asInt(json['bestChallengeStreak']),
+      ownedThemes: <String>{
+        defaultBoardThemeId,
+        for (final Object? raw in _asList(json['ownedThemes']))
+          if (raw is String) raw,
+      },
+      equippedTheme: _asString(json['equippedTheme']) ?? defaultBoardThemeId,
       processedPurchases: <String>[
         for (final Object? raw in _asList(json['processedPurchases']))
           if (raw is String) raw,

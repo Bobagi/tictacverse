@@ -5,6 +5,7 @@ import 'package:in_app_purchase/in_app_purchase.dart' show ProductDetails;
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/rewarded_ad_controller.dart';
+import '../../models/board_theme.dart';
 import '../../models/piece_skin.dart';
 import '../../models/player_marker.dart';
 import '../../models/store_product.dart';
@@ -15,6 +16,7 @@ import '../../services/haptics_service.dart';
 import '../../services/progression_service.dart';
 import '../../services/purchase_service.dart';
 import 'coin_badge.dart';
+import 'game_board.dart' show NeonGridPainter;
 import 'juice/press_scale.dart';
 import 'modern_background.dart';
 import 'piece_glyph.dart';
@@ -43,7 +45,7 @@ int? starterSavingPercent({
 }
 
 /// Abas da loja: visuais (gastar moedas) e moedas (compras na Play).
-enum ShopTab { skins, coins }
+enum ShopTab { skins, boards, coins }
 
 /// Abre a loja. [rewarded] nulo = sem anúncios (build sem ads): a loja
 /// funciona igual, só sem o atalho de moedas por anúncio. [purchases] nulo =
@@ -68,6 +70,14 @@ Future<void> showShopSheet(
     ),
   );
 }
+
+String themeName(AppLocalizations l, BoardTheme theme) => switch (theme.id) {
+      'sunset' => l.themeSunset,
+      'ocean' => l.themeOcean,
+      'emerald' => l.themeEmerald,
+      'royal' => l.themeRoyal,
+      _ => l.themeNeonGrid,
+    };
 
 String skinName(AppLocalizations l, PieceSkin skin) => switch (skin.id) {
       'aurora' => l.skinAurora,
@@ -195,17 +205,36 @@ class _ShopSheetState extends State<ShopSheet> {
     await _purchases.buy(product.id);
   }
 
-  void _onSkinTap(PieceSkin skin) {
+  void _onSkinTap(PieceSkin skin) => _onItemTap(
+        owned: _economy.owns(skin),
+        equip: () => _economy.equip(skin),
+        buy: () => _economy.buy(skin),
+        price: skin.price,
+      );
+
+  void _onThemeTap(BoardTheme theme) => _onItemTap(
+        owned: _economy.ownsTheme(theme),
+        equip: () => _economy.equipTheme(theme),
+        buy: () => _economy.buyTheme(theme),
+        price: theme.price,
+      );
+
+  void _onItemTap({
+    required bool owned,
+    required bool Function() equip,
+    required SkinPurchaseResult Function() buy,
+    required int price,
+  }) {
     final AppLocalizations l = widget.localization;
-    if (_economy.owns(skin)) {
-      if (_economy.equip(skin)) {
+    if (owned) {
+      if (equip()) {
         AudioService.instance.playUiClick();
         HapticsService.instance.play(HapticCue.tap);
       }
       setState(() => _message = null);
       return;
     }
-    final SkinPurchaseResult result = _economy.buy(skin);
+    final SkinPurchaseResult result = buy();
     setState(() {
       if (result == SkinPurchaseResult.purchased) {
         AudioService.instance.play(Sfx.achievement);
@@ -217,7 +246,7 @@ class _ShopSheetState extends State<ShopSheet> {
         AudioService.instance.playUiClick();
         _tab = ShopTab.coins;
         _armPrices();
-        _message = l.needMoreCoins(skin.price - _economy.coins);
+        _message = l.needMoreCoins(price - _economy.coins);
       } else {
         _message = null;
       }
@@ -279,16 +308,20 @@ class _ShopSheetState extends State<ShopSheet> {
                   Row(
                     children: <Widget>[
                       Icon(
-                          _tab == ShopTab.skins
-                              ? Icons.palette_rounded
-                              : Icons.storefront_rounded,
+                          switch (_tab) {
+                            ShopTab.skins => Icons.palette_rounded,
+                            ShopTab.boards => Icons.grid_on_rounded,
+                            ShopTab.coins => Icons.storefront_rounded,
+                          },
                           color: VerseColors.coin),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                            _tab == ShopTab.skins
-                                ? l.shopTitle
-                                : l.shopTabCoins,
+                            switch (_tab) {
+                              ShopTab.skins => l.shopTitle,
+                              ShopTab.boards => l.shopTabBoards,
+                              ShopTab.coins => l.shopTabCoins,
+                            },
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleLarge),
@@ -305,15 +338,18 @@ class _ShopSheetState extends State<ShopSheet> {
                   _ShopTabs(
                     selected: _tab,
                     skinsLabel: l.shopTabSkins,
+                    boardsLabel: l.shopTabBoards,
                     coinsLabel: l.shopTabCoins,
                     onSelect: _selectTab,
                   ),
                   const SizedBox(height: 12),
                   Flexible(
                     child: SingleChildScrollView(
-                      child: _tab == ShopTab.skins
-                          ? _buildSkinsTab(context, l)
-                          : _buildCoinsTab(context, l),
+                      child: switch (_tab) {
+                        ShopTab.skins => _buildSkinsTab(context, l),
+                        ShopTab.boards => _buildBoardsTab(context, l),
+                        ShopTab.coins => _buildCoinsTab(context, l),
+                      },
                     ),
                   ),
                 ],
@@ -334,6 +370,74 @@ class _ShopSheetState extends State<ShopSheet> {
           .textTheme
           .bodyMedium
           ?.copyWith(color: VerseColors.coin, fontWeight: FontWeight.w700),
+    );
+  }
+
+  Widget _skinPreview(PieceSkin skin) => FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            PieceGlyph(marker: PlayerMarker.cross, skin: skin, size: 48),
+            const SizedBox(width: 6),
+            PieceGlyph(marker: PlayerMarker.nought, skin: skin, size: 48),
+          ],
+        ),
+      );
+
+  Widget _buildBoardsTab(BuildContext context, AppLocalizations l) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text(
+          l.boardsSubtitle,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: VerseColors.mutedText),
+        ),
+        const SizedBox(height: 12),
+        LayoutBuilder(builder: (BuildContext context, BoxConstraints c) {
+          const double gap = 10;
+          final double w = (c.maxWidth - gap) / 2;
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: <Widget>[
+              for (final BoardTheme theme in boardThemeCatalog)
+                SizedBox(
+                  width: w,
+                  child: _SkinCard(
+                    key: ValueKey<String>('theme-${theme.id}'),
+                    price: theme.price,
+                    preview: SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: CustomPaint(
+                        painter: NeonGridPainter(
+                          progress: 0.25,
+                          colorA: theme.gridA,
+                          colorB: theme.gridB,
+                        ),
+                      ),
+                    ),
+                    name: themeName(l, theme),
+                    owned: _economy.ownsTheme(theme),
+                    equipped: _economy.equippedTheme.id == theme.id,
+                    coins: _economy.coins,
+                    localization: l,
+                    onTap: () => _onThemeTap(theme),
+                  ),
+                ),
+            ],
+          );
+        }),
+        if (_message != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: _buildMessage(context),
+          ),
+      ],
     );
   }
 
@@ -360,7 +464,8 @@ class _ShopSheetState extends State<ShopSheet> {
                 SizedBox(
                   width: w,
                   child: _SkinCard(
-                    skin: skin,
+                    price: skin.price,
+                    preview: _skinPreview(skin),
                     name: skinName(l, skin),
                     owned: _economy.owns(skin),
                     equipped: _economy.equippedSkin.id == skin.id,
@@ -553,9 +658,13 @@ class _ShopSheetState extends State<ShopSheet> {
   }
 }
 
+/// Cartão de item da loja paga em moedas (visual de peça ou tema de
+/// tabuleiro): prévia, nome e preço/estado.
 class _SkinCard extends StatelessWidget {
   const _SkinCard({
-    required this.skin,
+    super.key,
+    required this.price,
+    required this.preview,
     required this.name,
     required this.owned,
     required this.equipped,
@@ -564,7 +673,8 @@ class _SkinCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final PieceSkin skin;
+  final int price;
+  final Widget preview;
   final String name;
   final bool owned;
   final bool equipped;
@@ -574,7 +684,7 @@ class _SkinCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool affordable = coins >= skin.price;
+    final bool affordable = coins >= price;
     final Color border = equipped
         ? VerseColors.coin
         : Colors.white.withOpacity(owned ? 0.35 : 0.15);
@@ -588,15 +698,14 @@ class _SkinCard extends StatelessWidget {
       // Sempre o preço, com ou sem saldo: o jogador escolhe pelo que quer,
       // não por uma contagem do que falta (o "Faltam 210" da v1.12 parecia
       // barra de progressão). Sem saldo, o toque leva aos pacotes de moedas.
-      action = _pill(context, '${skin.price}',
-          affordable ? VerseColors.coin : Colors.white70,
+      action = _pill(
+          context, '$price', affordable ? VerseColors.coin : Colors.white70,
           icon:
               affordable ? Icons.monetization_on_rounded : Icons.lock_rounded);
     }
     return Semantics(
       button: true,
-      label:
-          '$name. ${owned ? '' : '${skin.price} ${localization.coinsLabel}'}',
+      label: '$name. ${owned ? '' : '$price ${localization.coinsLabel}'}',
       child: PressScale(
         pressedScale: 0.96,
         child: GestureDetector(
@@ -611,20 +720,8 @@ class _SkinCard extends StatelessWidget {
             ),
             child: Column(
               children: <Widget>[
-                // Encolhe a prévia em vez de estourar o cartão em 320px.
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      PieceGlyph(
-                          marker: PlayerMarker.cross, skin: skin, size: 48),
-                      const SizedBox(width: 6),
-                      PieceGlyph(
-                          marker: PlayerMarker.nought, skin: skin, size: 48),
-                    ],
-                  ),
-                ),
+                // A prévia encolhe em vez de estourar o cartão em 320px.
+                SizedBox(height: 56, child: Center(child: preview)),
                 const SizedBox(height: 8),
                 Text(
                   name,
@@ -682,12 +779,14 @@ class _ShopTabs extends StatelessWidget {
   const _ShopTabs({
     required this.selected,
     required this.skinsLabel,
+    required this.boardsLabel,
     required this.coinsLabel,
     required this.onSelect,
   });
 
   final ShopTab selected;
   final String skinsLabel;
+  final String boardsLabel;
   final String coinsLabel;
   final ValueChanged<ShopTab> onSelect;
 
@@ -702,6 +801,7 @@ class _ShopTabs extends StatelessWidget {
       child: Row(
         children: <Widget>[
           _tab(context, ShopTab.skins, skinsLabel, Icons.palette_rounded),
+          _tab(context, ShopTab.boards, boardsLabel, Icons.grid_on_rounded),
           _tab(context, ShopTab.coins, coinsLabel,
               Icons.monetization_on_rounded),
         ],

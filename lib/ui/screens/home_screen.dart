@@ -432,7 +432,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       top: false,
                       child: SizedBox(
                         width: double.infinity,
-                        height: bannerAdController.expectedAdHeight,
+                        height: bannerAdController
+                            .expectedAdHeightFor(MediaQuery.of(context).size),
                         child: bannerAdController.buildBannerAdWidget(),
                       ),
                     ),
@@ -510,8 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const DailyChallengeEngine rules = DailyChallengeEngine();
     final DateTime now = DateTime.now();
     final DailyChallenge challenge = rules.forDay(now);
-    final bool open =
-        rules.canComplete(StorageService.instance.progress, now);
+    final bool open = rules.canComplete(StorageService.instance.progress, now);
     final int streak =
         rules.currentStreak(StorageService.instance.progress, now);
     final int reward = DailyChallengeEngine.rewardForStreak(

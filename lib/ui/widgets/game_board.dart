@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../models/board_theme.dart';
+
 import '../../models/piece_skin.dart';
 import '../../models/player_marker.dart';
 import '../../services/economy_service.dart';
@@ -159,6 +161,7 @@ class _GameBoardState extends State<GameBoard>
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             final int dimension = _dimension;
+            final BoardTheme theme = EconomyService.instance.equippedTheme;
             final double cellExtent =
                 constraints.biggest.shortestSide / dimension;
             _lastCellExtent = cellExtent;
@@ -172,6 +175,8 @@ class _GameBoardState extends State<GameBoard>
                         painter: NeonGridPainter(
                           progress: _neonPulseController.value,
                           dimension: dimension,
+                          colorA: theme.gridA,
+                          colorB: theme.gridB,
                         ),
                       );
                     },
@@ -453,9 +458,18 @@ int boardDimensionFor(int cellCount) {
 }
 
 class NeonGridPainter extends CustomPainter {
-  NeonGridPainter({required this.progress, this.dimension = 3});
+  NeonGridPainter({
+    required this.progress,
+    this.dimension = 3,
+    this.colorA = electricBlue,
+    this.colorB = neonPink,
+  });
 
   final double progress;
+
+  /// As duas cores que a grade alterna: vêm do tema de tabuleiro em uso.
+  final Color colorA;
+  final Color colorB;
 
   /// Casas por lado. As linhas internas são `dimension - 1` em cada eixo.
   final int dimension;
@@ -509,9 +523,9 @@ class NeonGridPainter extends CustomPainter {
 
   Shader _buildGradientShader(double strokeWidth) {
     final Color primary =
-        Color.lerp(electricBlue, neonPink, 0.5 * (1 + sin(progress * 2 * pi)))!;
+        Color.lerp(colorA, colorB, 0.5 * (1 + sin(progress * 2 * pi)))!;
     final Color secondary =
-        Color.lerp(neonPink, electricBlue, 0.5 * (1 + cos(progress * 2 * pi)))!;
+        Color.lerp(colorB, colorA, 0.5 * (1 + cos(progress * 2 * pi)))!;
     return LinearGradient(
       colors: <Color>[
         primary.withOpacity(0.85),
@@ -524,7 +538,10 @@ class NeonGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant NeonGridPainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.dimension != dimension;
+      oldDelegate.progress != progress ||
+      oldDelegate.dimension != dimension ||
+      oldDelegate.colorA != colorA ||
+      oldDelegate.colorB != colorB;
 }
 
 class WinningLinePainter extends CustomPainter {

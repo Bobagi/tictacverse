@@ -189,5 +189,12 @@
   "tutorialSkip": "বাদ দিন",
   "tutorialNext": "পরের",
   "tutorialPlay": "চলুন খেলি!",
-  "tutorialReplay": "টিউটোরিয়াল দেখুন"
+  "tutorialReplay": "টিউটোরিয়াল দেখুন",
+  "shopTabBoards": "বোর্ড",
+  "boardsSubtitle": "সব মোডে বোর্ডের রং বদলান।",
+  "themeNeonGrid": "নিয়ন",
+  "themeSunset": "সূর্যাস্ত",
+  "themeOcean": "সমুদ্র",
+  "themeEmerald": "পান্না",
+  "themeRoyal": "রাজকীয়"
 }

@@ -652,4 +652,25 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get tutorialReplay => 'ट्यूटोरियल देखें';
+
+  @override
+  String get shopTabBoards => 'बोर्ड';
+
+  @override
+  String get boardsSubtitle => 'हर मोड में बोर्ड के रंग बदलें।';
+
+  @override
+  String get themeNeonGrid => 'नियॉन';
+
+  @override
+  String get themeSunset => 'सूर्यास्त';
+
+  @override
+  String get themeOcean => 'समुद्र';
+
+  @override
+  String get themeEmerald => 'पन्ना';
+
+  @override
+  String get themeRoyal => 'शाही';
 }

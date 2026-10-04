@@ -169,12 +169,10 @@ class _UltimateTutorialState extends State<UltimateTutorial>
                           key: const ValueKey<String>('tutorial-board'),
                           onTapUp: (TapUpDetails d) {
                             final double cell = size / 9;
-                            final int col = (d.localPosition.dx / cell)
-                                .floor()
-                                .clamp(0, 8);
-                            final int row = (d.localPosition.dy / cell)
-                                .floor()
-                                .clamp(0, 8);
+                            final int col =
+                                (d.localPosition.dx / cell).floor().clamp(0, 8);
+                            final int row =
+                                (d.localPosition.dy / cell).floor().clamp(0, 8);
                             final int board = (row ~/ 3) * 3 + col ~/ 3;
                             final int inner = (row % 3) * 3 + col % 3;
                             _onCellTap(board, inner);
@@ -196,14 +194,18 @@ class _UltimateTutorialState extends State<UltimateTutorial>
                   },
                 ),
                 const SizedBox(height: 12),
-                Row(
+                // OverflowBar: em 360px, hindi/bengali não cabem lado a lado e
+                // os botões descem um embaixo do outro em vez de estourar.
+                OverflowBar(
+                  alignment: MainAxisAlignment.spaceBetween,
+                  overflowAlignment: OverflowBarAlignment.end,
+                  overflowSpacing: 6,
                   children: <Widget>[
                     TextButton(
                       key: const ValueKey<String>('tutorial-skip'),
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(l.tutorialSkip),
                     ),
-                    const Spacer(),
                     if (readOnly)
                       FilledButton(
                         key: const ValueKey<String>('tutorial-next'),
@@ -242,8 +244,8 @@ class _TutorialBoardPainter extends CustomPainter {
     final double block = size.width / 3;
 
     if (activeBoard != null) {
-      final Rect r = Rect.fromLTWH(
-          (activeBoard! % 3) * block, (activeBoard! ~/ 3) * block, block, block);
+      final Rect r = Rect.fromLTWH((activeBoard! % 3) * block,
+          (activeBoard! ~/ 3) * block, block, block);
       canvas.drawRRect(
         RRect.fromRectAndRadius(r.deflate(2), const Radius.circular(8)),
         Paint()..color = VerseColors.coin.withOpacity(0.16),
@@ -264,8 +266,7 @@ class _TutorialBoardPainter extends CustomPainter {
       if (i % 3 == 0) {
         continue;
       }
-      canvas.drawLine(
-          Offset(i * cell, 0), Offset(i * cell, size.height), thin);
+      canvas.drawLine(Offset(i * cell, 0), Offset(i * cell, size.height), thin);
       canvas.drawLine(Offset(0, i * cell), Offset(size.width, i * cell), thin);
     }
     final Paint thick = Paint()

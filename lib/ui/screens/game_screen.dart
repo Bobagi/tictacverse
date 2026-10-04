@@ -22,6 +22,7 @@ import '../../services/metrics_service.dart';
 import '../../services/progression_engine.dart';
 import '../../services/progression_service.dart';
 import '../../services/review_service.dart';
+import '../../services/share_victory.dart';
 import '../../services/storage_service.dart';
 import '../../services/visual_assets.dart';
 import '../widgets/board_shake.dart';
@@ -165,21 +166,32 @@ class _GameScreenState extends State<GameScreen> {
                                     height: boardSize,
                                     child: BoardShake(
                                       trigger: _shakeTick,
-                                      child: GameBoard(
-                                        board: widget.controller.state.board,
-                                        blockedCells: widget
-                                            .controller.state.blockedCells,
-                                        onCellSelected: _handleCellTap,
-                                        winningLine: widget.controller.state
-                                            .result.winningLine,
-                                        winningPlayer: widget
-                                            .controller.state.result.winner,
-                                        visualAssetConfig: _visualAssets,
-                                        highlightIndex: _cpuMoveHighlightIndex,
-                                        particles: _boardParticles,
-                                        interactive: !_cpuThinking &&
-                                            !widget.controller.state.result
-                                                .isFinal,
+                                      // Moldura opaca: vira a foto do
+                                      // "compartilhar vitória".
+                                      child: RepaintBoundary(
+                                        key: _boardShotKey,
+                                        child: DecoratedBox(
+                                          decoration: const BoxDecoration(
+                                              color: VerseColors.bgTop),
+                                          child: GameBoard(
+                                            board:
+                                                widget.controller.state.board,
+                                            blockedCells: widget
+                                                .controller.state.blockedCells,
+                                            onCellSelected: _handleCellTap,
+                                            winningLine: widget.controller.state
+                                                .result.winningLine,
+                                            winningPlayer: widget
+                                                .controller.state.result.winner,
+                                            visualAssetConfig: _visualAssets,
+                                            highlightIndex:
+                                                _cpuMoveHighlightIndex,
+                                            particles: _boardParticles,
+                                            interactive: !_cpuThinking &&
+                                                !widget.controller.state.result
+                                                    .isFinal,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -384,7 +396,8 @@ class _GameScreenState extends State<GameScreen> {
         top: false,
         child: SizedBox(
           width: double.infinity,
-          height: bannerAdController.expectedAdHeight,
+          height: bannerAdController
+              .expectedAdHeightFor(MediaQuery.of(context).size),
           child: bannerAdController.buildBannerAdWidget(),
         ),
       ),
@@ -535,7 +548,10 @@ class _GameScreenState extends State<GameScreen> {
       if (!mounted) {
         return;
       }
-      if (vsCpu && finalResult.winner == PlayerMarker.cross) {
+      if (ReviewService.isGoodMoment(
+        humanWonVsCpu: vsCpu && finalResult.winner == PlayerMarker.cross,
+        newAchievements: _progressionResult?.newlyUnlocked.length ?? 0,
+      )) {
         ReviewService.instance.maybeRequestReview();
       }
       bool interstitialShown = false;
@@ -583,6 +599,9 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  /// Moldura do tabuleiro que vira a imagem do "compartilhar vitória".
+  final GlobalKey _boardShotKey = GlobalKey();
+
   void _showGameOverSheet(MatchEndKind kind) {
     final AppLocalizations localization = AppLocalizations.of(context)!;
     final GameResult result = widget.controller.state.result;
@@ -612,6 +631,10 @@ class _GameScreenState extends State<GameScreen> {
         dailyStreak:
             ProgressionEngine.effectiveDailyStreak(progress, DateTime.now()),
         celebrate: celebrate,
+        onShare: celebrate
+            ? () => ShareVictory.share(_boardShotKey,
+                message: localization.shareMessage)
+            : null,
         onPlayAgain: () {
           Navigator.of(context).pop();
           _cpuMoveTimer?.cancel();

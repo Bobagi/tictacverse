@@ -189,5 +189,12 @@
   "tutorialSkip": "Pular",
   "tutorialNext": "Próximo",
   "tutorialPlay": "Bora jogar!",
-  "tutorialReplay": "Ver o tutorial"
+  "tutorialReplay": "Ver o tutorial",
+  "shopTabBoards": "Tabuleiros",
+  "boardsSubtitle": "Mude as cores do tabuleiro em todos os modos.",
+  "themeNeonGrid": "Neon",
+  "themeSunset": "Pôr do sol",
+  "themeOcean": "Oceano",
+  "themeEmerald": "Esmeralda",
+  "themeRoyal": "Realeza"
 }

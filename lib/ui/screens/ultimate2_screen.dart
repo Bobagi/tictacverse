@@ -16,6 +16,7 @@ import '../../services/ad_service.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/daily_challenge.dart';
+import '../../services/economy_service.dart';
 import '../../services/double_xp_offer.dart';
 import '../../services/haptics_service.dart';
 import '../../services/match_feedback.dart';
@@ -353,10 +354,10 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
             kind == MatchEndKind.humanWin || kind == MatchEndKind.twoPlayerWin,
         banner: _challengeBanner,
         bannerSuccess: _challengeBannerSuccess,
-        onShare: kind == MatchEndKind.humanWin ||
-                kind == MatchEndKind.twoPlayerWin
-            ? _shareVictory
-            : null,
+        onShare:
+            kind == MatchEndKind.humanWin || kind == MatchEndKind.twoPlayerWin
+                ? _shareVictory
+                : null,
         onPlayAgain: () {
           Navigator.of(context).pop();
           _cpuMoveTimer?.cancel();
@@ -472,7 +473,8 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                           top: false,
                           child: SizedBox(
                             width: double.infinity,
-                            height: bannerAdController.expectedAdHeight,
+                            height: bannerAdController.expectedAdHeightFor(
+                                MediaQuery.of(context).size),
                             child: bannerAdController.buildBannerAdWidget(),
                           ),
                         ),
@@ -564,8 +566,10 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
           ),
           Text(
             localization.challengeMoves(_humanMoves, challenge.moveLimit),
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: tint, fontWeight: FontWeight.w800),
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(color: tint, fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -643,6 +647,9 @@ class _MacroBoard extends StatefulWidget {
 }
 
 class _MacroBoardState extends State<_MacroBoard> {
+  /// Moldura e destaque do mini-tabuleiro jogável: cor do tema em uso.
+  Color get _frame => EconomyService.instance.equippedTheme.frame;
+
   static const double _outerPadding = 6;
   static const double _miniPadding = 4;
   static const double _miniInnerPadding = 3;
@@ -723,7 +730,7 @@ class _MacroBoardState extends State<_MacroBoard> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.cyanAccent.withOpacity(0.5), width: 2),
+        border: Border.all(color: _frame.withOpacity(0.5), width: 2),
         color: Colors.white.withOpacity(0.03),
       ),
       padding: const EdgeInsets.all(_outerPadding),
@@ -786,13 +793,13 @@ class _MacroBoardState extends State<_MacroBoard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: playable
-              ? Colors.cyanAccent.withOpacity(0.10)
+              ? _frame.withOpacity(0.10)
               : (owner != null
                   ? ownerColor.withOpacity(0.08)
                   : Colors.white.withOpacity(0.03)),
           border: Border.all(
             color: playable
-                ? Colors.cyanAccent
+                ? _frame
                 : (owner != null
                     ? ownerColor.withOpacity(0.45)
                     : Colors.white.withOpacity(closed ? 0.10 : 0.22)),
@@ -800,9 +807,7 @@ class _MacroBoardState extends State<_MacroBoard> {
           ),
           boxShadow: playable
               ? <BoxShadow>[
-                  BoxShadow(
-                      color: Colors.cyanAccent.withOpacity(0.35),
-                      blurRadius: 12),
+                  BoxShadow(color: _frame.withOpacity(0.35), blurRadius: 12),
                 ]
               : const <BoxShadow>[],
         ),

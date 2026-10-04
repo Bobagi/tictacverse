@@ -1251,6 +1251,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See the tutorial'**
   String get tutorialReplay;
+
+  /// No description provided for @shopTabBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Boards'**
+  String get shopTabBoards;
+
+  /// No description provided for @boardsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the board colours in every mode.'**
+  String get boardsSubtitle;
+
+  /// No description provided for @themeNeonGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Neon'**
+  String get themeNeonGrid;
+
+  /// No description provided for @themeSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunset'**
+  String get themeSunset;
+
+  /// No description provided for @themeOcean.
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get themeOcean;
+
+  /// No description provided for @themeEmerald.
+  ///
+  /// In en, this message translates to:
+  /// **'Emerald'**
+  String get themeEmerald;
+
+  /// No description provided for @themeRoyal.
+  ///
+  /// In en, this message translates to:
+  /// **'Royal'**
+  String get themeRoyal;
 }
 
 class _AppLocalizationsDelegate

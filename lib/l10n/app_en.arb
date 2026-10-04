@@ -380,5 +380,12 @@
   "tutorialSkip": "Skip",
   "tutorialNext": "Next",
   "tutorialPlay": "Let's play!",
-  "tutorialReplay": "See the tutorial"
+  "tutorialReplay": "See the tutorial",
+  "shopTabBoards": "Boards",
+  "boardsSubtitle": "Change the board colours in every mode.",
+  "themeNeonGrid": "Neon",
+  "themeSunset": "Sunset",
+  "themeOcean": "Ocean",
+  "themeEmerald": "Emerald",
+  "themeRoyal": "Royal"
 }

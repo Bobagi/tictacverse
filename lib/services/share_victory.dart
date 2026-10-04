@@ -23,8 +23,7 @@ class ShareVictory {
   /// Gera o PNG do que está dentro do [RepaintBoundary] de [boundaryKey].
   static Future<Uint8List?> capture(GlobalKey boundaryKey,
       {double pixelRatio = 2}) async {
-    final RenderObject? object =
-        boundaryKey.currentContext?.findRenderObject();
+    final RenderObject? object = boundaryKey.currentContext?.findRenderObject();
     if (object is! RenderRepaintBoundary) {
       return null;
     }

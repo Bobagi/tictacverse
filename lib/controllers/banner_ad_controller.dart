@@ -11,6 +11,22 @@ class BannerAdController {
 
   double get expectedAdHeight => _activeAdSize.height.toDouble();
 
+  /// O retângulo médio (300x250) paga mais, mas em tela baixa ele empurra os
+  /// atalhos da home e aperta o tabuleiro. Abaixo de 380x760 vai o banner
+  /// comum.
+  static bool useMediumRectangle(Size screen) =>
+      screen.width >= 380 && screen.height >= 760;
+
+  /// Altura a reservar para o anúncio NESTA tela, já no primeiro quadro.
+  /// Antes, a reserva começava em 250 (o padrão do retângulo médio) até o
+  /// anúncio carregar ou falhar, e um celular de 568 de altura via o
+  /// tabuleiro espremido nesse meio tempo.
+  double expectedAdHeightFor(Size screen) => _bannerAd != null || _isLoading
+      ? _activeAdSize.height.toDouble()
+      : (useMediumRectangle(screen) ? AdSize.mediumRectangle : AdSize.banner)
+          .height
+          .toDouble();
+
   Future<void> loadBannerAd({
     required BuildContext context,
     VoidCallback? onAdLoaded,
@@ -21,11 +37,7 @@ class BannerAdController {
     }
 
     final Size screen = MediaQuery.of(context).size;
-    // O retângulo médio (300x250) paga mais, mas em tela baixa ele empurra os
-    // atalhos da home (bônus diário, visuais) para fora da tela. Abaixo de
-    // 760 de altura vai o banner comum.
-    final bool shouldUseMediumRectangle =
-        screen.width >= 380 && screen.height >= 760;
+    final bool shouldUseMediumRectangle = useMediumRectangle(screen);
 
     final AdSize nextAdSize =
         shouldUseMediumRectangle ? AdSize.mediumRectangle : AdSize.banner;

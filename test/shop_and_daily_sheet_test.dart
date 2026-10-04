@@ -267,6 +267,35 @@ void main() {
       expect(find.text('+300 moedas'), findsOneWidget);
     });
 
+    testWidgets('boas-vindas mostra a economia calculada dos preços reais',
+        (WidgetTester tester) async {
+      await openCoins(tester);
+      expect(find.byKey(const ValueKey<String>('store-starter-card')),
+          findsOneWidget);
+      // Play falsa: tudo a 4,99; separado = 9,98, pacote = 4,99 -> 50%.
+      expect(find.text('Economize 50%'), findsOneWidget);
+    });
+
+    testWidgets('comprar tema na aba Tabuleiros debita e equipa',
+        (WidgetTester tester) async {
+      StorageService.instance.progress = ProgressState(coins: 210);
+      tester.view.physicalSize = const Size(412, 915);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(host(
+          'pt',
+          const Size(412, 915),
+          1,
+          (BuildContext c, AppLocalizations l) => showShopSheet(c, l,
+              initialTab: ShopTab.boards, purchases: store)));
+      await tester.tap(find.text('abrir'));
+      await settle(tester);
+      await tester.tap(find.text('Pôr do sol'));
+      await settle(tester);
+      expect(StorageService.instance.progress.coins, 10);
+      expect(StorageService.instance.progress.equippedTheme, 'sunset');
+    });
+
     testWidgets('quem já tirou os anúncios não vê botão de pagar de novo',
         (WidgetTester tester) async {
       StorageService.instance.progress = ProgressState(adsRemoved: true);
@@ -351,6 +380,11 @@ void main() {
         await tester.tap(find.byKey(const ValueKey<String>('shop-tab-skins')));
         await settle(tester);
         expect(tester.takeException(), isNull);
+        await tester.tap(find.byKey(const ValueKey<String>('shop-tab-boards')));
+        await settle(tester);
+        expect(tester.takeException(), isNull);
+        expect(
+            find.byKey(const ValueKey<String>('theme-ocean')), findsOneWidget);
       });
     }
   });
