@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tictacverse/models/board_theme.dart';
@@ -152,27 +151,6 @@ void main() {
     });
   });
 
-  group('id da instalação', () {
-    test('UUID v4 válido, aleatório e no formato que o servidor aceita', () {
-      final Set<String> ids = <String>{
-        for (int i = 0; i < 200; i++) StorageService.newInstallId(),
-      };
-      expect(ids.length, 200);
-      for (final String id in ids) {
-        expect(StorageService.isValidInstallId(id), isTrue, reason: id);
-      }
-      expect(StorageService.isValidInstallId('nao-e-uuid'), isFalse);
-      expect(
-          StorageService.isValidInstallId(
-              '1B4E28BA-2FA1-4D3B-A3F5-EF19B5A7633B'),
-          isFalse,
-          reason: 'o servidor só aceita minúsculas');
-      // Mesmo gerador com a mesma semente = mesmo id (o formato é estável).
-      expect(StorageService.newInstallId(Random(1)),
-          StorageService.newInstallId(Random(1)));
-    });
-  });
-
   group('temas de tabuleiro', () {
     const EconomyEngine engine = EconomyEngine();
 
@@ -200,17 +178,11 @@ void main() {
       }
     });
 
-    test('estorno também devolve tema comprado com moeda estornada', () {
-      final ProgressState s = ProgressState(
-          coins: 0,
-          ownedThemes: <String>{defaultBoardThemeId, 'royal'},
-          equippedTheme: 'royal',
-          coinPurchases: <String, int>{'theme:royal': 600});
-      final RevocationEffect e = engine.applyRevocation(s,
-          redemptionId: 'x', coins: 300, removeAds: false);
-      expect(e.lostSkins, <String>['royal']);
-      expect(s.equippedTheme, defaultBoardThemeId);
-      expect(s.coins, 300);
+    test('coleção completa libera os temas sem moedas', () {
+      final ProgressState s = ProgressState();
+      engine.applyPlayOwnership(s, <String>{'collection'});
+      expect(engine.buyTheme(s, 'royal'), SkinPurchaseResult.alreadyOwned);
+      expect(engine.equipTheme(s, 'royal'), isTrue);
     });
 
     test('tema sobrevive ao save e save antigo nasce com o inicial', () {

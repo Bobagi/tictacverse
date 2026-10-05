@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
 
+import '../../models/piece_skin.dart';
+import '../../models/player_marker.dart';
 import '../../services/audio_service.dart';
 import '../../services/haptics_service.dart';
 import 'juice/motion.dart';
@@ -10,6 +12,7 @@ import 'juice/particles.dart';
 import 'juice/press_scale.dart';
 import 'juice/pulse.dart';
 import 'modern_background.dart';
+import 'piece_glyph.dart';
 import 'pop_in.dart';
 
 /// Abre o convite do pacote de boas-vindas. Devolve `true` se o jogador quis
@@ -18,9 +21,7 @@ import 'pop_in.dart';
 Future<bool?> showStarterOfferDialog(
   BuildContext context, {
   required AppLocalizations localization,
-  required int coins,
   String? price,
-  int? savingPercent,
 }) {
   return showGeneralDialog<bool>(
     context: context,
@@ -30,29 +31,24 @@ Future<bool?> showStarterOfferDialog(
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (BuildContext context, _, __) => StarterOfferDialog(
       localization: localization,
-      coins: coins,
       price: price,
-      savingPercent: savingPercent,
     ),
   );
 }
 
 /// A oferta é o momento de maior valor percebido do jogo, então ela entra
-/// como "baú aberto": raios girando, presente balançando, moedas flutuando,
-/// faíscas e o selo de desconto pulsando. Tudo some com "reduzir animações".
+/// como "baú aberto": raios girando, presente balançando, as peças do Aurora
+/// (que vêm junto) flutuando, faíscas e o selo pulsando. Tudo some com
+/// "reduzir animações".
 class StarterOfferDialog extends StatefulWidget {
   const StarterOfferDialog({
     super.key,
     required this.localization,
-    required this.coins,
     this.price,
-    this.savingPercent,
   });
 
   final AppLocalizations localization;
-  final int coins;
   final String? price;
-  final int? savingPercent;
 
   @override
   State<StarterOfferDialog> createState() => _StarterOfferDialogState();
@@ -179,7 +175,7 @@ class _StarterOfferDialogState extends State<StarterOfferDialog> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            l.starterBody(widget.coins),
+                            l.starterBody,
                             textAlign: TextAlign.center,
                             style: text.bodyLarge?.copyWith(color: Colors.white),
                           ),
@@ -225,50 +221,51 @@ class _StarterOfferDialogState extends State<StarterOfferDialog> {
             child: const Icon(Icons.card_giftcard_rounded,
                 size: 84, color: VerseColors.coin),
           ),
-          for (final (Alignment a, double phase) in <(Alignment, double)>[
-            (const Alignment(-0.62, -0.55), 0.0),
-            (const Alignment(0.66, -0.35), 0.33),
-            (const Alignment(-0.5, 0.62), 0.66),
+          // As peças do Aurora em volta do presente: é o que vem junto.
+          for (final (Alignment a, double phase, PlayerMarker m)
+              in <(Alignment, double, PlayerMarker)>[
+            (const Alignment(-0.7, -0.5), 0.0, PlayerMarker.cross),
+            (const Alignment(0.72, -0.45), 0.33, PlayerMarker.nought),
+            (const Alignment(-0.55, 0.7), 0.66, PlayerMarker.nought),
           ])
             Align(
               alignment: a,
               child: Bob(
                 phase: phase,
-                child: const Icon(Icons.monetization_on_rounded,
-                    size: 26, color: VerseColors.coin),
+                child: PieceGlyph(
+                    marker: m, skin: pieceSkinById('aurora'), size: 34),
               ),
             ),
-          if (widget.savingPercent != null)
-            Align(
-              alignment: const Alignment(0.95, 0.8),
-              child: Transform.rotate(
-                angle: -0.2,
-                child: Pulse(
-                  maxScale: 1.12,
-                  child: Container(
-                    key: const ValueKey<String>('starter-offer-save'),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: VerseColors.danger,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                            color: VerseColors.danger.withOpacity(0.6),
-                            blurRadius: 12),
-                      ],
-                    ),
-                    child: Text(
-                      '-${widget.savingPercent}%',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18),
-                    ),
+          Align(
+            alignment: const Alignment(0.95, 0.8),
+            child: Transform.rotate(
+              angle: -0.2,
+              child: Pulse(
+                maxScale: 1.12,
+                child: Container(
+                  key: const ValueKey<String>('starter-offer-badge'),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: VerseColors.danger,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                          color: VerseColors.danger.withOpacity(0.6),
+                          blurRadius: 12),
+                    ],
+                  ),
+                  child: Text(
+                    widget.localization.starterBadge,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16),
                   ),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

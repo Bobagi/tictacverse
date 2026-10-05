@@ -56,21 +56,24 @@ class FakePurchaseBackend implements PurchaseBackend {
           currencyCode: 'BRL'))
       .toList();
 
+  /// O que a Play diz que o jogador possui.
+  final List<PurchaseDetails> owned = <PurchaseDetails>[];
+
   @override
-  Future<bool> buy(ProductDetails product,
-      {required bool consumable, required String accountId}) async {
+  Future<bool> buy(ProductDetails product) async {
     buys++;
     return true;
   }
 
   @override
-  Future<void> restore() async {}
-
-  @override
-  Future<bool> consume(PurchaseDetails purchase) async => true;
+  Future<List<PurchaseDetails>?> queryOwned() async =>
+      List<PurchaseDetails>.of(owned);
 
   @override
   Future<void> complete(PurchaseDetails purchase) async {}
+
+  @override
+  String? signatureOf(PurchaseDetails purchase) => null;
 }
 
 PurchaseDetails purchase(String productId, PurchaseStatus status) =>
@@ -196,16 +199,13 @@ void main() {
     });
   });
 
-  group('loja: aba Moedas (compras na Play)', () {
+  group('loja: aba Premium (compras na Play)', () {
     late FakePurchaseBackend play;
     late PurchaseService store;
 
     setUp(() async {
       play = FakePurchaseBackend();
-      store = PurchaseService(
-          backend: play,
-          api: DemoVerseApi(),
-          installId: () => '1b4e28ba-2fa1-4d3b-a3f5-ef19b5a7633b');
+      store = PurchaseService(backend: play);
       await store.initialize();
     });
 
@@ -221,26 +221,28 @@ void main() {
           size,
           scale,
           (BuildContext c, AppLocalizations l) => showShopSheet(c, l,
-              initialTab: ShopTab.coins, purchases: store)));
+              initialTab: ShopTab.premium, purchases: store)));
       await tester.tap(find.text('abrir'));
       await settle(tester);
     }
 
-    testWidgets('mostra os pacotes e o "sem anúncios" com o preço da Play',
+    testWidgets('mostra os 3 produtos com o preço da Play, sem moedas à venda',
         (WidgetTester tester) async {
       await openCoins(tester);
       for (final StoreProduct p in storeCatalog) {
-        expect(
-            find.byKey(ValueKey<String>('store-buy-${p.id}')), findsOneWidget);
+        final Finder f = find.byKey(ValueKey<String>('store-buy-${p.id}'));
+        await tester.ensureVisible(f);
+        expect(f, findsOneWidget, reason: p.id);
       }
-      expect(find.text(r'R$ 4,99'), findsNWidgets(storeCatalog.length));
+      expect(find.byKey(const ValueKey<String>('store-buy-coins_300')),
+          findsNothing);
     });
 
     testWidgets('toque duplo no preço abre UMA compra',
         (WidgetTester tester) async {
       await openCoins(tester);
       final Finder buy =
-          find.byKey(const ValueKey<String>('store-buy-coins_1000'));
+          find.byKey(const ValueKey<String>('store-buy-collection'));
       await tester.ensureVisible(buy);
       await settle(tester);
       expect(buy.hitTestable(), findsOneWidget);
@@ -251,29 +253,34 @@ void main() {
       expect(play.buys, 1);
     });
 
-    testWidgets('comprou: as moedas entram e a tela agradece',
+    testWidgets('comprou a coleção: tudo liberado e a tela comemora',
         (WidgetTester tester) async {
       await openCoins(tester);
-      final Finder buy300 =
-          find.byKey(const ValueKey<String>('store-buy-coins_300'));
-      await tester.ensureVisible(buy300);
+      final Finder buy =
+          find.byKey(const ValueKey<String>('store-buy-collection'));
+      await tester.ensureVisible(buy);
       await settle(tester);
-      await tester.tap(buy300);
+      await tester.tap(buy);
       await settle(tester);
-      await store.handlePurchases(
-          <PurchaseDetails>[purchase('coins_300', PurchaseStatus.purchased)]);
+      final PurchaseDetails p =
+          purchase('collection', PurchaseStatus.purchased);
+      play.owned.add(p);
+      await store.handlePurchases(<PurchaseDetails>[p]);
       await settle(tester);
-      expect(StorageService.instance.progress.coins, 300);
-      expect(find.text('+300 moedas'), findsOneWidget);
+      expect(StorageService.instance.progress.hasSkin('galaxy'), isTrue);
+      expect(find.text('Liberado! Aproveite.'), findsOneWidget);
+      expect(find.text('Tudo liberado. Obrigado!'), findsOneWidget);
     });
 
-    testWidgets('boas-vindas mostra a economia calculada dos preços reais',
+    testWidgets('boas-vindas oferece sem anúncios + Aurora',
         (WidgetTester tester) async {
       await openCoins(tester);
       expect(find.byKey(const ValueKey<String>('store-starter-card')),
           findsOneWidget);
-      // Play falsa: tudo a 4,99; separado = 9,98, pacote = 4,99 -> 50%.
-      expect(find.text('Economize 50%'), findsOneWidget);
+      expect(
+          find.text(
+              'Sem anúncios para sempre + o visual Aurora, o mais caprichado do jogo.'),
+          findsOneWidget);
     });
 
     testWidgets('comprar tema na aba Tabuleiros debita e equipa',
@@ -298,29 +305,30 @@ void main() {
 
     testWidgets('quem já tirou os anúncios não vê botão de pagar de novo',
         (WidgetTester tester) async {
-      StorageService.instance.progress = ProgressState(adsRemoved: true);
+      StorageService.instance.progress =
+          ProgressState(playOwned: <String>{'remove_ads'});
       await openCoins(tester);
       expect(find.byKey(const ValueKey<String>('store-buy-remove_ads')),
           findsNothing);
+      expect(find.byKey(const ValueKey<String>('store-starter-card')),
+          findsNothing,
+          reason: 'boas-vindas traria de novo o mesmo "sem anúncios"');
       expect(find.text('Anúncios removidos. Obrigado!'), findsOneWidget);
     });
 
     testWidgets('Play fora do ar: avisa em vez de mostrar botão morto',
         (WidgetTester tester) async {
       play = FakePurchaseBackend()..available = false;
-      store = PurchaseService(
-          backend: play,
-          api: DemoVerseApi(),
-          installId: () => '1b4e28ba-2fa1-4d3b-a3f5-ef19b5a7633b');
+      store = PurchaseService(backend: play);
       await store.initialize();
       await openCoins(tester);
       expect(find.byKey(const ValueKey<String>('store-unavailable')),
           findsOneWidget);
-      expect(find.byKey(const ValueKey<String>('store-buy-coins_300')),
+      expect(find.byKey(const ValueKey<String>('store-buy-collection')),
           findsNothing);
     });
 
-    testWidgets('visual trancado leva aos pacotes dizendo quanto falta',
+    testWidgets('visual trancado leva ao Premium dizendo quanto falta',
         (WidgetTester tester) async {
       StorageService.instance.progress = ProgressState(coins: 10);
       await tester.pumpWidget(host(
@@ -336,8 +344,11 @@ void main() {
       await tester.tap(find.text('Galáxia'));
       await settle(tester);
       expect(StorageService.instance.progress.coins, 10);
-      expect(find.text('Faltam 790 moedas para este visual.'), findsOneWidget);
-      expect(find.byKey(const ValueKey<String>('store-buy-coins_300')),
+      expect(
+          find.text(
+              'Faltam 790 moedas. Jogue para ganhar ou leve tudo na Coleção completa.'),
+          findsOneWidget);
+      expect(find.byKey(const ValueKey<String>('store-buy-collection')),
           findsOneWidget);
     });
 
@@ -359,7 +370,7 @@ void main() {
       await tester.tap(find.text('Galáxia'));
       await tester.pump(const Duration(milliseconds: 120));
       final Finder price =
-          find.byKey(const ValueKey<String>('store-buy-coins_300'));
+          find.byKey(const ValueKey<String>('store-buy-starter_pack'));
       expect(price.hitTestable(), findsOneWidget,
           reason: 'o toque tem de cair no preço, senão o teste passa à toa');
       await tester.tap(price);
@@ -372,7 +383,7 @@ void main() {
     });
 
     for (final String lang in <String>['pt', 'en', 'es', 'hi', 'bn', 'ne']) {
-      testWidgets('aba Moedas sem estouro de layout em 320x568 ($lang, 1,3x)',
+      testWidgets('aba Premium sem estouro de layout em 320x568 ($lang, 1,3x)',
           (WidgetTester tester) async {
         await openCoins(tester,
             lang: lang, size: const Size(320, 568), scale: 1.3);

@@ -6,22 +6,6 @@ import 'progression_engine.dart';
 /// Resultado de tentar comprar ou equipar um visual.
 enum SkinPurchaseResult { purchased, alreadyOwned, notEnoughCoins, unknownSkin }
 
-/// O que uma compra da Play rendeu ao ser aplicada.
-class StoreGrant {
-  const StoreGrant({
-    this.coins = 0,
-    this.removedAds = false,
-    this.duplicate = false,
-  });
-
-  final int coins;
-  final bool removedAds;
-
-  /// Token já creditado antes (a Play reentrega compra não consumida): nada
-  /// novo foi pago, mas a compra ainda precisa ser finalizada na Play.
-  final bool duplicate;
-}
-
 /// Regras das moedas, do bônus diário e da loja de visuais.
 ///
 /// Mesma filosofia do [ProgressionEngine]: função pura sobre [ProgressState]
@@ -129,7 +113,7 @@ class EconomyEngine {
     if (skin == null) {
       return SkinPurchaseResult.unknownSkin;
     }
-    if (state.ownedSkins.contains(skin.id)) {
+    if (state.hasSkin(skin.id)) {
       return SkinPurchaseResult.alreadyOwned;
     }
     if (state.coins < skin.price) {
@@ -137,7 +121,6 @@ class EconomyEngine {
     }
     state.coins -= skin.price;
     state.ownedSkins.add(skin.id);
-    state.coinPurchases['skin:${skin.id}'] = skin.price;
     state.equippedSkin = skin.id;
     return SkinPurchaseResult.purchased;
   }
@@ -148,7 +131,7 @@ class EconomyEngine {
     if (theme == null) {
       return SkinPurchaseResult.unknownSkin;
     }
-    if (state.ownedThemes.contains(theme.id)) {
+    if (state.hasTheme(theme.id)) {
       return SkinPurchaseResult.alreadyOwned;
     }
     if (state.coins < theme.price) {
@@ -156,13 +139,12 @@ class EconomyEngine {
     }
     state.coins -= theme.price;
     state.ownedThemes.add(theme.id);
-    state.coinPurchases['theme:${theme.id}'] = theme.price;
     state.equippedTheme = theme.id;
     return SkinPurchaseResult.purchased;
   }
 
   bool equipTheme(ProgressState state, String themeId) {
-    if (!state.ownedThemes.contains(themeId) || _findTheme(themeId) == null) {
+    if (!state.hasTheme(themeId) || _findTheme(themeId) == null) {
       return false;
     }
     state.equippedTheme = themeId;
@@ -180,7 +162,7 @@ class EconomyEngine {
 
   /// Equipa um visual que o jogador já tem. Devolve `false` se não tiver.
   bool equipSkin(ProgressState state, String skinId) {
-    if (!state.ownedSkins.contains(skinId) || _find(skinId) == null) {
+    if (!state.hasSkin(skinId) || _find(skinId) == null) {
       return false;
     }
     state.equippedSkin = skinId;
@@ -196,131 +178,24 @@ class EconomyEngine {
     return null;
   }
 
-  /// Entrega o que o SERVIDOR confirmou para uma compra da Play.
-  ///
-  /// Idempotente por [purchaseToken]: o servidor reentrega a mesma compra
-  /// (app fechado antes de gravar, restaurar compras) e o registro local
-  /// garante que as moedas entram uma vez só. O "sem anúncios" é um direito,
-  /// reaplicar é inofensivo. Token vazio não credita nada.
-  StoreGrant applyServerGrant(
-    ProgressState state, {
-    required String purchaseToken,
-    required int coins,
-    required bool removeAds,
-    bool permanent = false,
-  }) {
-    if (purchaseToken.isEmpty) {
-      return const StoreGrant(duplicate: true);
+  /// Grava o que a Play diz que o jogador possui agora e conserta o que
+  /// estiver em uso e deixou de ser dele (compra reembolsada): volta para o
+  /// visual/tema inicial. Devolve `true` se algo mudou.
+  bool applyPlayOwnership(ProgressState state, Set<String> owned) {
+    final bool same = owned.length == state.playOwned.length &&
+        owned.every(state.playOwned.contains);
+    state.playOwned
+      ..clear()
+      ..addAll(owned);
+    bool changed = !same;
+    if (!state.hasSkin(state.equippedSkin)) {
+      state.equippedSkin = ProgressState.defaultSkinId;
+      changed = true;
     }
-    final bool wasRemoved = state.adsRemoved;
-    if (removeAds) {
-      state.adsRemoved = true;
+    if (!state.hasTheme(state.equippedTheme)) {
+      state.equippedTheme = defaultBoardThemeId;
+      changed = true;
     }
-    final bool removedNow = removeAds && !wasRemoved;
-    if (state.processedPurchases.contains(purchaseToken) ||
-        state.permanentPurchases.contains(purchaseToken)) {
-      return StoreGrant(removedAds: removeAds, duplicate: !removedNow);
-    }
-    if (permanent) {
-      state.permanentPurchases.add(purchaseToken);
-    } else {
-      _remember(state.processedPurchases, purchaseToken);
-    }
-    final int credited = coins > 0 ? coins : 0;
-    state.coins += credited;
-    return StoreGrant(
-      coins: credited,
-      removedAds: removeAds,
-      duplicate: credited == 0 && !removedNow,
-    );
+    return changed;
   }
-
-  /// Desfaz uma compra que a Play reembolsou ou estornou. Idempotente por
-  /// [redemptionId].
-  ///
-  /// As moedas saem do saldo. Se o jogador já gastou, os visuais comprados
-  /// voltam para a loja, do mais caro para o mais barato, devolvendo o preço
-  /// ao saldo, até cobrir a diferença: reembolsar e ficar com o que comprou
-  /// não pode existir. Se nem assim cobrir, o saldo fica negativo e as
-  /// próximas moedas pagam a dívida.
-  RevocationEffect applyRevocation(
-    ProgressState state, {
-    required String redemptionId,
-    required int coins,
-    required bool removeAds,
-  }) {
-    if (redemptionId.isEmpty ||
-        state.appliedRevocations.contains(redemptionId)) {
-      return const RevocationEffect();
-    }
-    _remember(state.appliedRevocations, redemptionId);
-    final List<String> lostSkins = <String>[];
-    if (coins > 0) {
-      state.coins -= coins;
-      // Só o que foi comprado COM MOEDAS volta, pelo preço pago, do mais caro
-      // ao mais barato. Item ganho de graça (o Aurora de quem já jogava antes
-      // da troca) não entra: senão o estorno daria moeda de lucro.
-      final List<(String, int, bool)> owned = <(String, int, bool)>[
-        for (final MapEntry<String, int> e in state.coinPurchases.entries)
-          if (e.key.startsWith('skin:') &&
-              state.ownedSkins.contains(e.key.substring(5)))
-            (e.key.substring(5), e.value, true)
-          else if (e.key.startsWith('theme:') &&
-              state.ownedThemes.contains(e.key.substring(6)))
-            (e.key.substring(6), e.value, false),
-      ]..sort(((String, int, bool) a, (String, int, bool) b) =>
-          b.$2.compareTo(a.$2));
-      for (final (String id, int price, bool isSkin) in owned) {
-        if (state.coins >= 0) {
-          break;
-        }
-        state.coins += price;
-        lostSkins.add(id);
-        state.coinPurchases.remove(isSkin ? 'skin:$id' : 'theme:$id');
-        if (isSkin) {
-          state.ownedSkins.remove(id);
-          if (state.equippedSkin == id) {
-            state.equippedSkin = ProgressState.defaultSkinId;
-          }
-        } else {
-          state.ownedThemes.remove(id);
-          if (state.equippedTheme == id) {
-            state.equippedTheme = defaultBoardThemeId;
-          }
-        }
-      }
-    }
-    final bool lostAds = removeAds && state.adsRemoved;
-    if (removeAds) {
-      state.adsRemoved = false;
-    }
-    return RevocationEffect(
-        applied: true,
-        coinsRemoved: coins,
-        lostSkins: lostSkins,
-        lostAdsRemoval: lostAds);
-  }
-
-  static void _remember(List<String> ledger, String id) {
-    ledger.add(id);
-    final int overflow = ledger.length - ProgressState.processedPurchasesCap;
-    if (overflow > 0) {
-      ledger.removeRange(0, overflow);
-    }
-  }
-}
-
-/// O que um estorno desfez (para testes e log).
-class RevocationEffect {
-  const RevocationEffect({
-    this.applied = false,
-    this.coinsRemoved = 0,
-    this.lostSkins = const <String>[],
-    this.lostAdsRemoval = false,
-  });
-
-  final bool applied;
-  final int coinsRemoved;
-  final List<String> lostSkins;
-  final bool lostAdsRemoval;
 }

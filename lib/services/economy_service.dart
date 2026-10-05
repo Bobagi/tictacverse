@@ -23,7 +23,7 @@ class EconomyService {
 
   PieceSkin get equippedSkin => pieceSkinById(_state.equippedSkin);
 
-  bool owns(PieceSkin skin) => _state.ownedSkins.contains(skin.id);
+  bool owns(PieceSkin skin) => _state.hasSkin(skin.id);
 
   bool get canClaimDaily => engine.canClaimDaily(_state, _clock());
 
@@ -54,36 +54,15 @@ class EconomyService {
 
   bool get adsRemoved => _state.adsRemoved;
 
-  /// Entrega o que o servidor confirmou e grava ANTES de a compra ser
-  /// consumida/finalizada na Play: se o app morrer no meio, a Play reentrega,
-  /// o servidor confirma de novo e o token impede o crédito em dobro.
-  Future<StoreGrant> applyServerGrant({
-    required String purchaseToken,
-    required int coins,
-    required bool removeAds,
-    bool permanent = false,
-  }) async {
-    final StoreGrant grant = engine.applyServerGrant(_state,
-        purchaseToken: purchaseToken,
-        coins: coins,
-        removeAds: removeAds,
-        permanent: permanent);
-    await _persist();
-    return grant;
-  }
+  /// Produtos que a Play confirmou que o jogador possui.
+  Set<String> get playOwned => Set<String>.unmodifiable(_state.playOwned);
 
-  /// Desfaz uma compra estornada (ver [EconomyEngine.applyRevocation]).
-  Future<RevocationEffect> applyRevocation({
-    required String redemptionId,
-    required int coins,
-    required bool removeAds,
-  }) async {
-    final RevocationEffect effect = engine.applyRevocation(_state,
-        redemptionId: redemptionId, coins: coins, removeAds: removeAds);
-    if (effect.applied) {
+  /// Grava o que a Play confirmou que o jogador possui (ver
+  /// [EconomyEngine.applyPlayOwnership]).
+  Future<void> applyPlayOwnership(Set<String> owned) async {
+    if (engine.applyPlayOwnership(_state, owned)) {
       await _persist();
     }
-    return effect;
   }
 
   Future<void> _persist() async {
@@ -93,7 +72,7 @@ class EconomyService {
 
   BoardTheme get equippedTheme => boardThemeById(_state.equippedTheme);
 
-  bool ownsTheme(BoardTheme theme) => _state.ownedThemes.contains(theme.id);
+  bool ownsTheme(BoardTheme theme) => _state.hasTheme(theme.id);
 
   SkinPurchaseResult buyTheme(BoardTheme theme) {
     final SkinPurchaseResult result = engine.buyTheme(_state, theme.id);

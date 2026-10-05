@@ -510,17 +510,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopTabSkins => 'Styles';
 
   @override
-  String get shopTabCoins => 'Coins';
-
-  @override
-  String coinPackTitle(int amount) {
-    return '$amount coins';
-  }
-
-  @override
-  String get coinPackBestValue => 'Best value';
-
-  @override
   String get removeAdsTitle => 'No ads';
 
   @override
@@ -548,32 +537,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchaseFailed => 'The purchase was not completed.';
 
   @override
-  String needMoreCoins(int amount) {
-    return 'You need $amount more coins for this style.';
-  }
-
-  @override
   String get starterTitle => 'Welcome pack';
-
-  @override
-  String starterBody(int amount) {
-    return 'No ads forever + $amount coins, in one purchase.';
-  }
-
-  @override
-  String starterSave(int percent) {
-    return 'Save $percent%';
-  }
 
   @override
   String get starterSee => 'See offer';
 
   @override
   String get notNow => 'Not now';
-
-  @override
-  String get purchaseVerifying =>
-      'Payment received. Confirming your purchase, it arrives in a moment.';
 
   @override
   String get challengeTitle => 'Daily challenge';
@@ -674,6 +644,30 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get supportIdLabel =>
-      'Support ID (for help with purchases or deleting your data)';
+  String get shopTabPremium => 'Premium';
+
+  @override
+  String get starterBody =>
+      'No ads forever + the Aurora style, the most polished in the game.';
+
+  @override
+  String get starterBadge => '+ AURORA';
+
+  @override
+  String get collectionTitle => 'Full collection';
+
+  @override
+  String get collectionBody =>
+      'Every piece style and board theme, today\'s and future ones, and no ads.';
+
+  @override
+  String get collectionOwned => 'Everything unlocked. Thank you!';
+
+  @override
+  String get purchaseUnlocked => 'Unlocked! Enjoy.';
+
+  @override
+  String needMoreCoinsPremium(int amount) {
+    return '$amount coins to go. Play to earn them, or get everything with the Full collection.';
+  }
 }

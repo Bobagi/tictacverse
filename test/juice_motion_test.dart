@@ -98,9 +98,7 @@ void main() {
             onPressed: () async {
               result = await showStarterOfferDialog(context,
                   localization: AppLocalizations.of(context)!,
-                  coins: 1000,
-                  price: r'R$ 9,99',
-                  savingPercent: 44);
+                  price: r'R$ 9,99');
             },
             child: const Text('abrir'),
           ),
@@ -116,7 +114,7 @@ void main() {
           (WidgetTester tester) async {
         await open(tester, lang);
         expect(tester.takeException(), isNull);
-        expect(find.byKey(const ValueKey<String>('starter-offer-save')),
+        expect(find.byKey(const ValueKey<String>('starter-offer-badge')),
             findsOneWidget);
       });
     }
@@ -135,8 +133,7 @@ void main() {
               builder: (BuildContext context) => TextButton(
                 onPressed: () async {
                   got = await showStarterOfferDialog(context,
-                      localization: AppLocalizations.of(context)!,
-                      coins: 1000);
+                      localization: AppLocalizations.of(context)!);
                 },
                 child: const Text('abrir'),
               ),

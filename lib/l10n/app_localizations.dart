@@ -1024,24 +1024,6 @@ abstract class AppLocalizations {
   /// **'Styles'**
   String get shopTabSkins;
 
-  /// No description provided for @shopTabCoins.
-  ///
-  /// In en, this message translates to:
-  /// **'Coins'**
-  String get shopTabCoins;
-
-  /// No description provided for @coinPackTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} coins'**
-  String coinPackTitle(int amount);
-
-  /// No description provided for @coinPackBestValue.
-  ///
-  /// In en, this message translates to:
-  /// **'Best value'**
-  String get coinPackBestValue;
-
   /// No description provided for @removeAdsTitle.
   ///
   /// In en, this message translates to:
@@ -1090,29 +1072,11 @@ abstract class AppLocalizations {
   /// **'The purchase was not completed.'**
   String get purchaseFailed;
 
-  /// No description provided for @needMoreCoins.
-  ///
-  /// In en, this message translates to:
-  /// **'You need {amount} more coins for this style.'**
-  String needMoreCoins(int amount);
-
   /// No description provided for @starterTitle.
   ///
   /// In en, this message translates to:
   /// **'Welcome pack'**
   String get starterTitle;
-
-  /// No description provided for @starterBody.
-  ///
-  /// In en, this message translates to:
-  /// **'No ads forever + {amount} coins, in one purchase.'**
-  String starterBody(int amount);
-
-  /// No description provided for @starterSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Save {percent}%'**
-  String starterSave(int percent);
 
   /// No description provided for @starterSee.
   ///
@@ -1125,12 +1089,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get notNow;
-
-  /// No description provided for @purchaseVerifying.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment received. Confirming your purchase, it arrives in a moment.'**
-  String get purchaseVerifying;
 
   /// No description provided for @challengeTitle.
   ///
@@ -1294,11 +1252,53 @@ abstract class AppLocalizations {
   /// **'Win the Super in {limit} moves'**
   String challengeGoalShort(int limit);
 
-  /// No description provided for @supportIdLabel.
+  /// No description provided for @shopTabPremium.
   ///
   /// In en, this message translates to:
-  /// **'Support ID (for help with purchases or deleting your data)'**
-  String get supportIdLabel;
+  /// **'Premium'**
+  String get shopTabPremium;
+
+  /// No description provided for @starterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads forever + the Aurora style, the most polished in the game.'**
+  String get starterBody;
+
+  /// No description provided for @starterBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'+ AURORA'**
+  String get starterBadge;
+
+  /// No description provided for @collectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Full collection'**
+  String get collectionTitle;
+
+  /// No description provided for @collectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every piece style and board theme, today\'s and future ones, and no ads.'**
+  String get collectionBody;
+
+  /// No description provided for @collectionOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything unlocked. Thank you!'**
+  String get collectionOwned;
+
+  /// No description provided for @purchaseUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked! Enjoy.'**
+  String get purchaseUnlocked;
+
+  /// No description provided for @needMoreCoinsPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} coins to go. Play to earn them, or get everything with the Full collection.'**
+  String needMoreCoinsPremium(int amount);
 }
 
 class _AppLocalizationsDelegate

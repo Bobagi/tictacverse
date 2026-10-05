@@ -518,17 +518,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shopTabSkins => 'Estilos';
 
   @override
-  String get shopTabCoins => 'Monedas';
-
-  @override
-  String coinPackTitle(int amount) {
-    return '$amount monedas';
-  }
-
-  @override
-  String get coinPackBestValue => 'Mejor oferta';
-
-  @override
   String get removeAdsTitle => 'Sin anuncios';
 
   @override
@@ -556,32 +545,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get purchaseFailed => 'La compra no se completó.';
 
   @override
-  String needMoreCoins(int amount) {
-    return 'Te faltan $amount monedas para este estilo.';
-  }
-
-  @override
   String get starterTitle => 'Paquete de bienvenida';
-
-  @override
-  String starterBody(int amount) {
-    return 'Sin anuncios para siempre + $amount monedas, en una sola compra.';
-  }
-
-  @override
-  String starterSave(int percent) {
-    return 'Ahorra $percent%';
-  }
 
   @override
   String get starterSee => 'Ver oferta';
 
   @override
   String get notNow => 'Ahora no';
-
-  @override
-  String get purchaseVerifying =>
-      'Pago recibido. Confirmando la compra, llega en un momento.';
 
   @override
   String get challengeTitle => 'Desafío del día';
@@ -682,6 +652,30 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get supportIdLabel =>
-      'ID de soporte (para ayuda con compras o borrar tus datos)';
+  String get shopTabPremium => 'Premium';
+
+  @override
+  String get starterBody =>
+      'Sin anuncios para siempre + el estilo Aurora, el más cuidado del juego.';
+
+  @override
+  String get starterBadge => '+ AURORA';
+
+  @override
+  String get collectionTitle => 'Colección completa';
+
+  @override
+  String get collectionBody =>
+      'Todos los estilos y temas de tablero, los de hoy y los que vengan, y sin anuncios.';
+
+  @override
+  String get collectionOwned => 'Todo desbloqueado. ¡Gracias!';
+
+  @override
+  String get purchaseUnlocked => '¡Desbloqueado! Disfrútalo.';
+
+  @override
+  String needMoreCoinsPremium(int amount) {
+    return 'Te faltan $amount monedas. Juega para ganarlas o llévate todo con la Colección completa.';
+  }
 }

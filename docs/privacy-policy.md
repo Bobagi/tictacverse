@@ -12,13 +12,9 @@ Ele tem de bater linha a linha com `docs/data-safety.md`, porque o Google exige
 que a política e a declaração de Segurança de dados digam a mesma coisa. Mexeu
 em um, mexa no outro.
 
-Atualizado em 04/10/2026 (v1.14.0) com a seção 2.4 (servidor do jogo: id aleatório
-da instalação, registro de compras, ping diário de retenção), a 2.5 (compartilhar
-vitória) e a seção 6 (prazos e exclusão a pedido). Antes, no mesmo dia, a 2.3
-(compras pelo Google Play Billing, v1.13.0).
-Antes, em 25/09/2026, foi reescrito para cobrir o que a declaração passou a dizer:
-localização aproximada derivada do IP, dados do Play Games, compartilhamento com
-o Google e parceiros de anúncio, consentimento (UMP) e os caminhos de exclusão.
+Atualizado em 05/10/2026 (v1.14.0): compras únicas pela Play conferidas no próprio
+aparelho (seção 2.3), compartilhar vitória (2.4). A versão de 04/10 com servidor
+próprio foi descartada antes de ir para a produção.
 
 ---
 
@@ -27,17 +23,16 @@ o Google e parceiros de anúncio, consentimento (UMP) e os caminhos de exclusão
 **App:** Tic Tac Verse (`com.bobagi.tictacverse`)
 **Developer:** Bobagi (Gustavo Perin)
 **Contact:** bobagi.contact@gmail.com
-**Effective date:** October 4, 2026
-**Last updated:** October 4, 2026 (game server added)
+**Effective date:** October 5, 2026
+**Last updated:** October 5, 2026
 
 ## 1. Summary
 
 Tic Tac Verse is a game intended for the general public. It does not require you
-to create an account and never asks for your name, email or phone number. The
-app shows advertising and offers optional Google Play Games features, and those
-services transmit some data off your device. The developer also runs a small
-game server that confirms in-app purchases and counts how many players come back
-each day, using only a random installation ID. This policy explains exactly what
+to create an account, and the developer does not operate any server that stores
+your data. The app does, however, show advertising and offers optional Google
+Play Games features and optional purchases through Google Play, and those
+services transmit some data off your device. This policy explains exactly what
 is transmitted, by whom, and for what.
 
 ## 2. Data collected and shared
@@ -81,47 +76,23 @@ works identically if Play Games is unavailable or you decline to sign in.
 
 ### 2.3 In-app purchases (Google Play Billing)
 
-The app offers optional purchases (coin packs and removal of ads). Payments are
+The app offers optional one-time purchases (removal of ads, a welcome pack with
+a piece style, and the full collection of styles and board themes). Payments are
 handled entirely by Google Play under its own terms: the app never sees your
-card number or any other payment details. After a purchase, Google Play tells
-the app which product was bought and gives it a purchase token. The app keeps
-that token and what you bought (your coins and the "no ads" option) only on your
-device, to deliver the purchase and avoid crediting it twice, and never sends
-them to the developer or anyone else. Your purchase history is available in your
-Google Play account, and "Restore purchases" in the app asks Google Play to
-deliver it again, for example after reinstalling.
+card number or any other payment details. To know what you own, the app asks
+Google Play on your device, keeps that list only on your device, and never sends
+it to the developer or anyone else. If a purchase is refunded, Google Play stops
+listing it and the app removes what it unlocked. Your purchase history is
+available in your Google Play account, and "Restore purchases" in the app asks
+Google Play again, for example after reinstalling.
 
-### 2.4 The game server (developer)
-
-The app talks to one server run by the developer
-(`tictacverse-api.bobagi.space`), always over HTTPS. It receives only:
-
-- **A random installation ID**: a code created by the app the first time it
-  opens (for example `1b4e28ba-2fa1-4d3b-a3f5-ef19b5a7633b`). It is not linked
-  to your name, Google account, phone number or device hardware, and a new one
-  is created if you reinstall. It is shown as "Support ID" at the end of the
-  game's settings.
-- **Purchase records**, only if you buy something: the product, the purchase
-  token and order number that Google Play gives the app, and the time. The
-  server checks them with Google Play before the app delivers the item, so a
-  purchase cannot be faked or redeemed twice, and it follows refunds and
-  chargebacks reported by Google Play so a refunded item is removed from the
-  game. Payment details never reach the developer.
-- **Once a day, that the game was opened**, with the app version and language.
-  This is how the developer measures how many players return the next day and
-  the next week.
-
-The server does not store IP addresses and does not share or sell anything it
-receives. It does not receive your game progress, your coins or anything you
-type.
-
-### 2.5 Sharing a victory
+### 2.4 Sharing a victory
 
 When you tap "Share" after a win, the app creates a picture of the board and
 opens your phone's share menu. The picture goes directly from your device to the
 app you choose; the developer does not receive it.
 
-### 2.6 Data that never leaves your device
+### 2.5 Data that never leaves your device
 
 Your game progress, experience points, coins, purchased items, unlocked
 achievements, chosen language, and sound settings are stored only on your
@@ -140,8 +111,7 @@ by their own policies:
 - How Google uses information from sites or apps that use its services:
   https://policies.google.com/technologies/partner-sites
 
-The developer receives only the data described in section 2.4, on its own
-server, and does not sell it or transfer it to anyone else.
+The developer does not receive, sell or transfer your data.
 
 ## 4. Consent and your choices
 
@@ -157,30 +127,20 @@ server, and does not sell it or transfer it to anyone else.
 - **Play Games data:** you can review or delete the data associated with this
   game at https://play.google.com/games/profile, or delete your Play Games
   account at https://myaccount.google.com.
-- **Game server data:** email bobagi.contact@gmail.com with the Support ID shown
-  at the end of the game's settings and ask for deletion (see section 6).
 - **Everything else:** uninstalling the app removes all locally stored data.
 
 ## 5. Security
 
-All data collected by the services described above, including the developer's
-game server, is encrypted in transit using TLS/HTTPS. The game server is reachable
-only through HTTPS and keeps its database on a private server.
+All data collected by the services described above is encrypted in transit,
+using TLS/HTTPS.
 
 ## 6. Data retention and deletion
 
-- **Days the game was opened** are kept for up to 400 days and then deleted
-  automatically.
-- **Purchase records** are kept for up to 2 years, the period in which Google
-  Play may still report a refund or chargeback, and then deleted automatically.
-- **To delete your data sooner**, email bobagi.contact@gmail.com with the
-  Support ID shown at the end of the game's settings. The days the game was
-  opened and the installation record are deleted right away. Purchase records
-  are kept until the 2-year limit because they are needed to process refunds
-  and prevent fraud, and they are not used for anything else.
-- Retention of the advertising and Play Games data is controlled by Google, and
-  the controls in section 4 are the way to reset or delete it. Because the app
-  has no accounts, there is no account to delete.
+The developer retains no personal data, because the developer collects none and
+operates no server. Retention of the advertising, Play Games and purchase data
+described above is controlled by Google, and the controls listed in section 4
+and your Google Play account are the way to review or delete it. Because the app
+has no accounts, there is no account for the developer to delete.
 
 ## 7. Children
 

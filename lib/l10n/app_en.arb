@@ -277,16 +277,6 @@
   "dailyHint": "Come back every day: the bonus grows until day 7.",
   "dailyDoubleCta": "Watch an ad and double it",
   "shopTabSkins": "Styles",
-  "shopTabCoins": "Coins",
-  "coinPackTitle": "{amount} coins",
-  "@coinPackTitle": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "coinPackBestValue": "Best value",
   "removeAdsTitle": "No ads",
   "removeAdsBody": "Removes banners and ads between matches, forever. Reward ads stay optional.",
   "removeAdsOwned": "Ads removed. Thank you!",
@@ -295,34 +285,9 @@
   "restorePurchases": "Restore purchases",
   "purchasePending": "Payment pending. Your purchase arrives as soon as Google Play confirms it.",
   "purchaseFailed": "The purchase was not completed.",
-  "needMoreCoins": "You need {amount} more coins for this style.",
-  "@needMoreCoins": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "starterTitle": "Welcome pack",
-  "starterBody": "No ads forever + {amount} coins, in one purchase.",
-  "@starterBody": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "starterSave": "Save {percent}%",
-  "@starterSave": {
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "starterSee": "See offer",
   "notNow": "Not now",
-  "purchaseVerifying": "Payment received. Confirming your purchase, it arrives in a moment.",
   "challengeTitle": "Daily challenge",
   "challengeMoves": "{used}/{limit}",
   "@challengeMoves": {
@@ -388,5 +353,19 @@
       }
     }
   },
-  "supportIdLabel": "Support ID (for help with purchases or deleting your data)"
+  "shopTabPremium": "Premium",
+  "starterBody": "No ads forever + the Aurora style, the most polished in the game.",
+  "starterBadge": "+ AURORA",
+  "collectionTitle": "Full collection",
+  "collectionBody": "Every piece style and board theme, today's and future ones, and no ads.",
+  "collectionOwned": "Everything unlocked. Thank you!",
+  "purchaseUnlocked": "Unlocked! Enjoy.",
+  "needMoreCoinsPremium": "{amount} coins to go. Play to earn them, or get everything with the Full collection.",
+  "@needMoreCoinsPremium": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -511,17 +511,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get shopTabSkins => 'स्टाइल';
 
   @override
-  String get shopTabCoins => 'सिक्के';
-
-  @override
-  String coinPackTitle(int amount) {
-    return '$amount सिक्के';
-  }
-
-  @override
-  String get coinPackBestValue => 'सबसे फ़ायदेमंद';
-
-  @override
   String get removeAdsTitle => 'बिना विज्ञापन';
 
   @override
@@ -549,32 +538,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get purchaseFailed => 'खरीदारी पूरी नहीं हुई।';
 
   @override
-  String needMoreCoins(int amount) {
-    return 'इस स्टाइल के लिए $amount सिक्के और चाहिए।';
-  }
-
-  @override
   String get starterTitle => 'वेलकम पैक';
-
-  @override
-  String starterBody(int amount) {
-    return 'हमेशा के लिए बिना विज्ञापन + $amount सिक्के, एक ही खरीद में।';
-  }
-
-  @override
-  String starterSave(int percent) {
-    return '$percent% बचाएँ';
-  }
 
   @override
   String get starterSee => 'ऑफ़र देखें';
 
   @override
   String get notNow => 'अभी नहीं';
-
-  @override
-  String get purchaseVerifying =>
-      'भुगतान मिल गया। खरीदारी की पुष्टि हो रही है, थोड़ी देर में मिल जाएगी।';
 
   @override
   String get challengeTitle => 'आज की चुनौती';
@@ -675,6 +645,30 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
-  String get supportIdLabel =>
-      'सपोर्ट आईडी (खरीदारी में मदद या डेटा हटाने के लिए)';
+  String get shopTabPremium => 'प्रीमियम';
+
+  @override
+  String get starterBody =>
+      'हमेशा के लिए बिना विज्ञापन + ऑरोरा स्टाइल, खेल की सबसे शानदार।';
+
+  @override
+  String get starterBadge => '+ ऑरोरा';
+
+  @override
+  String get collectionTitle => 'पूरा कलेक्शन';
+
+  @override
+  String get collectionBody =>
+      'सारी मोहरा स्टाइल और बोर्ड थीम, आज की और आने वाली, और बिना विज्ञापन।';
+
+  @override
+  String get collectionOwned => 'सब अनलॉक। धन्यवाद!';
+
+  @override
+  String get purchaseUnlocked => 'अनलॉक हो गया! मज़े करें।';
+
+  @override
+  String needMoreCoinsPremium(int amount) {
+    return '$amount सिक्के और चाहिए। खेलकर कमाएँ या पूरा कलेक्शन लें।';
+  }
 }

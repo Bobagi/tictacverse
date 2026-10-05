@@ -516,17 +516,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shopTabSkins => 'Visuais';
 
   @override
-  String get shopTabCoins => 'Moedas';
-
-  @override
-  String coinPackTitle(int amount) {
-    return '$amount moedas';
-  }
-
-  @override
-  String get coinPackBestValue => 'Melhor oferta';
-
-  @override
   String get removeAdsTitle => 'Sem anúncios';
 
   @override
@@ -554,32 +543,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get purchaseFailed => 'A compra não foi concluída.';
 
   @override
-  String needMoreCoins(int amount) {
-    return 'Faltam $amount moedas para este visual.';
-  }
-
-  @override
   String get starterTitle => 'Pacote de boas-vindas';
-
-  @override
-  String starterBody(int amount) {
-    return 'Sem anúncios para sempre + $amount moedas, numa compra só.';
-  }
-
-  @override
-  String starterSave(int percent) {
-    return 'Economize $percent%';
-  }
 
   @override
   String get starterSee => 'Ver oferta';
 
   @override
   String get notNow => 'Agora não';
-
-  @override
-  String get purchaseVerifying =>
-      'Pagamento recebido. Confirmando a compra, ela chega em instantes.';
 
   @override
   String get challengeTitle => 'Desafio do dia';
@@ -680,6 +650,30 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get supportIdLabel =>
-      'ID de suporte (para ajuda com compras ou exclusão de dados)';
+  String get shopTabPremium => 'Premium';
+
+  @override
+  String get starterBody =>
+      'Sem anúncios para sempre + o visual Aurora, o mais caprichado do jogo.';
+
+  @override
+  String get starterBadge => '+ AURORA';
+
+  @override
+  String get collectionTitle => 'Coleção completa';
+
+  @override
+  String get collectionBody =>
+      'Todos os visuais e temas de tabuleiro, os de hoje e os que vierem, e sem anúncios.';
+
+  @override
+  String get collectionOwned => 'Tudo liberado. Obrigado!';
+
+  @override
+  String get purchaseUnlocked => 'Liberado! Aproveite.';
+
+  @override
+  String needMoreCoinsPremium(int amount) {
+    return 'Faltam $amount moedas. Jogue para ganhar ou leve tudo na Coleção completa.';
+  }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart' show ProductDetails;
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/banner_ad_controller.dart';
@@ -168,18 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool? open = await showStarterOfferDialog(
       context,
       localization: l,
-      coins: storeProductById(starterPackProductId)!.coins,
       price: store.productFor(starterPackProductId)?.price,
-      savingPercent: starterSavingPercent(
-        bundle: store.productFor(starterPackProductId),
-        parts: <ProductDetails?>[
-          store.productFor(removeAdsProductId),
-          store.productFor('coins_1000'),
-        ],
-      ),
     );
     if (open == true && mounted) {
-      _openShop(l, initialTab: ShopTab.coins);
+      _openShop(l, initialTab: ShopTab.premium);
     }
   }
 
@@ -208,7 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 coins: EconomyService.instance.coins,
                 semanticLabel:
                     '${EconomyService.instance.coins} ${localization.coinsLabel}. ${localization.shopTitle}',
-                onTap: () => _openShop(localization, initialTab: ShopTab.coins),
+                // Moedas se gastam nos visuais: o saldo abre direto lá.
+                onTap: () => _openShop(localization),
               ),
             ),
           ),

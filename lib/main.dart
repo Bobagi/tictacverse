@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tictacverse/l10n/app_localizations.dart';
@@ -14,7 +14,6 @@ import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
 import 'services/progression_service.dart';
 import 'services/purchase_service.dart';
-import 'services/retention_ping.dart';
 import 'services/storage_service.dart';
 import 'services/update_service.dart';
 import 'ui/screens/home_screen.dart';
@@ -45,19 +44,10 @@ Future<void> main() async {
     await ConsentService().gatherConsent();
     await MobileAdsInitializationService().initialize();
   }
-  // Compras da Play: escuta desde já, porque a Play entrega na abertura o que
-  // ficou pela metade (pagamento pendente que caiu, app fechado no meio) e
-  // devolve o "sem anúncios" a quem reinstalou. Não segura o splash: quem já
-  // comprou tem o direito gravado no aparelho.
+  // Compras da Play: escuta desde já e pergunta à Play o que o jogador
+  // possui (reinstalou = volta; reembolsou = sai). Não segura o splash: o
+  // último estado confirmado já está gravado no aparelho.
   unawaited(PurchaseService.instance.initialize());
-  // Retenção só conta jogador de verdade: build de debug e a web de QA não
-  // mandam ping (sujariam o D1/D7).
-  if (!kIsWeb && kReleaseMode) {
-    unawaited(RetentionPing().sendIfDue(
-      locale: StorageService.instance.localeCode ??
-          WidgetsBinding.instance.platformDispatcher.locale.languageCode,
-    ));
-  }
   // Fire-and-forget: marca o badge de "nova versão" se a Play tiver update.
   UpdateService.instance.silentCheck();
   runApp(const TicTacVerseApp());

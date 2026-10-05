@@ -11,21 +11,12 @@ formulário está errado.
 > (`docs/privacy-policy.md`) na mesma tarefa. Foi a dessincronização disso que
 > gerou o aviso de política de 24/09/2026.
 
-> **v1.14.0 (2026-10-04): O FORMULÁRIO MUDA.** O app passou a ter servidor próprio
-> (`tictacverse-api`, https://tictacverse-api.bobagi.space): valida toda compra na Play,
-> desfaz reembolsos e mede retenção. Sai do aparelho para nós: o **id aleatório da
-> instalação**, o **token e o produto da compra** (só de quem compra) e, uma vez por dia,
-> **"abriu o jogo hoje" com versão e idioma**. Nada de nome, e-mail, conta, IP guardado
-> ou localização. Ações na Play Console, **antes de promover a v1.14.0 para produção**:
-> 1. Marcar **Financial info → Purchase history** (tabela 7 abaixo).
-> 2. Trocar a resposta de exclusão para **Yes** (pedido por e-mail com o ID de suporte).
-> 3. Nos tipos que já existem (App interactions, Device or other IDs) nada muda: os
->    propósitos declarados já cobrem o que o nosso servidor recebe.
->
-> A política de privacidade ganhou a seção do servidor e foi republicada no mesmo dia.
->
-> **v1.13.0 (2026-10-04, só no teste interno):** entrou o Google Play Billing
-> (permissão `com.android.vending.BILLING`).
+> **v1.14.0 (2026-10-05): o formulário NÃO muda.** O jogo passou a vender compras únicas pelo
+> Google Play Billing (sem anúncios, pacote de boas-vindas, coleção completa) e **não tem servidor
+> próprio**: o app pergunta à própria Play o que o jogador possui e guarda essa lista só no aparelho.
+> Pagamento e histórico ficam com o Google Play. Entre 04 e 05/10 houve uma versão interna com
+> servidor (nunca chegou à produção); ela foi abandonada e as mudanças de formulário que ela pedia
+> NÃO devem ser feitas.
 
 ## Por que esta declaração existe
 
@@ -54,10 +45,9 @@ foi para o AAB.
 | `games_services` (Play Games Services v2) | plugin 5.1.0 | **Sim** | Player ID; conquistas desbloqueadas e nível enviados ao placar; analytics/diagnóstico do próprio SDK |
 | `in_app_update` (Play Core) | 4.2.5 | Fluxo da própria Play Store | Checagem de update. Dado da Play Store, não dado do app |
 | `in_app_review` (Play In-App Review) | 2.0.12 | Fluxo da própria Play Store | Avaliação, **iniciada pelo usuário** |
-| `in_app_purchase` (Google Play Billing, desde a v1.13.0) | plugin 3.3.1, `billing:8.0.0` | Fluxo da própria Play Store | Compra de moedas, "sem anúncios" e pacote de boas-vindas, **iniciada pelo usuário**. Pagamento coletado e processado pelo Google Play; o app nunca vê cartão nem dado de pagamento |
-| `VerseApi` (cliente HTTP próprio, `dart:io`, desde a v1.14.0) | interno | **Sim, para o nosso servidor** | Id aleatório da instalação; produto e token de cada compra (para validar na Play e desfazer reembolso); uma vez por dia: "abriu o jogo", versão do app e idioma. HTTPS. O servidor não guarda IP |
+| `in_app_purchase` (Google Play Billing, desde a v1.14.0) | plugin 3.3.1, `billing:8.0.0` | Fluxo da própria Play Store | Compras únicas (sem anúncios, boas-vindas, coleção), **iniciadas pelo usuário**. Pagamento com o Google Play; o app só consulta à Play o que o jogador possui e guarda a lista no aparelho |
 | `share_plus` (compartilhar vitória, desde a v1.14.0) | 13.3.1 | Fluxo do Android, **iniciado pelo usuário** | A imagem do tabuleiro vai direto do aparelho para o app que o jogador escolhe; nada passa por nós |
-| `package_info_plus` | 10.2.2 | **Não** | Lê a versão do app para o ping diário |
+| `package_info_plus` | 10.2.2 | **Não** | Dependência sem uso de rede |
 | `url_launcher` | 6.3.2 | Abre a ficha da Play no navegador | Nada do app |
 | `shared_preferences` / `StorageService` | 2.5.5 | **Não** | Progressão, XP, conquistas, idioma, áudio: só no aparelho |
 | `MetricsService` | interno | **Não** | Contadores em memória, zerados ao fechar |
@@ -65,8 +55,7 @@ foi para o AAB.
 
 Confirmações que sustentam a declaração:
 
-- Desde a v1.14.0 o app **tem um cliente HTTP próprio** (`lib/services/verse_api.dart`),
-  que só fala com o nosso servidor e só manda o que está na linha `VerseApi` acima.
+- O app **não tem nenhum cliente HTTP próprio** nem servidor nosso.
 - **Sem Firebase, Crashlytics ou Sentry.** Nenhum analytics próprio.
 - **Sem permissão de localização** no manifest mesclado (zero `*_LOCATION`). A
   localização aproximada declarada é a **derivada do IP** pelo SDK de anúncios,
@@ -93,21 +82,18 @@ Fontes oficiais do que cada SDK coleta:
 | Pergunta (rótulo em inglês) | Resposta |
 | --- | --- |
 | Does your app collect or share any of the required user data types? | **Yes** |
-| Is all of the user data collected by your app encrypted in transit? | **Yes** (os SDKs do Google usam TLS/HTTPS e o nosso servidor só aceita HTTPS) |
-| Do you provide a way for users to request that their data be deleted? | **Yes** (desde a v1.14.0) |
+| Is all of the user data collected by your app encrypted in transit? | **Yes** (os SDKs do Google usam TLS/HTTPS) |
+| Do you provide a way for users to request that their data be deleted? | **No** |
 
-Sobre a exclusão: desde a v1.14.0 o nosso servidor guarda o id da instalação, os
-dias em que o jogo foi aberto e, de quem compra, o registro da compra. O jogador
-pede a exclusão por e-mail (bobagi.contact@gmail.com) mandando o **ID de suporte**,
-que aparece no fim das configurações do jogo; apagamos os dias de uso na hora.
-O registro de compra fica pelo prazo de contestação e reembolso da Play (sem ele
-não há como desfazer um estorno), e depois é apagado. Os caminhos do Google
-(Advertising ID, Play Games) seguem na política. O app não cria conta, então a
-URL de exclusão de conta da Play não se aplica.
+Sobre o "No" da exclusão: o app não cria conta nem guarda dado nosso em
+servidor algum, então não há o que pedir para excluir. Os caminhos que existem
+são do próprio Google e estão escritos na política de privacidade (resetar ou
+apagar o Advertising ID nas configurações do Android, apagar os dados do Play
+Games no perfil do Play Games).
 
 ### Tipos de dados a marcar
 
-Marcar exatamente estes sete tipos, em cinco categorias:
+Marcar exatamente estes seis tipos, em quatro categorias:
 
 #### 1. Location → Approximate location
 
@@ -133,10 +119,6 @@ Por quê: o SDK de anúncios coleta o IP e o usa para estimar a localização ge
 | Purposes | **Advertising or marketing**, **Analytics** |
 
 Por quê: o SDK de anúncios coleta abertura do app, toques e vídeo assistido.
-Desde a v1.14.0 o nosso servidor também recebe, uma vez por dia, que a
-instalação abriu o jogo (com versão do app e idioma) para medir retenção: é o
-propósito **Analytics**, que já está marcado. `Shared` segue **Yes** por causa
-do SDK de anúncios; o nosso servidor não repassa nada a ninguém.
 
 #### 3. App activity → Other actions
 
@@ -198,34 +180,15 @@ de travamento e consumo de energia. Não marcar `Other app performance data`.
 
 **É esta a linha que o aviso citou.** Cobre o Advertising ID (GAID), o app set
 ID e os identificadores de conta logada do SDK de anúncios, mais o player ID do
-Play Games (esse é o `App functionality`). Desde a v1.14.0 cobre também o **id
-aleatório da instalação** que o app manda ao nosso servidor (UUID gerado no
-aparelho, some ao desinstalar): `App functionality` (amarrar a compra a quem
-pagou), `Analytics` (retenção) e `Fraud prevention` (impedir compra reaproveitada).
-
-#### 7. Financial info → Purchase history (desde a v1.14.0)
-
-| Campo | Resposta |
-| --- | --- |
-| Collected | **Yes** |
-| Shared | **No** |
-| Processed ephemerally | **No** |
-| Required or optional | **Data collection is optional** (só de quem compra) |
-| Purposes | **App functionality**, **Fraud prevention, security, and compliance** |
-
-Por quê: o app manda ao nosso servidor o produto e o token de cada compra; o
-servidor confere na Play, guarda o registro (produto, token, número do pedido,
-data e o id da instalação) e consulta os reembolsos/estornos da Play para
-desfazer a entrega. Cartão e dados de pagamento continuam só com o Google Play:
-esses o app nunca vê e não se declaram.
+Play Games (esse é o `App functionality`).
 
 ### O que NÃO declarar, e por quê
 
 | Não marcar | Motivo |
 | --- | --- |
-| Personal info → Name, Email address | O apelido do Play Games **entra** no app vindo do Google; o app nunca o manda para fora (o nosso servidor só recebe id aleatório, compra e o ping diário). Receber não é coletar |
+| Personal info → Name, Email address | O apelido do Play Games **entra** no app vindo do Google; o app nunca o manda para fora (não há servidor nosso). Receber não é coletar |
 | Photos and videos | A foto do perfil do Play Games também só entra |
-| Financial info → Credit card, Other financial info | Pagamento é coletado e processado pelo Google Play Billing, sob os termos dele, e o app nunca acessa: pela regra oficial do formulário, **não se declara**. (O Purchase history SIM, ver tabela 7) |
+| Financial info (inclusive Purchase history) | Pagamento e histórico de compras ficam com o Google Play Billing, que coleta direto do usuário sob os termos dele; pela regra oficial do formulário, **não se declara**. O app só pergunta à Play o que o jogador possui e guarda essa lista no aparelho (exceção de on-device processing) |
 | Messages, Contacts, Calendar, Health, Files, Audio, Web browsing | Nada disso é tocado |
 | Qualquer coisa do `shared_preferences` (progressão, XP, idioma, áudio) e do `MetricsService` | Exceção de **on-device access/processing**: não sai do aparelho |
 | `in_app_update`, `in_app_review`, `in_app_purchase`, `url_launcher` | Fluxos da própria Play Store, e a avaliação e a compra são iniciadas pelo usuário |
@@ -250,16 +213,15 @@ receita do app, então fica.
    - *Is all of the user data collected by your app encrypted in transit?* →
      **Yes**
    - *Do you provide a way for users to request that their data be deleted?* →
-     **Yes** (desde a v1.14.0)
+     **No**
    - **Next**.
-6. Tela **Data types**: marcar somente estes sete e clicar em **Next**:
+6. Tela **Data types**: marcar somente estes seis e clicar em **Next**:
    - Location → **Approximate location**
    - App activity → **App interactions**
    - App activity → **Other actions**
    - App info and performance → **Crash logs**
    - App info and performance → **Diagnostics**
    - Device or other IDs → **Device or other IDs**
-   - Financial info → **Purchase history** (novo na v1.14.0)
 7. A Console abre uma tela **Data usage and handling** por tipo marcado.
    Preencher cada uma **exatamente** como nas tabelas acima (Collected, Shared,
    Processed ephemerally, Required/Optional, Purposes) e salvar.

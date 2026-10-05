@@ -3,25 +3,33 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tictacverse/models/board_theme.dart';
+import 'package:tictacverse/models/piece_skin.dart';
 import 'package:tictacverse/models/progress_state.dart';
-import 'package:tictacverse/models/store_product.dart';
 import 'package:tictacverse/services/ads_configuration.dart';
+import 'package:tictacverse/services/economy_service.dart';
 import 'package:tictacverse/services/purchase_service.dart';
+import 'package:tictacverse/services/purchase_verifier.dart';
 import 'package:tictacverse/services/storage_service.dart';
-import 'package:tictacverse/services/verse_api.dart';
 
-const String install = '1b4e28ba-2fa1-4d3b-a3f5-ef19b5a7633b';
+/// Par de chaves de TESTE (gerado com openssl só para isto): a assinatura
+/// abaixo é a de [signedJson] com a chave privada correspondente.
+const String testPublicKey =
+    'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxxmbugiMHy6rgU4yV51RXc2x9k0dQGpXEyoNS+MPunqVvlnlm4dpM0sg6VQ8v3AZoSCfGNEBbRd8+FUi7lZpKGa0Jd9E29rPamDdea7Bzg8wzYON1cuEYmZcLFRsxouWEJnijlHRQ/1XetKXfLbqcs0ATQ759JNaH6333UgsRsu7yALDCoFFJf+V2GzdY/Dlp6Z5VtsqdLnFUQrwi8Sc2LyN0d5xqpyt9qc8634Ndieck1YGhZGtNOnMZ0o36SVTiVWgfMRFSYMtIzrfeck35DNsUeeUNzGfuwb/PvwLU1AWpSet9D3ytNVQ0EQg4CqtwohH8mvL6BFM8D+FFZHL6wIDAQAB';
+const String signedJson =
+    r'{"orderId":"GPA.1","packageName":"com.bobagi.tictacverse","productId":"collection","purchaseState":0,"purchaseToken":"tok"}';
+const String goodSignature =
+    'EieyOrAwprlicIoEj87wVd0tVghlcBuIb66H9P8IUhe1YLVGOPHdCwWrHEr75PzmFHuznDbkm92xMUEF31M53zmQ1aCgJafi4+eefPgRm9fkH8NcE0SPcP4Gv2XqBiMO36OVCnb/dGAiafmYAflPX0xEXD0/ZkJKGgIfIhAgWdwlctZXBYFWP9qzF0w8m4xlN5g22bIbRhOp4Q0jmred1bYpSva5IJksiXiewtFjG0XjKQz1nZOAeNaN/a2qAqUPc0j1ms7QypxD2keNtTjw46dk4f28+p28QZTKXh8TMmLSNaAp4iDGz4vBs24dFy2aXWr9HQsIcv3IJZA4cUUT9Q==';
 
-/// Play falsa: registra a ordem das chamadas e o saldo no momento do consumo.
-class FakePurchaseBackend implements PurchaseBackend {
+/// Play falsa: [owned] é o que a Play diz que o jogador possui agora.
+class FakePlay implements PurchaseBackend {
   final StreamController<List<PurchaseDetails>> controller =
       StreamController<List<PurchaseDetails>>.broadcast();
   final List<String> calls = <String>[];
-  int coinsWhenConsumed = -1;
+  List<PurchaseDetails>? owned = <PurchaseDetails>[];
   bool available = true;
-  bool consumeOk = true;
   int buys = 0;
-  String? lastAccountId;
+  final Map<String, String> signatures = <String, String>{};
 
   @override
   Stream<List<PurchaseDetails>> get purchaseStream => controller.stream;
@@ -34,348 +42,226 @@ class FakePurchaseBackend implements PurchaseBackend {
       ids.map(product).toList();
 
   @override
-  Future<bool> buy(ProductDetails product,
-      {required bool consumable, required String accountId}) async {
+  Future<bool> buy(ProductDetails product) async {
     buys++;
-    lastAccountId = accountId;
-    calls.add('buy:${product.id}:${consumable ? 'consumable' : 'once'}');
+    calls.add('buy:${product.id}');
     return true;
   }
 
   @override
-  Future<void> restore() async => calls.add('restore');
-
-  @override
-  Future<bool> consume(PurchaseDetails purchase) async {
-    coinsWhenConsumed = StorageService.instance.progress.coins;
-    calls.add('consume:${purchase.productID}');
-    return consumeOk;
+  Future<List<PurchaseDetails>?> queryOwned() async {
+    calls.add('query');
+    return owned == null ? null : List<PurchaseDetails>.of(owned!);
   }
 
   @override
   Future<void> complete(PurchaseDetails purchase) async =>
       calls.add('complete:${purchase.productID}');
-}
-
-/// Servidor falso: por padrão confirma o que o catálogo diz; [verdicts]
-/// sobrescreve por token. Reentrega a mesma resposta para o mesmo token,
-/// como o servidor de verdade faz para a mesma instalação.
-class FakeApi implements VerseApi {
-  final Map<String, VerifyResult> verdicts = <String, VerifyResult>{};
-  final List<Revocation> revoked = <Revocation>[];
-  bool online = true;
-  int verifyCalls = 0;
-  int revocationCalls = 0;
 
   @override
-  Future<VerifyResult> verifyPurchase({
-    required String installId,
-    required String productId,
-    required String purchaseToken,
-  }) async {
-    verifyCalls++;
-    if (!online) {
-      return VerifyResult.retryLater;
-    }
-    final VerifyResult? forced = verdicts[purchaseToken];
-    if (forced != null) {
-      return forced;
-    }
-    final StoreProduct p = storeProductById(productId)!;
-    return VerifyResult(VerifyStatus.granted,
-        coins: p.coins,
-        removeAds: p.removeAds,
-        redemptionId: 'r-$purchaseToken');
-  }
-
-  @override
-  Future<List<Revocation>?> revocations(String installId) async {
-    revocationCalls++;
-    return online ? List<Revocation>.of(revoked) : null;
-  }
-
-  @override
-  Future<bool> ping({
-    required String installId,
-    required String appVersion,
-    required String locale,
-  }) async =>
-      online;
+  String? signatureOf(PurchaseDetails purchase) =>
+      signatures[purchase.productID];
 }
 
 ProductDetails product(String id) => ProductDetails(
-      id: id,
-      title: id,
-      description: id,
-      price: r'R$ 4,99',
-      rawPrice: 4.99,
-      currencyCode: 'BRL',
-    );
+    id: id,
+    title: id,
+    description: id,
+    price: r'R$ 4,99',
+    rawPrice: 4.99,
+    currencyCode: 'BRL');
 
-PurchaseDetails purchase(
-  String productId,
-  PurchaseStatus status, {
-  String token = 'tok-1',
-  bool pendingComplete = true,
-}) =>
+PurchaseDetails purchase(String id, PurchaseStatus status,
+        {bool pendingComplete = true, String json = '{}'}) =>
     PurchaseDetails(
-      purchaseID: 'GPA.$token',
-      productID: productId,
+      purchaseID: 'GPA.$id',
+      productID: id,
       verificationData: PurchaseVerificationData(
-        localVerificationData: '{}',
-        serverVerificationData: token,
-        source: 'google_play',
-      ),
+          localVerificationData: json,
+          serverVerificationData: 'tok-$id',
+          source: 'google_play'),
       transactionDate: '0',
       status: status,
     )..pendingCompletePurchase = pendingComplete;
 
+ProgressState get state => StorageService.instance.progress;
+
 void main() {
-  late FakePurchaseBackend play;
-  late FakeApi api;
+  late FakePlay play;
   late PurchaseService service;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.instance.load();
     StorageService.instance.progress = ProgressState();
-    play = FakePurchaseBackend();
-    api = FakeApi();
-    service =
-        PurchaseService(backend: play, api: api, installId: () => install);
+    play = FakePlay();
+    service = PurchaseService(backend: play, verifier: PurchaseVerifier(''));
     await service.initialize();
   });
 
   tearDown(() => service.dispose());
 
-  test('abre a loja com os preços da Play, confere estornos e pede pendentes',
+  test('abre a loja com os preços da Play e pergunta o que o jogador possui',
       () async {
     expect(service.availability.value, StoreAvailability.ready);
-    expect(service.productFor('coins_300')?.price, r'R$ 4,99');
-    expect(play.calls, contains('restore'));
-    expect(api.revocationCalls, 1);
+    expect(service.productFor('collection')?.price, r'R$ 4,99');
+    expect(play.calls, contains('query'));
   });
 
-  test('Play indisponível deixa a loja fechada, sem quebrar', () async {
-    final FakePurchaseBackend off = FakePurchaseBackend()..available = false;
-    final PurchaseService s =
-        PurchaseService(backend: off, api: api, installId: () => install);
-    await s.initialize();
-    expect(s.availability.value, StoreAvailability.unavailable);
-    expect(await s.buy('coins_300'), isFalse);
-    expect(off.buys, 0);
-  });
-
-  test('a compra leva o id da instalação para a Play (amarra ao servidor)',
+  test('reinstalou: a Play devolve o que ele possui e o direito volta',
       () async {
-    await service.buy('coins_300');
-    expect(play.lastAccountId, install);
+    play.owned = <PurchaseDetails>[
+      purchase('remove_ads', PurchaseStatus.purchased, pendingComplete: false)
+    ];
+    await service.refreshOwnership();
+    expect(state.adsRemoved, isTrue);
+    expect(AdsConfiguration.passiveAdsEnabled, isFalse);
   });
 
-  test('pacote: servidor confirma, app credita e grava ANTES de consumir',
+  test('REEMBOLSO: sumiu da lista da Play, o direito some na abertura',
       () async {
-    expect(await service.buy('coins_1000'), isTrue);
-    expect(play.calls.last, 'buy:coins_1000:consumable');
+    play.owned = <PurchaseDetails>[
+      purchase('starter_pack', PurchaseStatus.purchased, pendingComplete: false)
+    ];
+    await service.refreshOwnership();
+    EconomyService.instance.equip(pieceSkinById('aurora'));
+    expect(state.adsRemoved, isTrue);
+    expect(state.equippedSkin, 'aurora');
+
+    play.owned = <PurchaseDetails>[]; // a pessoa pediu reembolso
+    await service.refreshOwnership();
+    expect(state.adsRemoved, isFalse);
+    expect(state.hasSkin('aurora'), isFalse);
+    expect(state.equippedSkin, ProgressState.defaultSkinId,
+        reason: 'visual em uso que deixou de ser dele volta para o inicial');
+  });
+
+  test('sem resposta da Play (sem rede), vale o último estado confirmado',
+      () async {
+    play.owned = <PurchaseDetails>[
+      purchase('collection', PurchaseStatus.purchased, pendingComplete: false)
+    ];
+    await service.refreshOwnership();
+    play.owned = null;
+    await service.refreshOwnership();
+    expect(state.playOwned, contains('collection'));
+    final ProgressState back = ProgressState.fromJson(state.toJson());
+    expect(back.hasTheme('royal'), isTrue, reason: 'sobrevive ao save');
+  });
+
+  test('coleção completa libera todos os visuais e temas, e tira anúncios',
+      () async {
+    play.owned = <PurchaseDetails>[
+      purchase('collection', PurchaseStatus.purchased, pendingComplete: false)
+    ];
+    await service.refreshOwnership();
+    for (final PieceSkin s in pieceSkinCatalog) {
+      expect(state.hasSkin(s.id), isTrue, reason: s.id);
+    }
+    for (final BoardTheme t in boardThemeCatalog) {
+      expect(state.hasTheme(t.id), isTrue, reason: t.id);
+    }
+    expect(state.adsRemoved, isTrue);
+    expect(state.coins, 0, reason: 'nenhuma compra dá moeda');
+  });
+
+  test('compra nova: confirma na Play e libera; outcome avisa a tela',
+      () async {
+    expect(await service.buy('starter_pack'), isTrue);
+    play.owned = <PurchaseDetails>[
+      purchase('starter_pack', PurchaseStatus.purchased)
+    ];
     await service.handlePurchases(
-        <PurchaseDetails>[purchase('coins_1000', PurchaseStatus.purchased)]);
-    expect(api.verifyCalls, 1);
-    expect(StorageService.instance.progress.coins, 1000);
-    expect(play.coinsWhenConsumed, 1000,
-        reason: 'consumir antes de creditar perde a compra se o app morrer');
-    expect(play.calls.last, 'consume:coins_1000');
+        <PurchaseDetails>[purchase('starter_pack', PurchaseStatus.purchased)]);
+    expect(play.calls, contains('complete:starter_pack'));
+    expect(state.hasSkin('aurora'), isTrue);
+    expect(state.adsRemoved, isTrue);
     expect(service.buying.value, isNull);
-    expect(service.lastOutcome.value?.kind, PurchaseOutcomeKind.coins);
-
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('progress.v1'), contains('"coins":1000'),
-        reason: 'o crédito precisa estar no disco');
+    expect(service.lastOutcome.value?.kind, PurchaseOutcomeKind.unlocked);
+    expect(await service.buy('starter_pack'), isFalse,
+        reason: 'não deixa pagar de novo pelo que já possui');
   });
 
-  test('servidor fora do ar: não credita, não consome, e entrega na volta',
-      () async {
-    api.online = false;
-    await service.buy('coins_300');
+  test('compra nova com a lista da Play atrasada ainda libera', () async {
+    await service.buy('remove_ads');
+    play.owned = <PurchaseDetails>[]; // cache da Play ainda sem a compra
     await service.handlePurchases(
-        <PurchaseDetails>[purchase('coins_300', PurchaseStatus.purchased)]);
-    expect(StorageService.instance.progress.coins, 0);
-    expect(play.calls, isNot(contains('consume:coins_300')),
-        reason: 'consumir sem confirmação = Play acha que entregamos');
-    expect(service.lastOutcome.value?.kind, PurchaseOutcomeKind.verifying);
-    expect(service.hasPendingVerification, isTrue);
-    expect(service.buying.value, isNull, reason: 'não pode travar a loja');
-
-    api.online = true;
-    await service.retryPendingVerifications();
-    expect(StorageService.instance.progress.coins, 300);
-    expect(play.calls.last, 'consume:coins_300');
-    expect(service.hasPendingVerification, isFalse);
+        <PurchaseDetails>[purchase('remove_ads', PurchaseStatus.purchased)]);
+    expect(state.adsRemoved, isTrue);
   });
 
-  test('servidor diz inválido (token falso, outra instalação): nada entra',
-      () async {
-    api.verdicts['forjado'] = const VerifyResult(VerifyStatus.invalid);
+  test('pendente não libera; cancelada e erro destravam sem liberar', () async {
+    await service.buy('collection');
     await service.handlePurchases(<PurchaseDetails>[
-      purchase('coins_3000', PurchaseStatus.purchased, token: 'forjado')
+      purchase('collection', PurchaseStatus.pending, pendingComplete: false)
     ]);
-    expect(StorageService.instance.progress.coins, 0);
-    expect(play.calls.where((String c) => c.startsWith('consume')), isEmpty);
-    expect(play.calls.where((String c) => c.startsWith('complete')), isEmpty);
-  });
-
-  test('compra estornada antes de entregar: servidor diz revogada, nada entra',
-      () async {
-    api.verdicts['estornada'] = const VerifyResult(VerifyStatus.revoked);
-    await service.handlePurchases(<PurchaseDetails>[
-      purchase('remove_ads', PurchaseStatus.restored, token: 'estornada')
-    ]);
-    expect(StorageService.instance.progress.adsRemoved, isFalse);
-  });
-
-  test('o servidor reentregando a mesma compra não paga em dobro', () async {
-    play.consumeOk = false;
-    await service.handlePurchases(
-        <PurchaseDetails>[purchase('coins_300', PurchaseStatus.purchased)]);
-    await service.handlePurchases(
-        <PurchaseDetails>[purchase('coins_300', PurchaseStatus.restored)]);
-    expect(api.verifyCalls, 2);
-    expect(StorageService.instance.progress.coins, 300);
-    expect(play.calls.where((String c) => c == 'consume:coins_300').length, 2,
-        reason: 'segue tentando consumir até a Play aceitar');
-  });
-
-  test('pagamento pendente não vai ao servidor nem credita', () async {
-    await service.buy('coins_300');
-    await service.handlePurchases(<PurchaseDetails>[
-      purchase('coins_300', PurchaseStatus.pending, pendingComplete: false)
-    ]);
-    expect(api.verifyCalls, 0);
-    expect(StorageService.instance.progress.coins, 0);
+    expect(state.playOwned, isEmpty);
     expect(service.lastOutcome.value?.kind, PurchaseOutcomeKind.pending);
     expect(service.buying.value, isNull);
 
+    await service.buy('collection');
     await service.handlePurchases(
-        <PurchaseDetails>[purchase('coins_300', PurchaseStatus.purchased)]);
-    expect(StorageService.instance.progress.coins, 300);
-  });
-
-  test('cancelada ou com erro: nada creditado, loja destrava', () async {
-    await service.buy('coins_300');
-    await service.handlePurchases(
-        <PurchaseDetails>[purchase('coins_300', PurchaseStatus.canceled)]);
-    expect(StorageService.instance.progress.coins, 0);
-    expect(service.buying.value, isNull);
+        <PurchaseDetails>[purchase('collection', PurchaseStatus.canceled)]);
+    expect(state.playOwned, isEmpty);
     expect(service.lastOutcome.value?.kind, PurchaseOutcomeKind.canceled);
-
-    await service.buy('coins_300');
-    await service.handlePurchases(
-        <PurchaseDetails>[purchase('coins_300', PurchaseStatus.error)]);
-    expect(StorageService.instance.progress.coins, 0);
-    expect(service.lastOutcome.value?.kind, PurchaseOutcomeKind.failed);
   });
 
   test('toque duplo abre uma compra só', () async {
-    await service.buy('coins_300');
-    expect(await service.buy('coins_3000'), isFalse);
+    await service.buy('remove_ads');
+    expect(await service.buy('collection'), isFalse);
     expect(play.buys, 1);
   });
 
-  test('"sem anúncios": confirma (não consome) e desliga os passivos',
-      () async {
-    expect(AdsConfiguration.passiveAdsEnabled, AdsConfiguration.adsEnabled);
-    await service.buy('remove_ads');
-    expect(play.calls.last, 'buy:remove_ads:once');
-    await service.handlePurchases(
-        <PurchaseDetails>[purchase('remove_ads', PurchaseStatus.purchased)]);
-    expect(StorageService.instance.progress.adsRemoved, isTrue);
-    expect(play.calls.last, 'complete:remove_ads');
-    expect(play.calls, isNot(contains('consume:remove_ads')));
-    expect(AdsConfiguration.passiveAdsEnabled, isFalse);
-    expect(service.lastOutcome.value?.kind, PurchaseOutcomeKind.adsRemoved);
-    expect(await service.buy('remove_ads'), isFalse,
-        reason: 'não deixa pagar duas vezes pelo mesmo direito');
-    expect(await service.buy('starter_pack'), isFalse,
-        reason: 'o pacote de boas-vindas também traz "sem anúncios"');
+  test('produto que o app não vende não libera nada', () async {
+    play.owned = <PurchaseDetails>[
+      purchase('coins_3000', PurchaseStatus.purchased, pendingComplete: false)
+    ];
+    await service.refreshOwnership();
+    expect(state.coins, 0);
+    expect(state.adsRemoved, isFalse);
   });
 
-  test('pacote de boas-vindas entrega moedas e "sem anúncios" uma vez só',
-      () async {
-    await service.handlePurchases(<PurchaseDetails>[
-      purchase('starter_pack', PurchaseStatus.purchased, token: 'sp')
-    ]);
-    expect(StorageService.instance.progress.coins, 1000);
-    expect(StorageService.instance.progress.adsRemoved, isTrue);
-    expect(play.calls.last, 'complete:starter_pack');
-    // Restore a cada abertura: o mesmo token não paga de novo.
-    await service.handlePurchases(<PurchaseDetails>[
-      purchase('starter_pack', PurchaseStatus.restored,
-          token: 'sp', pendingComplete: false)
-    ]);
-    expect(StorageService.instance.progress.coins, 1000);
-  });
+  group('assinatura da Play', () {
+    late PurchaseVerifier verifier;
+    setUp(() => verifier = PurchaseVerifier(testPublicKey));
 
-  test('reinstalou: o servidor devolve só o direito, sem moedas', () async {
-    api.verdicts['velho'] = const VerifyResult(VerifyStatus.granted,
-        coins: 0, removeAds: true, redemptionId: '7');
-    await service.handlePurchases(<PurchaseDetails>[
-      purchase('starter_pack', PurchaseStatus.restored,
-          token: 'velho', pendingComplete: false)
-    ]);
-    expect(StorageService.instance.progress.adsRemoved, isTrue);
-    expect(StorageService.instance.progress.coins, 0);
-  });
+    test('chave de teste é lida', () => expect(verifier.enabled, isTrue));
 
-  test('estorno de moedas: tira o saldo e devolve visuais se já gastou',
-      () async {
-    StorageService.instance.progress = ProgressState(
-        coins: 200,
-        ownedSkins: <String>{'neon', 'galaxy', 'fireIce'},
-        equippedSkin: 'galaxy',
-        coinPurchases: <String, int>{'skin:galaxy': 800, 'skin:fireIce': 250});
-    api.revoked.add(const Revocation(
-        redemptionId: '12',
-        productId: 'coins_1000',
-        coins: 1000,
-        removeAds: false));
-    await service.syncRevocations();
-    final ProgressState s = StorageService.instance.progress;
-    // 200 - 1000 = -800; a galáxia (800) volta para a loja e cobre a dívida.
-    expect(s.ownedSkins, isNot(contains('galaxy')));
-    expect(s.ownedSkins, contains('fireIce'));
-    expect(s.equippedSkin, 'neon');
-    expect(s.coins, 0);
-    // Rodar de novo (toda abertura do app) não desconta outra vez.
-    await service.syncRevocations();
-    expect(StorageService.instance.progress.coins, 0);
-  });
+    test('assinatura verdadeira passa', () {
+      expect(verifier.verify(signedJson, goodSignature), isTrue);
+    });
 
-  test('estorno do "sem anúncios": anúncios voltam e o restore confere',
-      () async {
-    await service.handlePurchases(
-        <PurchaseDetails>[purchase('remove_ads', PurchaseStatus.purchased)]);
-    expect(StorageService.instance.progress.adsRemoved, isTrue);
-    play.calls.clear();
-    api.revoked.add(const Revocation(
-        redemptionId: '3', productId: 'remove_ads', coins: 0, removeAds: true));
-    await service.syncRevocations();
-    expect(StorageService.instance.progress.adsRemoved, isFalse);
-    expect(play.calls, contains('restore'),
-        reason: 'se houver outra compra válida, ela devolve o direito');
-  });
+    test('dado adulterado ou assinatura ausente/falsa não passa', () {
+      expect(
+          verifier.verify(
+              signedJson.replaceAll('collection', 'remove_ads'), goodSignature),
+          isFalse);
+      expect(verifier.verify(signedJson, null), isFalse);
+      expect(verifier.verify(signedJson, 'AAAA'), isFalse);
+    });
 
-  test('servidor sem rede na sincronização de estornos não mexe em nada',
-      () async {
-    StorageService.instance.progress = ProgressState(coins: 50);
-    api.online = false;
-    await service.syncRevocations();
-    expect(StorageService.instance.progress.coins, 50);
-  });
+    test('compra forjada (sem assinatura válida) não libera nada', () async {
+      final PurchaseService strict =
+          PurchaseService(backend: play, verifier: verifier);
+      await strict.initialize();
+      play.owned = <PurchaseDetails>[
+        purchase('collection', PurchaseStatus.purchased,
+            pendingComplete: false, json: signedJson)
+      ];
+      play.signatures['collection'] = 'forjada';
+      await strict.refreshOwnership();
+      expect(state.playOwned, isEmpty);
 
-  test('produto desconhecido é só finalizado, sem crédito', () async {
-    await service.handlePurchases(
-        <PurchaseDetails>[purchase('hack_9999', PurchaseStatus.purchased)]);
-    expect(StorageService.instance.progress.coins, 0);
-    expect(api.verifyCalls, 0);
-    expect(play.calls.last, 'complete:hack_9999');
+      play.signatures['collection'] = goodSignature;
+      await strict.refreshOwnership();
+      expect(state.playOwned, contains('collection'));
+      strict.dispose();
+    });
+
+    test('chave vazia desliga a verificação (até o dono configurar)', () {
+      expect(PurchaseVerifier('').enabled, isFalse);
+      expect(PurchaseVerifier('').verify('{}', null), isTrue);
+    });
   });
 
   test('loja de mentira nunca liga em build de release nativo', () {
@@ -385,27 +271,7 @@ void main() {
         isFalse);
     expect(
         PurchaseService.useDemoStore(
-            requested: false, isWeb: true, isRelease: false),
-        isFalse);
-    expect(
-        PurchaseService.useDemoStore(
             requested: true, isWeb: true, isRelease: true),
         isTrue);
-    expect(
-        PurchaseService.useDemoStore(
-            requested: true, isWeb: false, isRelease: false),
-        isTrue);
-  });
-
-  test('resposta estranha do servidor nunca vira entrega', () {
-    expect(HttpVerseApi.parseVerify(<String, dynamic>{'status': 'ok'}).status,
-        VerifyStatus.retry);
-    final VerifyResult weird = HttpVerseApi.parseVerify(<String, dynamic>{
-      'status': 'granted',
-      'coins': 99999999,
-      'removeAds': 'yes',
-    });
-    expect(weird.coins, 0, reason: 'valor fora do teto não credita');
-    expect(weird.removeAds, isFalse, reason: 'só true literal liga o direito');
   });
 }

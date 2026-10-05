@@ -514,17 +514,6 @@ class AppLocalizationsNe extends AppLocalizations {
   String get shopTabSkins => 'स्टाइल';
 
   @override
-  String get shopTabCoins => 'सिक्का';
-
-  @override
-  String coinPackTitle(int amount) {
-    return '$amount सिक्का';
-  }
-
-  @override
-  String get coinPackBestValue => 'सबैभन्दा फाइदाजनक';
-
-  @override
   String get removeAdsTitle => 'विज्ञापन बिना';
 
   @override
@@ -552,32 +541,13 @@ class AppLocalizationsNe extends AppLocalizations {
   String get purchaseFailed => 'किनमेल पूरा भएन।';
 
   @override
-  String needMoreCoins(int amount) {
-    return 'यो स्टाइलका लागि $amount सिक्का अझै चाहिन्छ।';
-  }
-
-  @override
   String get starterTitle => 'स्वागत प्याक';
-
-  @override
-  String starterBody(int amount) {
-    return 'सधैँका लागि विज्ञापन बिना + $amount सिक्का, एउटै किनमेलमा।';
-  }
-
-  @override
-  String starterSave(int percent) {
-    return '$percent% बचत';
-  }
 
   @override
   String get starterSee => 'अफर हेर्नुहोस्';
 
   @override
   String get notNow => 'अहिले होइन';
-
-  @override
-  String get purchaseVerifying =>
-      'भुक्तानी प्राप्त भयो। किनमेल पुष्टि हुँदैछ, केही बेरमा आइपुग्छ।';
 
   @override
   String get challengeTitle => 'आजको चुनौती';
@@ -678,5 +648,30 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
-  String get supportIdLabel => 'सपोर्ट आईडी (किनमेलमा सहयोग वा डेटा मेटाउन)';
+  String get shopTabPremium => 'प्रिमियम';
+
+  @override
+  String get starterBody =>
+      'सधैँका लागि विज्ञापन बिना + अरोरा स्टाइल, खेलको सबैभन्दा राम्रो।';
+
+  @override
+  String get starterBadge => '+ अरोरा';
+
+  @override
+  String get collectionTitle => 'पूरा सङ्ग्रह';
+
+  @override
+  String get collectionBody =>
+      'सबै गोटी स्टाइल र बोर्ड थिम, आजका र आउने, र विज्ञापन बिना।';
+
+  @override
+  String get collectionOwned => 'सबै अनलक। धन्यवाद!';
+
+  @override
+  String get purchaseUnlocked => 'अनलक भयो! रमाइलो गर्नुहोस्।';
+
+  @override
+  String needMoreCoinsPremium(int amount) {
+    return '$amount सिक्का अझै चाहिन्छ। खेलेर कमाउनुहोस् वा पूरा सङ्ग्रह लिनुहोस्।';
+  }
 }

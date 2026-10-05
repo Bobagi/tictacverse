@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tictacverse/models/board_theme.dart';
 import 'package:tictacverse/models/cpu_difficulty.dart';
 import 'package:tictacverse/models/game_mode.dart';
 import 'package:tictacverse/models/piece_skin.dart';
@@ -214,8 +215,7 @@ void main() {
         'equippedSkin': 7,
       });
       expect(old.xp, 500);
-      expect(old.coins, -40,
-          reason: 'saldo negativo é dívida de estorno e precisa sobreviver');
+      expect(old.coins, 0, reason: 'saldo nunca nasce negativo');
       expect(old.ownedSkins, <String>{'aurora', 'neon'},
           reason: 'save de antes da troca: quem já jogava fica com o Aurora');
       expect(old.equippedSkin, ProgressState.defaultSkinId);
@@ -306,173 +306,66 @@ void main() {
     });
   });
 
-  group('entrega confirmada pelo servidor', () {
-    test('credita uma vez por token, mesmo reentregue', () {
-      final ProgressState s = ProgressState(coins: 10);
-      final StoreGrant g = engine.applyServerGrant(s,
-          purchaseToken: 'tok-a', coins: 1000, removeAds: false);
-      expect(g.coins, 1000);
-      expect(s.coins, 1010);
-      final StoreGrant again = engine.applyServerGrant(s,
-          purchaseToken: 'tok-a', coins: 1000, removeAds: false);
-      expect(again.duplicate, isTrue);
-      expect(s.coins, 1010);
-      engine.applyServerGrant(s,
-          purchaseToken: 'tok-b', coins: 1000, removeAds: false);
-      expect(s.coins, 2010, reason: 'compra nova do mesmo pacote paga de novo');
+  group('o que a Play diz que o jogador possui', () {
+    test('cada produto libera exatamente o que promete', () {
+      final ProgressState s = ProgressState();
+      engine.applyPlayOwnership(s, <String>{'remove_ads'});
+      expect(s.adsRemoved, isTrue);
+      expect(s.hasSkin('aurora'), isFalse);
+      engine.applyPlayOwnership(s, <String>{'starter_pack'});
+      expect(s.adsRemoved, isTrue);
+      expect(s.hasSkin('aurora'), isTrue);
+      expect(s.hasSkin('galaxy'), isFalse);
+      engine.applyPlayOwnership(s, <String>{'collection'});
+      expect(s.hasSkin('galaxy'), isTrue);
+      expect(s.hasTheme('royal'), isTrue);
     });
 
-    test('token vazio e moeda negativa não creditam', () {
+    test('item liberado pela Play se usa sem moedas e não é comprado de novo',
+        () {
+      final ProgressState s = ProgressState(coins: 5000);
+      engine.applyPlayOwnership(s, <String>{'starter_pack'});
+      expect(engine.buySkin(s, 'aurora'), SkinPurchaseResult.alreadyOwned);
+      expect(s.coins, 5000, reason: 'não cobra moedas por algo já pago');
+      expect(engine.equipSkin(s, 'aurora'), isTrue);
+    });
+
+    test('reembolso: some da lista, some o direito, e o visual em uso volta',
+        () {
       final ProgressState s = ProgressState();
-      engine.applyServerGrant(s,
-          purchaseToken: '', coins: 300, removeAds: true);
-      engine.applyServerGrant(s,
-          purchaseToken: 'x', coins: -50, removeAds: false);
-      expect(s.coins, 0);
+      engine.applyPlayOwnership(s, <String>{'collection'});
+      engine.equipSkin(s, 'galaxy');
+      engine.equipTheme(s, 'royal');
+      expect(engine.applyPlayOwnership(s, <String>{}), isTrue);
+      expect(s.hasSkin('galaxy'), isFalse);
+      expect(s.equippedSkin, ProgressState.defaultSkinId);
+      expect(s.equippedTheme, defaultBoardThemeId);
       expect(s.adsRemoved, isFalse);
     });
 
-    test('"sem anúncios" liga o direito e sobrevive ao save', () {
+    test('o que foi comprado com moedas NÃO some com reembolso de outra coisa',
+        () {
+      final ProgressState s = ProgressState(coins: 800);
+      expect(engine.buySkin(s, 'galaxy'), SkinPurchaseResult.purchased);
+      engine.applyPlayOwnership(s, <String>{'collection'});
+      engine.applyPlayOwnership(s, <String>{});
+      expect(s.hasSkin('galaxy'), isTrue);
+      expect(s.equippedSkin, 'galaxy');
+    });
+
+    test('mesma lista de novo não conta como mudança (não regrava à toa)', () {
       final ProgressState s = ProgressState();
-      final StoreGrant g = engine.applyServerGrant(s,
-          purchaseToken: 't', coins: 0, removeAds: true);
-      expect(g.removedAds, isTrue);
-      expect(g.duplicate, isFalse);
-      expect(s.adsRemoved, isTrue);
+      expect(engine.applyPlayOwnership(s, <String>{'remove_ads'}), isTrue);
+      expect(engine.applyPlayOwnership(s, <String>{'remove_ads'}), isFalse);
+    });
+
+    test('a lista confirmada sobrevive ao save (jogo offline)', () {
+      final ProgressState s = ProgressState();
+      engine.applyPlayOwnership(s, <String>{'starter_pack'});
       final ProgressState back = ProgressState.fromJson(
           jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
       expect(back.adsRemoved, isTrue);
-    });
-
-    test('o registro de tokens tem teto e sobrevive ao save', () {
-      final ProgressState s = ProgressState();
-      for (int i = 0; i < ProgressState.processedPurchasesCap + 5; i++) {
-        engine.applyServerGrant(s,
-            purchaseToken: 't$i', coins: 300, removeAds: false);
-      }
-      expect(s.processedPurchases.length, ProgressState.processedPurchasesCap);
-      expect(s.processedPurchases.first, 't5');
-      final ProgressState back = ProgressState.fromJson(
-          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
-      final int before = back.coins;
-      engine.applyServerGrant(back,
-          purchaseToken: 't50', coins: 300, removeAds: false);
-      expect(back.coins, before);
-    });
-  });
-
-  group('estorno', () {
-    test('com saldo, só desconta', () {
-      final ProgressState s = ProgressState(coins: 1500);
-      final RevocationEffect e = engine.applyRevocation(s,
-          redemptionId: '1', coins: 1000, removeAds: false);
-      expect(e.applied, isTrue);
-      expect(s.coins, 500);
-      expect(e.lostSkins, isEmpty);
-    });
-
-    test('gastou tudo: visuais voltam para a loja, do mais caro, até cobrir',
-        () {
-      final ProgressState s = ProgressState(
-          coins: 100,
-          ownedSkins: <String>{'neon', 'fireIce', 'candy', 'gold'},
-          equippedSkin: 'candy',
-          coinPurchases: <String, int>{
-            'skin:fireIce': 250,
-            'skin:candy': 350,
-            'skin:gold': 500,
-          });
-      // 100 - 1000 = -900: sai o ouro (500) -> -400, sai a bala (350) -> -50,
-      // sai fogo e gelo (250) -> 200.
-      final RevocationEffect e = engine.applyRevocation(s,
-          redemptionId: '2', coins: 1000, removeAds: false);
-      expect(e.lostSkins, <String>['gold', 'candy', 'fireIce']);
-      expect(s.coins, 200);
-      expect(s.ownedSkins, <String>{'neon'});
-      expect(s.equippedSkin, 'neon');
-    });
-
-    test('nem os visuais cobrem: saldo fica negativo e sobrevive ao save', () {
-      final ProgressState s = ProgressState(coins: 0);
-      engine.applyRevocation(s,
-          redemptionId: '3', coins: 3000, removeAds: false);
-      expect(s.coins, -3000);
-      final ProgressState back = ProgressState.fromJson(
-          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
-      expect(back.coins, -3000, reason: 'a dívida não some ao reabrir');
-      expect(
-          engine.buySkin(back, 'fireIce'), SkinPurchaseResult.notEnoughCoins);
-    });
-
-    test('o mesmo estorno vale uma vez, inclusive depois do save', () {
-      final ProgressState s = ProgressState(coins: 2000);
-      engine.applyRevocation(s,
-          redemptionId: '4', coins: 1000, removeAds: false);
-      final ProgressState back = ProgressState.fromJson(
-          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
-      final RevocationEffect again = engine.applyRevocation(back,
-          redemptionId: '4', coins: 1000, removeAds: false);
-      expect(again.applied, isFalse);
-      expect(back.coins, 1000);
-    });
-
-    test('item ganho de graça não vira moeda no estorno (Aurora da migração)',
-        () {
-      // Jogador antigo ganhou o Aurora (1000) na migração, compra 300 moedas,
-      // gasta num visual de 250 e pede reembolso.
-      final ProgressState s = ProgressState.fromJson(<String, dynamic>{
-        'coins': 0,
-        'ownedSkins': <String>['aurora'],
-        'equippedSkin': 'aurora',
-      });
-      engine.applyServerGrant(s,
-          purchaseToken: 't', coins: 300, removeAds: false);
-      expect(engine.buySkin(s, 'fireIce'), SkinPurchaseResult.purchased);
-      expect(s.coins, 50);
-      final RevocationEffect e = engine.applyRevocation(s,
-          redemptionId: 'r', coins: 300, removeAds: false);
-      expect(s.ownedSkins, contains('aurora'), reason: 'presente não sai');
-      expect(e.lostSkins, <String>['fireIce']);
-      expect(s.coins, 0, reason: '50 - 300 + 250: sem lucro nenhum');
-    });
-
-    test('o registro do que foi pago com moedas sobrevive ao save', () {
-      final ProgressState s = ProgressState(coins: 300);
-      engine.buySkin(s, 'fireIce');
-      final ProgressState back = ProgressState.fromJson(
-          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
-      expect(back.coinPurchases, <String, int>{'skin:fireIce': 250});
-    });
-
-    test('compra única não paga de novo nem depois de 100 compras novas', () {
-      final ProgressState s = ProgressState();
-      engine.applyServerGrant(s,
-          purchaseToken: 'pacote',
-          coins: 1000,
-          removeAds: true,
-          permanent: true);
-      for (int i = 0; i < ProgressState.processedPurchasesCap + 10; i++) {
-        engine.applyServerGrant(s,
-            purchaseToken: 'm$i', coins: 300, removeAds: false);
-      }
-      final int before = s.coins;
-      final ProgressState back = ProgressState.fromJson(
-          jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>);
-      // A Play devolve o pacote em toda abertura; o servidor reentrega.
-      engine.applyServerGrant(back,
-          purchaseToken: 'pacote',
-          coins: 1000,
-          removeAds: true,
-          permanent: true);
-      expect(back.coins, before);
-    });
-
-    test('"sem anúncios" estornado: anúncios voltam', () {
-      final ProgressState s = ProgressState(adsRemoved: true);
-      final RevocationEffect e = engine.applyRevocation(s,
-          redemptionId: '5', coins: 0, removeAds: true);
-      expect(e.lostAdsRemoval, isTrue);
-      expect(s.adsRemoved, isFalse);
+      expect(back.hasSkin('aurora'), isTrue);
     });
   });
 }

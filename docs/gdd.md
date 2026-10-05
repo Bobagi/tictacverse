@@ -109,7 +109,8 @@ impressões em 30 dias.
 - Toda partida paga moedas = teto(XP ganho / 3). Atrelado ao XP de propósito: o
   carro-chefe e o Impossível já rendem mais, sem uma segunda tabela para manter.
 - O saldo nunca fica negativo e só é gasto na loja.
-- Também se compram moedas com dinheiro (seção 6).
+- **Moedas não se compram** (desde 2026-10-05): só se ganham jogando, no bônus diário, no desafio
+  do dia e no anúncio premiado opcional. Dinheiro compra coisas que o jogador passa a possuir (seção 6).
 
 **Loja de visuais das peças** (`lib/models/piece_skin.dart`). Visual só muda aparência,
 nunca dá vantagem.
@@ -151,32 +152,34 @@ visual sai na primeira ou segunda sessão e o mais caro vira meta de algumas sem
 
 ## 6. Monetização
 
-Anúncio (Google AdMob) e, desde a v1.13.0, compras pelo Google Play Billing, validadas desde a
-v1.14.0 no servidor do jogo (`tictacverse-api`, seção 6.1).
+Anúncio (Google AdMob) e compras pelo Google Play Billing (desde a v1.14.0), **sem servidor
+próprio**.
 
-**Compras dentro do app** (aba "Moedas" da loja; o saldo no topo da home abre direto nela):
+**Compras dentro do app** (aba "Premium" da loja). Todas são de **compra única**: o jogador passa a
+possuir aquilo, e a cada abertura o app pergunta à Play o que ele possui
+(`queryPurchasesAsync` só devolve o que é dele agora). Reembolsou, some da lista da Play e o app
+tira o direito na abertura seguinte; sem rede, vale o último estado confirmado. Cada compra tem a
+assinatura da Play conferida com a chave pública do app (`lib/services/purchase_verifier.dart`).
 
-| Produto (id na Play) | Tipo | Entrega | Preço base |
+| Produto (id na Play) | Libera | Preço base | IN / BD / NP |
 |---|---|---|---|
-| `starter_pack` | compra única, só para quem ainda vê anúncio | "sem anúncios" + 1000 moedas (moedas só no 1º resgate) | US$ 1,99 |
-| `remove_ads` | compra única, volta ao reinstalar | some banner, retângulo médio e intersticial; o premiado continua opt-in | US$ 0,99 |
-| `coins_300` | consumível | 300 moedas | US$ 0,99 |
-| `coins_1000` | consumível | 1000 moedas | US$ 2,49 |
-| `coins_3000` | consumível ("Melhor oferta") | 3000 moedas | US$ 4,99 |
+| `starter_pack` (boas-vindas) | sem anúncios + visual Aurora | US$ 1,99 | ₹89 / ৳110 / US$ 0,99 |
+| `remove_ads` | some banner, retângulo médio e intersticial (premiado segue opt-in) | US$ 0,99 | ₹49 / ৳60 / US$ 0,49 |
+| `collection` (coleção completa) | todos os visuais e temas, de hoje e futuros, + sem anúncios | US$ 4,99 | ₹199 / ৳240 / US$ 1,99 |
 
-Preço por país = conversão da própria Play a partir do preço base, com preço regional para o público
-real: Índia ₹89/49/39/99/199, Bangladesh ৳110/60/50/120/240, Nepal US$ 0,99/0,49/0,49/0,99/1,99
-(na ordem da tabela; `tool/play_products_setup.py`). O app mostra o preço formatado que a Play devolve
-e calcula o "Economize X%" do pacote de boas-vindas com os preços reais. Regras que não se quebram:
-- Servidor confirma na Play, app credita e grava, e SÓ ENTÃO consome/confirma na Play. Idempotente
-  pelo token dos dois lados.
-- Pagamento pendente (comum na Índia) não credita; credita quando a Play confirmar, mesmo com a loja
-  fechada (a escuta começa no `main`).
-- Os botões de preço só valem 600 ms depois de a aba aparecer (ela surge sob o dedo ao tocar num visual
-  trancado). Toque duplo abre uma compra só.
-- Servidor fora do ar: a compra fica paga e pendente (não credita, não finaliza) e é tentada de novo
-  em 20 s, 2 min, 10 min e a cada abertura. A Play devolve o dinheiro se não for confirmada em 3 dias.
-- **Reembolso/estorno desfaz a entrega** (seção 6.1).
+**Por que não vendemos moedas (decisão do dono, 2026-10-05):** pacote de moedas é consumível; depois
+de entregue ele some da lista da Play, então um reembolso posterior fica invisível ao aparelho. O
+Google só avisa reembolso de consumível por API de servidor (Voided Purchases / notificações em
+tempo real), e a credencial não pode ir no app. Vendendo só compras únicas, a Play é a fonte da
+verdade e não precisa de servidor. Os produtos `coins_300/1000/3000` ficaram **desativados** na Play.
+
+Regras que não se quebram:
+- Compra só libera com assinatura válida; compra pendente (dinheiro/boleto) não libera.
+- A compra é confirmada na Play (senão a Play devolve em 3 dias) e a lista é consultada de novo.
+- Os botões de preço só valem 600 ms depois de a aba aparecer (ela surge sob o dedo ao tocar num
+  visual trancado). Toque duplo abre uma compra só. Não deixa pagar de novo pelo que já possui.
+- Visual trancado sem moedas leva à aba Premium: "Faltam X moedas. Jogue para ganhar ou leve tudo
+  na Coleção completa."
 - Convite do pacote de boas-vindas na home: a partir da 2ª sessão, no máximo 3 vezes, 2 dias de
   intervalo, nunca para quem já tirou os anúncios.
 - `--dart-define=FAKE_STORE=true` liga uma loja de mentira para QA na web; release nativo ignora.
@@ -199,20 +202,6 @@ reincidência é encerramento permanente):
   longe do botão primário (folga é asserção de teste).
 - Sem encadear anúncios.
 - Toque duplo nunca abre dois anúncios nem paga duas vezes.
-
-### 6.1 Servidor do jogo (`tictacverse-api`, desde a v1.14.0)
-
-Repo privado `Bobagi/tictacverse-api`, `/opt/tictacverse-api` no VPS, container na porta 3066,
-`https://tictacverse-api.bobagi.space`. Três funções:
-1. **Validar compra:** consulta o token na Play Developer API; só entrega com `purchaseState = 0`.
-   Pacote de moedas amarrado à instalação que comprou (`obfuscatedAccountId`); compra única
-   restaurada em outra instalação devolve só o direito, nunca as moedas de novo.
-2. **Desfazer reembolso:** a cada 30 min lê a lista de compras anuladas da Play. O app consulta os
-   estornos da sua instalação ao abrir: tira as moedas e, se já gastou, devolve à loja visuais e
-   temas do mais caro para o mais barato até cobrir; se não cobrir, o saldo fica negativo e as
-   próximas moedas pagam. "Sem anúncios" estornado volta a mostrar anúncios.
-3. **Medir retenção:** ping diário (id aleatório da instalação, versão, idioma; sem IP).
-   `docker exec tictacverse-api npm run stats` dá DAU e D1/D7 por coorte.
 
 **Expectativa realista:** casual só com anúncio fica em US$0,03 a 0,10 por usuário ativo
 por dia; em tier 3, perto do piso. O gargalo é volume e retenção, não formato.
@@ -296,7 +285,8 @@ Em ordem de impacto, da pesquisa de 2026-10-03:
 5. ~~Tutorial do Super Jogo da Velha~~ feito na v1.14.0 (jogável, na 1ª abertura e no "?").
 6. Também na v1.14.0: modos 4x4 e Cinco em linha, temas de tabuleiro, pacote de boas-vindas, pedido de
    avaliação também após conquista.
-7. **Próximo:** medir D1/D7 pelo servidor por 2 semanas antes de decidir campanha paga.
+7. **Próximo:** medir retenção (Play Console: Estatísticas e aquisição) por 2 semanas antes de decidir
+   campanha paga.
 8. **App open ad** só a partir da 2ª sessão, com limite de frequência, medindo D1 antes e
    depois.
 9. **Multiplayer online** (Fase 3, servidor próprio no VPS) quando houver base ativa que o
@@ -312,4 +302,4 @@ Em ordem de impacto, da pesquisa de 2026-10-03:
 | 1.11.0+23 a 1.11.2+25 | 2026-09-25/26 | Passe de game feel (sons, música, vibração, partículas, confete, sequências); botão de atualizar sempre visível; aviso de versão nova |
 | **1.12.0+26** | **2026-10-03/04** | **Moedas, loja de 5 visuais, bônus diário de 7 dias, premiado dobra XP e moedas, home compacta, ícone novo, ficha nova. Produção a 100%.** |
 | **1.13.0+27** | **2026-10-04** | **Compras na Play (sem anúncios + 3 pacotes de moedas), Neon vira o visual inicial e Aurora custa 50, música 10 dB abaixo dos efeitos** |
-| **1.14.0+28** | **2026-10-04** | **Servidor de compras (valida na Play, desfaz reembolso, mede retenção), pacote de boas-vindas, desafio do dia, tutorial jogável do Super, compartilhar vitória, modos 4x4 e Cinco em linha, temas de tabuleiro, Aurora vira o visual mais caro (1000) e sai de uso de todos** |
+| **1.14.0+31** | **2026-10-05** | **Compras únicas sem servidor (boas-vindas = sem anúncios + Aurora, sem anúncios, coleção completa; moedas não se vendem), pacote de boas-vindas com juice, desafio do dia, tutorial jogável do Super, compartilhar vitória, modos 4x4 e Cinco em linha, temas de tabuleiro, Aurora vira o visual mais caro (1000) e sai de uso de todos** |

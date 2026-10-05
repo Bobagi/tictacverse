@@ -150,37 +150,34 @@ tinha onde ser gasto e o premiado "dobrar XP" teve 0 impressões em 30 dias.
 - **Home:** o MREC (300x250) só entra com tela >= 380x760; abaixo vai o banner
   comum, senão bônus e loja ficam abaixo da dobra.
 
-## Compras na Play e servidor do jogo (v1.14.0+28)
+## Compras na Play, sem servidor (v1.14.0+31)
 
-Aba "Moedas" da loja: `starter_pack` e `remove_ads` (compra única) e
-`coins_300/1000/3000` (consumíveis). Catálogo em `lib/models/store_product.dart`,
-espelhado em `/opt/tictacverse-api/src/catalog.js`; os ids têm de existir iguais
-na Play Console (`tool/play_products_setup.py` cria/atualiza pela API nova
-`oneTimeProducts`, com preço regional IN/BD/NP).
+Aba "Premium" da loja, só compras ÚNICAS: `starter_pack` (sem anúncios + Aurora),
+`remove_ads` e `collection` (tudo + sem anúncios). Catálogo em
+`lib/models/store_product.dart`; produtos na Play por `tool/play_products_setup.py`
+(preço regional IN/BD/NP; desativa os `coins_*` antigos). **Moedas não se vendem**
+(decisão do dono 2026-10-05: reembolso de consumível é invisível ao aparelho sem
+servidor).
 
-- **Toda compra passa pelo servidor** (`tictacverse-api`, repo privado,
-  `/opt/tictacverse-api`, container :3066, `https://tictacverse-api.bobagi.space`),
-  que confere na Play. O app só credita com `granted`. Servidor fora = a compra
-  fica paga e pendente, sem crédito e SEM finalizar na Play, e é tentada de novo.
-- **Ordem que não se inverte:** servidor confirma, app credita e grava, DEPOIS
-  consome (pacote) ou confirma (compra única). `autoConsume` fica desligado de
-  propósito. Sem confirmação em 3 dias a Play devolve o dinheiro.
-- **Estorno desfaz:** `PurchaseService.syncRevocations` na abertura;
-  `EconomyEngine.applyRevocation` tira as moedas e devolve à loja visuais e
-  temas (mais caro primeiro) até cobrir; saldo pode ficar negativo (dívida).
-- Regras puras em `EconomyEngine.applyServerGrant` (idempotente pelo token) e
-  `applyRevocation` (idempotente pelo id do resgate). `PurchaseService` fala com
-  `PurchaseBackend` (Play) e `VerseApi` (servidor), os dois trocáveis no teste.
-- O id da instalação (`StorageService.installId`, UUID v4) vai na compra como
-  `obfuscatedAccountId` e aparece como "ID de suporte" no fim das configurações.
+- **A Play é a fonte da verdade:** `PurchaseService.refreshOwnership()` pergunta à
+  Play o que o jogador possui (abertura, depois de cada compra, "Restaurar") e grava
+  só a lista (`ProgressState.playOwned`). O que ela libera é calculado
+  (`Entitlements.fromOwned`); `hasSkin/hasTheme/adsRemoved` juntam isso ao que foi
+  comprado com moedas. Reembolso = some da lista = some o direito; o visual em uso
+  volta ao inicial (`EconomyEngine.applyPlayOwnership`). Sem resposta da Play,
+  vale o último estado.
+- **Assinatura:** `PurchaseVerifier` confere `originalJson` + `signature` (RSA SHA-1)
+  com `playLicenseKey` (`lib/services/purchase_verifier.dart`). **Vazia = verificação
+  desligada**: colar a chave de licenciamento da Play Console (Monetização →
+  Configuração da monetização) e rebuildar.
 - `AdsConfiguration.passiveAdsEnabled` = anúncios que o jogador não pediu (banner,
-  retângulo, intersticial); some com a compra. O premiado usa `adsEnabled`.
-- Visual inicial = **Neon**; Aurora é o último e mais caro (1000). A migração
-  única mora no `ProgressState.fromJson`, travada por `catalogVersion` (3).
-- QA visual na web: `flutter build web --dart-define=FAKE_STORE=true` (loja e
-  servidor de mentira). Release nativo ignora a flag (`useDemoStore`).
-- Retenção: `RetentionPing` manda 1 ping por dia (só em release nativo). Ver D1/D7:
-  `docker exec tictacverse-api npm run stats`.
+  retângulo, intersticial); some com qualquer produto que tire anúncios.
+- Visual inicial = **Neon**; Aurora é o último e mais caro (1000) e vem no pacote de
+  boas-vindas. A migração única mora no `ProgressState.fromJson` (`catalogVersion` 3).
+- QA visual na web: `flutter build web --dart-define=FAKE_STORE=true`. Release
+  nativo ignora a flag (`useDemoStore`).
+- O servidor `tictacverse-api` (repo privado) ficou DESLIGADO; é base para o modo
+  online (`docs/online-multiplayer.md`).
 
 ## Desafio do dia, tutorial, compartilhar, temas (v1.14.0+28)
 
@@ -194,7 +191,8 @@ na Play Console (`tool/play_products_setup.py` cria/atualiza pela API nova
   vivo com fundo opaco vaza cantos quadrados).
 - **Temas de tabuleiro** (`lib/models/board_theme.dart`): cores da grade
   (`NeonGridPainter`) e da moldura do Super. Aba "Tabuleiros" na loja.
-- **Pacote de boas-vindas**: convite na home pelas regras de `StarterOffer`.
+- **Pacote de boas-vindas**: convite na home pelas regras de `StarterOffer`, diálogo
+  com juice em `starter_offer_dialog.dart`.
 - **Modos 4x4 e Cinco em linha** (Gomoku 10x10): `LineRulesEngine` + `LineCpu`;
   `GameBoard` desenha NxN a partir do tamanho do tabuleiro.
 
@@ -242,11 +240,10 @@ O app estava certo; a declaração estava errada.
 
 O que sai do aparelho, resumido: Advertising ID, app set ID e id de conta
 logada, IP (vira localização aproximada), interações, diagnóstico e crash, tudo
-pelo Google Mobile Ads SDK; mais player ID, conquistas e nível pelo Play Games;
-e, desde a v1.14.0, para o NOSSO servidor: id aleatório da instalação, produto e
-token de cada compra, e o ping diário (versão e idioma). O cliente HTTP próprio
-é só `lib/services/verse_api.dart`; sem Firebase, Crashlytics nem analytics de
-terceiro, e `shared_preferences` e `MetricsService` não saem do aparelho.
+pelo Google Mobile Ads SDK; mais player ID, conquistas e nível pelo Play Games.
+Compras ficam com o Google Play. Nada mais: o app **não tem cliente HTTP próprio,
+backend, Firebase, Crashlytics nem analytics**, e `shared_preferences` e
+`MetricsService` não saem do aparelho.
 
 Declaração completa, campo por campo, com o passo a passo da Play Console:
 [`docs/data-safety.md`](docs/data-safety.md). Texto publicado da política:

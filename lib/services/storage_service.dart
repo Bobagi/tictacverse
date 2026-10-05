@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,8 +49,6 @@ class StorageService {
   static const String _sessionsKey = 'meta.sessions';
   static const String _reviewAskedKey = 'meta.reviewAsked.v1';
   static const String _progressKey = 'progress.v1';
-  static const String _installIdKey = 'meta.installId';
-  static const String _lastPingDayKey = 'meta.lastPingDay';
   static const String _starterShowsKey = 'offer.starter.shows';
   static const String _starterLastDayKey = 'offer.starter.lastDay';
   static const String _tutorialUltimateKey = 'tutorial.ultimate2.done';
@@ -195,41 +192,6 @@ class StorageService {
     }
     _saveStats();
   }
-
-  /// Id aleatório desta instalação (UUID v4), criado na primeira abertura.
-  /// Não identifica a pessoa nem o aparelho: some ao desinstalar. O servidor
-  /// de compras usa para amarrar a compra a quem a fez, e o ping diário para
-  /// medir retenção.
-  String get installId {
-    final String? stored = _prefs?.getString(_installIdKey);
-    if (stored != null && isValidInstallId(stored)) {
-      return stored;
-    }
-    final String created = newInstallId();
-    _prefs?.setString(_installIdKey, created);
-    return created;
-  }
-
-  static final RegExp _uuidV4 = RegExp(
-      r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
-
-  static bool isValidInstallId(String value) => _uuidV4.hasMatch(value);
-
-  /// UUID v4 com gerador criptográfico (o id não pode ser adivinhado).
-  static String newInstallId([Random? random]) {
-    final Random rng = random ?? Random.secure();
-    final List<int> b = List<int>.generate(16, (_) => rng.nextInt(256));
-    b[6] = (b[6] & 0x0f) | 0x40;
-    b[8] = (b[8] & 0x3f) | 0x80;
-    final String hex =
-        b.map((int v) => v.toRadixString(16).padLeft(2, '0')).join();
-    return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
-        '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
-  }
-
-  String? get lastPingDay => _prefs?.getString(_lastPingDayKey);
-  Future<void> saveLastPingDay(String day) async =>
-      _prefs?.setString(_lastPingDayKey, day);
 
   int get starterOfferShows => _prefs?.getInt(_starterShowsKey) ?? 0;
   String? get starterOfferLastDay => _prefs?.getString(_starterLastDayKey);

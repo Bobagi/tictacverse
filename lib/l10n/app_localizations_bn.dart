@@ -511,17 +511,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shopTabSkins => 'স্টাইল';
 
   @override
-  String get shopTabCoins => 'কয়েন';
-
-  @override
-  String coinPackTitle(int amount) {
-    return '$amount কয়েন';
-  }
-
-  @override
-  String get coinPackBestValue => 'সেরা অফার';
-
-  @override
   String get removeAdsTitle => 'বিজ্ঞাপন ছাড়া';
 
   @override
@@ -549,32 +538,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get purchaseFailed => 'কেনাকাটা সম্পূর্ণ হয়নি।';
 
   @override
-  String needMoreCoins(int amount) {
-    return 'এই স্টাইলের জন্য আরও $amount কয়েন লাগবে।';
-  }
-
-  @override
   String get starterTitle => 'ওয়েলকাম প্যাক';
-
-  @override
-  String starterBody(int amount) {
-    return 'চিরতরে বিজ্ঞাপন ছাড়া + $amount কয়েন, এক কেনাতেই।';
-  }
-
-  @override
-  String starterSave(int percent) {
-    return '$percent% সাশ্রয়';
-  }
 
   @override
   String get starterSee => 'অফার দেখুন';
 
   @override
   String get notNow => 'এখন না';
-
-  @override
-  String get purchaseVerifying =>
-      'পেমেন্ট পাওয়া গেছে। কেনাকাটা নিশ্চিত করা হচ্ছে, একটু পরেই পৌঁছাবে।';
 
   @override
   String get challengeTitle => 'আজকের চ্যালেঞ্জ';
@@ -674,6 +644,30 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get supportIdLabel =>
-      'সাপোর্ট আইডি (কেনাকাটায় সাহায্য বা ডেটা মুছতে)';
+  String get shopTabPremium => 'প্রিমিয়াম';
+
+  @override
+  String get starterBody =>
+      'চিরতরে বিজ্ঞাপন ছাড়া + অরোরা স্টাইল, খেলার সবচেয়ে সুন্দর।';
+
+  @override
+  String get starterBadge => '+ অরোরা';
+
+  @override
+  String get collectionTitle => 'পুরো কালেকশন';
+
+  @override
+  String get collectionBody =>
+      'সব ঘুঁটির স্টাইল ও বোর্ড থিম, এখনকার ও ভবিষ্যতের, আর বিজ্ঞাপন ছাড়া।';
+
+  @override
+  String get collectionOwned => 'সব আনলক। ধন্যবাদ!';
+
+  @override
+  String get purchaseUnlocked => 'আনলক হয়েছে! উপভোগ করুন।';
+
+  @override
+  String needMoreCoinsPremium(int amount) {
+    return 'আরও $amount কয়েন লাগবে। খেলে জিতুন বা পুরো কালেকশন নিন।';
+  }
 }

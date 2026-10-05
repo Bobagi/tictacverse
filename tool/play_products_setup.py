@@ -38,13 +38,13 @@ OPTION_ID = 'default'
 # (id, preço base em US$ como (unidades, nanos), textos por idioma da ficha)
 PRODUCTS = [
     ('starter_pack', (1, 990_000_000), {
-        'pt-BR': ('Pacote de boas-vindas', 'Sem anúncios para sempre e 1000 moedas, numa compra só.'),
-        'en-US': ('Welcome pack', 'No ads forever and 1000 coins, in one purchase.'),
-        'es-419': ('Paquete de bienvenida', 'Sin anuncios para siempre y 1000 monedas, en una sola compra.'),
-        'es-ES': ('Paquete de bienvenida', 'Sin anuncios para siempre y 1000 monedas, en una sola compra.'),
-        'hi-IN': ('वेलकम पैक', 'हमेशा के लिए बिना विज्ञापन और 1000 सिक्के, एक ही खरीद में।'),
-        'bn-BD': ('ওয়েলকাম প্যাক', 'চিরতরে বিজ্ঞাপন ছাড়া আর ১০০০ কয়েন, এক কেনাতেই।'),
-        'ne-NP': ('स्वागत प्याक', 'सधैँका लागि विज्ञापन बिना र 1000 सिक्का, एउटै किनमेलमा।'),
+        'pt-BR': ('Pacote de boas-vindas', 'Sem anúncios para sempre e o visual Aurora, o mais caprichado do jogo.'),
+        'en-US': ('Welcome pack', 'No ads forever and the Aurora style, the most polished in the game.'),
+        'es-419': ('Paquete de bienvenida', 'Sin anuncios para siempre y el estilo Aurora, el más cuidado del juego.'),
+        'es-ES': ('Paquete de bienvenida', 'Sin anuncios para siempre y el estilo Aurora, el más cuidado del juego.'),
+        'hi-IN': ('वेलकम पैक', 'हमेशा के लिए बिना विज्ञापन और ऑरोरा स्टाइल, खेल की सबसे शानदार।'),
+        'bn-BD': ('ওয়েলকাম প্যাক', 'চিরতরে বিজ্ঞাপন ছাড়া আর অরোরা স্টাইল, খেলার সবচেয়ে সুন্দর।'),
+        'ne-NP': ('स्वागत प्याक', 'सधैँका लागि विज्ञापन बिना र अरोरा स्टाइल, खेलको सबैभन्दा राम्रो।'),
     }),
     ('remove_ads', (0, 990_000_000), {
         'pt-BR': ('Sem anúncios', 'Tira os banners e os anúncios entre partidas, para sempre.'),
@@ -55,37 +55,35 @@ PRODUCTS = [
         'bn-BD': ('বিজ্ঞাপন ছাড়া', 'ব্যানার আর ম্যাচের মাঝের বিজ্ঞাপন চিরতরে সরে যায়।'),
         'ne-NP': ('विज्ञापन बिना', 'ब्यानर र खेलबीचका विज्ञापन सधैँका लागि हट्छन्।'),
     }),
-    ('coins_300', (0, 990_000_000), None),
-    ('coins_1000', (2, 490_000_000), None),
-    ('coins_3000', (4, 990_000_000), None),
+    ('collection', (4, 990_000_000), {
+        'pt-BR': ('Coleção completa', 'Todos os visuais e temas de tabuleiro, os de hoje e os que vierem, e sem anúncios.'),
+        'en-US': ('Full collection', 'Every piece style and board theme, today\'s and future ones, and no ads.'),
+        'es-419': ('Colección completa', 'Todos los estilos y temas de tablero, los de hoy y los que vengan, y sin anuncios.'),
+        'es-ES': ('Colección completa', 'Todos los estilos y temas de tablero, los de hoy y los que vengan, y sin anuncios.'),
+        'hi-IN': ('पूरा कलेक्शन', 'सारी मोहरा स्टाइल और बोर्ड थीम, आज की और आने वाली, और बिना विज्ञापन।'),
+        'bn-BD': ('পুরো কালেকশন', 'সব ঘুঁটির স্টাইল ও বোর্ড থিম, এখনকার ও ভবিষ্যতের, আর বিজ্ঞাপন ছাড়া।'),
+        'ne-NP': ('पूरा सङ्ग्रह', 'सबै गोटी स्टाइल र बोर्ड थिम, आजका र आउने, र विज्ञापन बिना।'),
+    }),
 ]
+
+# Produtos que deixaram de ser vendidos (pacotes de moedas, 2026-10-05: sem
+# servidor, reembolso de consumível é invisível ao app). Ficam DESATIVADOS na
+# Play (não aparecem para compra); nunca chegaram à produção.
+RETIRED = ['coins_300', 'coins_1000', 'coins_3000']
 
 # Preço regional do público real (Índia, Bangladesh e Nepal lideram as
 # instalações). A conversão pura da Play põe US$ 0,99 em INR 110, acima do que
-# o casual tier-3 paga (Ludo King vende a partir de INR 9; GDD prevê INR 49 a 99
-# para "sem anúncios"). Valores em unidades da moeda que a Play usa no país.
+# o casual tier-3 paga. Valores em unidades da moeda que a Play usa no país.
 REGIONAL = {
-    'IN': {'starter_pack': 89, 'remove_ads': 49, 'coins_300': 39, 'coins_1000': 99, 'coins_3000': 199},
-    'BD': {'starter_pack': 110, 'remove_ads': 60, 'coins_300': 50, 'coins_1000': 120, 'coins_3000': 240},
+    'IN': {'starter_pack': 89, 'remove_ads': 49, 'collection': 199},
+    'BD': {'starter_pack': 110, 'remove_ads': 60, 'collection': 240},
     # O Nepal é cobrado em dólar pela Play.
-    'NP': {'starter_pack': 0.99, 'remove_ads': 0.49, 'coins_300': 0.49, 'coins_1000': 0.99, 'coins_3000': 1.99},
+    'NP': {'starter_pack': 0.99, 'remove_ads': 0.49, 'collection': 1.99},
 }
 
-COIN_WORD = {
-    'pt-BR': ('{n} moedas', 'Pacote de {n} moedas para trocar por visuais das peças.'),
-    'en-US': ('{n} coins', 'A pack of {n} coins to spend on piece styles.'),
-    'es-419': ('{n} monedas', 'Paquete de {n} monedas para cambiar por estilos de fichas.'),
-    'es-ES': ('{n} monedas', 'Paquete de {n} monedas para cambiar por estilos de fichas.'),
-    'hi-IN': ('{n} सिक्के', 'मोहरों की स्टाइल के लिए {n} सिक्कों का पैक।'),
-    'bn-BD': ('{n} কয়েন', 'ঘুঁটির স্টাইলের জন্য {n} কয়েনের প্যাক।'),
-    'ne-NP': ('{n} सिक्का', 'गोटीका स्टाइलका लागि {n} सिक्काको प्याक।'),
-}
 
 
 def listings_for(product_id, texts):
-    if texts is None:
-        n = product_id.split('_')[1]
-        texts = {lang: (t.format(n=n), d.format(n=n)) for lang, (t, d) in COIN_WORD.items()}
     return [
         {'languageCode': lang, 'title': title, 'description': desc}
         for lang, (title, desc) in texts.items()
@@ -182,6 +180,17 @@ def main():
                       'packageName': PKG, 'productId': product_id,
                       'purchaseOptionId': OPTION_ID}}]})
         print('   criado/atualizado e ativo')
+
+    if not args.dry_run:
+        for product_id in RETIRED:
+            res = gplay.api('GET', f'/{PKG}/oneTimeProducts/{product_id}', token, ok404=True)
+            if res is None:
+                continue
+            gplay.api('POST', f'/{PKG}/oneTimeProducts/{product_id}/purchaseOptions:batchUpdateStates',
+                      token, {'requests': [{'deactivatePurchaseOptionRequest': {
+                          'packageName': PKG, 'productId': product_id,
+                          'purchaseOptionId': OPTION_ID}}]})
+            print(f'{product_id}: desativado')
 
 
 if __name__ == '__main__':
