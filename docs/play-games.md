@@ -25,7 +25,7 @@ ninguém.
 | Item | Valor |
 |---|---|
 | ID do aplicativo (PGS) | `1050584273275` |
-| Projeto GCP | `1050584273275` (mesmo número) |
+| Projeto GCP | `bobagi-apps-automation` (número `1050584273275`; é o projeto da automação, onde vivem a service account e os clientes OAuth. O ID do PGS é sempre o número do projeto ligado, e um projeto só liga a UM jogo) |
 | Conquistas | 16, criadas via API |
 | Placar de nível | `CgkI-6LP3ckeEAIQEQ` |
 | SHA-1 da chave de assinatura | `36:F0:B9:9D:D0:D0:28:83:4D:CF:27:A0:38:4E:B9:26:AF:03:94:FB` |
