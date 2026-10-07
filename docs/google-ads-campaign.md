@@ -1,19 +1,23 @@
-# Campanha Google Ads — Tic Tac Verse (estado atual: 2026-07-17)
+# Campanha Google Ads - Tic Tac Verse (estado atual: 2026-07-17)
 
-## GRUPO HI (Hindi) — pacote pronto em 2026-07-17, aguardando operador criar na UI
+> **Histórico (2026-10-07):** os criativos e vídeos descritos aqui são de julho/2026 e mostram a
+> versão antiga do jogo. Para prints e vídeos atuais da ficha, ver `docs/store-listing/README.md`
+> e o pipeline `tool/store_shots/`. A campanha está pausada desde 27/08/2026.
+
+## GRUPO HI (Hindi) - pacote pronto em 2026-07-17, aguardando operador criar na UI
 
 Motivo: relatório de 30d mostrou Índia como país nº 1 (78 instalações; campanha sem geo)
 e a v1.6.0+15 saiu com tradução Hindi + ficha hi-IN. Pacote de criativos no padrão v3 em
 **`/root/prints/tictacverse-ads/hi/`**: 3 banners (628/1200/1500, frame Pixel 5 real +
 screenshots do app EM HINDI), `video-gameplay-9x16.mp4` (17,5s, gameplay REAL do Ultimate
-com UI Hindi — mesma coreografia do superB, X vence o board central; end card com o ícone
+com UI Hindi - mesma coreografia do superB, X vence o board central; end card com o ícone
 real) e `textos.txt` (10 títulos ≤30 + 5 descrições ≤90, validados; inclui keyword local
 "ज़ीरो काटा"/zero kata). **Passos do operador na UI:** (1) Configurações da campanha →
-Idiomas → adicionar **Hindi** (hoje só EN+ES+PT — sem isso o público hindi não é
+Idiomas → adicionar **Hindi** (hoje só EN+ES+PT - sem isso o público hindi não é
 segmentado; conferir se Índia está em Locais); (2) criar grupo de anúncios "HI" colando
 textos/banners; (3) subir o vídeo no YouTube "Não listado" e colar a URL. **Os scripts do
 pipeline de vídeo agora estão PRESERVADOS** em `feature-src/hi-video-src/` (record.mjs,
-make_gameplay.py, vidbg.html, ad.html — os originais de 06/07 se perderam com o scratchpad;
+make_gameplay.py, vidbg.html, ad.html - os originais de 06/07 se perderam com o scratchpad;
 para regenerar em outro idioma, mudar locale/textos).
 
 > **DIRETRIZ DO OPERADOR (2026-07-05): o Ultimate Tic Tac Toe / Super Jogo da Velha é o
@@ -24,26 +28,26 @@ para regenerar em outro idioma, mudar locale/textos).
 
 - **Campanha criada pelo operador:** `tictacverse-campanha1` (Promoção de app, Android).
 - **Estrutura escolhida pelo operador: 1 campanha, 3 grupos de anúncios por idioma (PT/EN/ES).**
-  (Recusou 3 campanhas separadas; ciente de que idioma trava só no nível campanha — a IA do
+  (Recusou 3 campanhas separadas; ciente de que idioma trava só no nível campanha - a IA do
   Google casa criativo↔público, texto acerta quase sempre, imagem/vídeo pode ocasionalmente
   cruzar.) Em Configurações → **Idiomas = PT+EN+ES** e **Locais** = países dos 3 mercados.
-  O campo Idiomas NÃO traduz — só filtra público; por isso 1 grupo com criativos por língua.
+  O campo Idiomas NÃO traduz - só filtra público; por isso 1 grupo com criativos por língua.
 - **Play ↔ Google Ads VINCULADO (2026-07-06)** → conversão "Instalações (Google Play)" é
   automática. Conferir em Ferramentas → Conversões.
-- **PENDENTE (operador):** confirmar cartão/faturamento (bloqueio nº1 — sem isso nada roda);
-  subir os 3 vídeos no YouTube (canal separado, **"Não listado"** — "Privado" NÃO veicula; não
+- **PENDENTE (operador):** confirmar cartão/faturamento (bloqueio nº1 - sem isso nada roda);
+  subir os 3 vídeos no YouTube (canal separado, **"Não listado"** - "Privado" NÃO veicula; não
   apagar depois) e colar as URLs nos grupos; ativar; **7 dias sem mexer** (aprendizado);
   checar cupom em Faturamento → Promoções.
 - ⚠️ **NUNCA clicar nos próprios anúncios** (tráfego inválido = ban AdMob/Ads).
 - Após ~7 dias: ler CPI por grupo/idioma, cruzar com AdMob (receita/eCPM) e Play via skills
   `admob`/`google-play`, e decidir escalar/realocar/pausar.
 
-## Criativos (v3 — FINAIS, aprovados após 2 rejeições)
+## Criativos (v3 - FINAIS, aprovados após 2 rejeições)
 
-**Local:** `/root/prints/tictacverse-ads/{pt,en,es}/` — por idioma:
+**Local:** `/root/prints/tictacverse-ads/{pt,en,es}/` - por idioma:
 - `banner-1200x628.png` (1.91:1) · `banner-1200x1200.png` (1:1) · `banner-1200x1500.png` (4:5)
-- `video-gameplay-9x16.mp4` (1080×1920, ~16-18s, sem áudio) — **gameplay REAL do Ultimate**
-- `textos.txt` — 10 títulos (≤30 chars) + 5 descrições (≤90), validados por script
+- `video-gameplay-9x16.mp4` (1080×1920, ~16-18s, sem áudio) - **gameplay REAL do Ultimate**
+- `textos.txt` - 10 títulos (≤30 chars) + 5 descrições (≤90), validados por script
 
 Cada idioma usa screenshots do app naquela língua (pt=Super Jogo da Velha, en=Ultimate Tic Tac
 Toe, es=Súper Tres en Raya). Metadados de YouTube (título/descrição/tags dos 3 vídeos)
@@ -53,20 +57,20 @@ entregues no chat de 2026-07-06.
 moldura CSS "imitando celular" (operador: terrível) + vídeo de slides estáticos (operador:
 inútil, não mostrava nada). v3 = frame de celular REAL + partida real gravada.
 
-## Toolchain (como regenerar — ex.: após nova repaginação visual)
+## Toolchain (como regenerar - ex.: após nova repaginação visual)
 
 Scripts no scratchpad da sessão de 2026-07-06 (recriáveis; lógica documentada aqui):
 1. **Screenshots do app:** skill `frontend-review` na build web (`flutter build web`), 390×844@2x,
    por locale (`pt-st-*`/`st-*`/`es-st-*` no store-shots).
 2. **Frame real:** `pixel5.png` do repo **fastlane/frameit-frames** (gh-pages, "Google Pixel 5
-   Just Black", 1204×2456, tela em +58+58 1080×2340 — encaixe exato com 390×844@2x).
+   Just Black", 1204×2456, tela em +58+58 1080×2340 - encaixe exato com 390×844@2x).
    `compose_frame.py` (PIL): redimensiona shot p/ 1080×2340, cantos arredondados r=60,
    alpha_composite sob o frame.
 3. **Banners:** HTML+CSS (`ad-sq/ad-land/ad-port.html` + `i18n.js` com dicionário PT/EN/ES,
    `?lang=`) usando `<img>` dos phones framed → PNG via Chrome headless
    (`--screenshot --window-size=WxH --allow-file-access-from-files`).
 4. **Vídeo de gameplay:** servir `build/web` (`python3 -m http.server 8899`); `record.mjs`
-   (puppeteer-core) dirige uma partida real — **GOTCHAS:** Flutter web só responde a
+   (puppeteer-core) dirige uma partida real - **GOTCHAS:** Flutter web só responde a
    `page.touchscreen.tap` com viewport `hasTouch:true,isMobile:true` (mouse.click NÃO navega);
    locale forçado com `evaluateOnNewDocument` sobrescrevendo `navigator.language(s)`.
    Captura via **CDP `Page.startScreencast`** (PNG + timestamps). Partida roteirizada LEGAL:
@@ -87,7 +91,7 @@ evolved" · +8. ES: "Súper Tres en Raya" · "El tres en raya evolucionó" · +8
 
 ## Configuração da campanha
 
-- Tipo: Instalações do app · Orçamento: R$ 10–20/dia, teto total ~R$ 300 (kickstart de
-  instalações/avaliações — CPI ~R$ 0,50–2,00 vs ARPDAU de centavos NÃO fecha conta em escala;
+- Tipo: Instalações do app · Orçamento: R$ 10-20/dia, teto total ~R$ 300 (kickstart de
+  instalações/avaliações - CPI ~R$ 0,50-2,00 vs ARPDAU de centavos NÃO fecha conta em escala;
   crescimento sustentável = orgânico: Shorts/Reels/TikTok com os próprios vídeos de gameplay).
 - Lance: CPI alvo ~R$ 1,00; revisar após 1 semana.

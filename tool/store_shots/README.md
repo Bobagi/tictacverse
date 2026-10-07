@@ -1,5 +1,9 @@
 # Screenshots e vídeo da Play (v28)
 
+> **Antes de regenerar (2026-10-07):** o app mudou depois desta captura (aba "Premium" na loja,
+> card do Desafio do dia na home, juice novo). Remeça as coordenadas em `scenarios.py` na build
+> atual. O que cada vídeo precisa mostrar e como publicar: `docs/store-listing/README.md`.
+
 Gera as 6 screenshots por idioma (1080x1920, RGB sem alfa) e o vídeo promocional
 9:16 (1080x1920, H.264, 30 fps) com **gameplay real** capturado da build web e o
 **frame real do Pixel 5** (`assets/pixel5.png`, fastlane/frameit-frames, tela em

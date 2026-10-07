@@ -243,7 +243,10 @@ Detalhes técnicos no `CLAUDE.md`, seção "Game feel".
   (moedas, visuais, bônus) e idiomas. Sem nomes de marcas ou lojas de terceiros (rejeição por
   keyword spam). Sem travessão.
 - **Fonte dos textos:** `docs/store-listing/` (um `.txt` por idioma + `short.json` +
-  `icon-512.png`). Publicados em 2026-10-04.
+  `icon-512.png`). Versão da v1.14 pronta para subir junto com a promoção.
+- **Prints e vídeos:** estado e regras em `docs/store-listing/README.md`. Prints da v1.14 prontos
+  (moldura real de Pixel 5 + captura real, 6 idiomas). **Vídeos do YouTube no ar são de julho/2026 e
+  estão desatualizados**: regenerar com `tool/store_shots/` (o dono sobe no YouTube).
 - **Notas de versão por idioma**, nunca um texto só replicado.
 - **Data safety e política de privacidade** andam junto com o código (ver
   `docs/data-safety.md`): mexeu em SDK, permissão ou algo que sai do aparelho, refaz os dois

@@ -196,6 +196,15 @@ servidor).
 - **Modos 4x4 e Cinco em linha** (Gomoku 10x10): `LineRulesEngine` + `LineCpu`;
   `GameBoard` desenha NxN a partir do tamanho do tabuleiro.
 
+## Ficha da loja, prints e vídeos
+
+Tudo em **`docs/store-listing/README.md`**: estado de cada peça (textos, ícone, prints, vídeo,
+feature graphic), os links de vídeo no ar, o que os vídeos novos precisam mostrar, o padrão de
+qualidade que o dono exige (celular real + gameplay real) e como publicar. **Os vídeos do YouTube
+na ficha são de julho/2026 e estão desatualizados** (peças Aurora, sem os modos novos): gerar
+novos com `tool/store_shots/` e o dono sobe no YouTube. Ficha e prints sobem por
+`tool/publish_listing.sh` no mesmo passo da promoção.
+
 ## Idiomas
 
 Seis: `pt`, `en`, `es`, `hi`, `bn`, `ne`. Hindi, bengali e nepali não são enfeite,
@@ -293,7 +302,7 @@ segurança do Claude Code barra escrita em produção sem ordem explícita do do
 na conversa; com a ordem, executa.
 
 O título da ficha é **só "Tic Tac Verse"**, sem subtítulo, em todos os idiomas
-(ordem do dono). Não enumere nomes de lojas ou marcas de terceiros na descrição:
+(ordem do dono). Estado da ficha e dos vídeos: `docs/store-listing/README.md`. Não enumere nomes de lojas ou marcas de terceiros na descrição:
 é rejeição por keyword spam.
 
 Notas de versão vão **por idioma**, não um texto só replicado. A skill
