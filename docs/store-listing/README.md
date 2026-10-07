@@ -7,10 +7,10 @@ Fonte da verdade de tudo que aparece na página do jogo na Play Store. Atualizad
 | Peça | Arquivo / origem | Estado |
 |---|---|---|
 | Título | só "Tic Tac Verse", 7 idiomas (ordem do dono) | no ar, não mexer |
-| Descrição curta (80) | `short.json` | **v1.14 pronta**, sobe junto com a promoção |
-| Descrição longa | `<idioma>.txt` (pt-BR, en-US, es-ES, es-419, hi-IN, bn-BD, ne-NP) | **v1.14 pronta**, sobe junto com a promoção |
-| Ícone 512 da loja | `icon-512.png`, gerado de `tool/icon/icon.svg` (`tool/icon/render_icon.mjs`) | **novo (v1.14)**, sobe junto com a promoção |
-| Prints de celular | `shots-v28/<idioma>/01..06.png` (fora do git, gerados por `tool/store_shots/`) | **v1.14 prontos**, sobem junto com a promoção |
+| Descrição curta (80) | `short.json` | no ar desde 2026-10-07 |
+| Descrição longa | `<idioma>.txt` (pt-BR, en-US, es-ES, es-419, hi-IN, bn-BD, ne-NP) | no ar desde 2026-10-07 |
+| Ícone 512 da loja | `icon-512.png`, gerado de `tool/icon/icon.svg` (`tool/icon/render_icon.mjs`) | no ar desde 2026-10-07 |
+| Prints de celular | `shots-v28/<idioma>/01..06.png` (fora do git, gerados por `tool/store_shots/`) | no ar desde 2026-10-07 |
 | Feature graphic 1024x500 | ver memória `feature-graphic-play` | antigo (mostra peças Aurora); refazer junto com os vídeos |
 | **Vídeo (YouTube)** | link por idioma na ficha | **DESATUALIZADO**, ver abaixo |
 | Notas de versão | `release-notes-v<code>.json` (por idioma) | v31 pronta |
