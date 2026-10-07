@@ -9,6 +9,7 @@ import 'package:tictacverse/models/progress_state.dart';
 import 'package:tictacverse/models/store_product.dart';
 import 'package:tictacverse/services/economy_engine.dart';
 import 'package:tictacverse/services/purchase_service.dart';
+import 'package:tictacverse/services/purchase_verifier.dart';
 import 'package:tictacverse/services/storage_service.dart';
 import 'package:tictacverse/ui/widgets/daily_bonus_sheet.dart';
 import 'package:tictacverse/ui/widgets/shop_sheet.dart';
@@ -205,7 +206,7 @@ void main() {
 
     setUp(() async {
       play = FakePurchaseBackend();
-      store = PurchaseService(backend: play);
+      store = PurchaseService(backend: play, verifier: PurchaseVerifier(''));
       await store.initialize();
     });
 
@@ -319,7 +320,7 @@ void main() {
     testWidgets('Play fora do ar: avisa em vez de mostrar botão morto',
         (WidgetTester tester) async {
       play = FakePurchaseBackend()..available = false;
-      store = PurchaseService(backend: play);
+      store = PurchaseService(backend: play, verifier: PurchaseVerifier(''));
       await store.initialize();
       await openCoins(tester);
       expect(find.byKey(const ValueKey<String>('store-unavailable')),

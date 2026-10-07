@@ -167,9 +167,10 @@ servidor).
   volta ao inicial (`EconomyEngine.applyPlayOwnership`). Sem resposta da Play,
   vale o último estado.
 - **Assinatura:** `PurchaseVerifier` confere `originalJson` + `signature` (RSA SHA-1)
-  com `playLicenseKey` (`lib/services/purchase_verifier.dart`). **Vazia = verificação
-  desligada**: colar a chave de licenciamento da Play Console (Monetização →
-  Configuração da monetização) e rebuildar.
+  com `playLicenseKey` (`lib/services/purchase_verifier.dart`), a chave de
+  licenciamento do app (Play Console → Monetizar com o Google Play → Configuração da
+  monetização → Licenciamento), **ligada desde a v1.14.1+32**. Só a loja de mentira
+  do `FAKE_STORE` dispensa a conferência.
 - `AdsConfiguration.passiveAdsEnabled` = anúncios que o jogador não pediu (banner,
   retângulo, intersticial); some com qualquer produto que tire anúncios.
 - Visual inicial = **Neon**; Aurora é o último e mais caro (1000) e vem no pacote de

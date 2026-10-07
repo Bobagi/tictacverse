@@ -100,7 +100,9 @@ class PurchaseService {
     PurchaseVerifier? verifier,
   })  : _backendOverride = backend,
         _economy = economy ?? EconomyService.instance,
-        _verifier = verifier ?? PurchaseVerifier(playLicenseKey);
+        // A loja de mentira (QA na web) não assina nada; só ela dispensa a
+        // conferência. A Play de verdade sempre passa pela chave.
+        _verifier = verifier ?? PurchaseVerifier(_demo ? '' : playLicenseKey);
 
   static final PurchaseService instance = PurchaseService();
 

@@ -7,8 +7,9 @@ import 'package:pointycastle/export.dart';
 /// Chave pública de licenciamento do app (Play Console → Monetização →
 /// Configuração da monetização → "Licenciamento"). É PÚBLICA: pode ficar no
 /// código. Vazia = verificação desligada (a compra é aceita como a Play
-/// entregou), o que só deve acontecer até o dono colar a chave aqui.
-const String playLicenseKey = '';
+/// entregou). Chave real colada em 2026-10-07 (v1.14.1+32).
+const String playLicenseKey =
+    'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA200F21/towQa5xAnUC49CAuuUEcSZSS3wtZmNTxklOTteBLdRwFW7E9VsatER9Ta+2mxGiDR5zO9q93uWwZ/cCJPs/xOGHPLNC+eaOejtrxy1xLMFXEXYuiujwwYuuI5R93XPx06ULRCCFHVotT0pkN9UMPnHICAsu42nCqE2hoHH4SUFy/O24b6MmY3W5UM/yNcff7NnhwAu7cLv0Tpm0FRAN0nQ4eD3HjHl3hsdErKlZIrKl3idRRUK7mERwm2nFPTVvBly3TQWsy0RYY5pPCDuDAp2HN0jF6xmx0DXL2sNgjwpm65uAG/+uY4XaG7UhNAqJNzJylAjQs74XsHhwIDAQAB';
 
 /// Confere a assinatura que a Play põe em cada compra (`originalJson` +
 /// `signature`, RSA com SHA-1). Barra compra forjada por programa que finge

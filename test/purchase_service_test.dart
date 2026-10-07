@@ -258,6 +258,11 @@ void main() {
       strict.dispose();
     });
 
+    test('a chave de licenciamento do app está configurada e é lida', () {
+      expect(PurchaseVerifier(playLicenseKey).enabled, isTrue,
+          reason: 'sem ela, compra forjada passaria');
+    });
+
     test('chave vazia desliga a verificação (até o dono configurar)', () {
       expect(PurchaseVerifier('').enabled, isFalse);
       expect(PurchaseVerifier('').verify('{}', null), isTrue);
