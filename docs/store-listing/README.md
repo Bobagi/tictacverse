@@ -12,24 +12,25 @@ Fonte da verdade de tudo que aparece na página do jogo na Play Store. Atualizad
 | Ícone 512 da loja | `icon-512.png`, gerado de `tool/icon/icon.svg` (`tool/icon/render_icon.mjs`) | no ar desde 2026-10-07 |
 | Prints de celular | `shots-v28/<idioma>/01..06.png` (fora do git, gerados por `tool/store_shots/`) | no ar desde 2026-10-07 |
 | Feature graphic 1024x500 | ver memória `feature-graphic-play` | antigo (mostra peças Aurora); refazer junto com os vídeos |
-| **Vídeo (YouTube)** | link por idioma na ficha | **DESATUALIZADO**, ver abaixo |
+| **Vídeo (YouTube)** | link por idioma na ficha | novos, no ar desde 2026-10-08 |
 | Notas de versão | `release-notes-v<code>.json` (por idioma) | v31 pronta |
 
 Publicar textos e prints (no MESMO passo da promoção para produção, senão a ficha promete o que a
 versão no ar não tem): `bash tool/publish_listing.sh shots-v28`. O ícone 512 sobe com
 `python3 ~/.claude/skills/google-play/scripts/gplay.py images-upload --lang <idioma> --image-type icon --files docs/store-listing/icon-512.png`.
 
-## Vídeos: o que está no ar e por que precisa trocar
+## Vídeos no ar (trocados em 2026-10-08)
 
 | Idioma da ficha | Vídeo no ar |
 |---|---|
-| pt-BR | https://www.youtube.com/watch?v=cD4jQGZH-Sw |
-| en-US, hi-IN, bn-BD, ne-NP | https://www.youtube.com/watch?v=jwo-DRee-wE (inglês) |
-| es-ES, es-419 | https://www.youtube.com/watch?v=tbIrJPfxSMA |
+| pt-BR | https://www.youtube.com/watch?v=83NC0mUzSME |
+| en-US | https://www.youtube.com/watch?v=pwyLvqZ8KW0 |
+| es-ES, es-419 | https://www.youtube.com/watch?v=1mqf4oiY9dM |
+| hi-IN | https://www.youtube.com/watch?v=adw_Q4pYSV4 |
+| bn-BD | https://www.youtube.com/watch?v=tkmQSySCMws |
+| ne-NP | https://www.youtube.com/watch?v=KRpiRLZSjTw |
 
-Foram gravados em julho/2026 (campanha do Google Ads, `docs/google-ads-campaign.md`): mostram as
-peças Aurora como padrão, o visual antigo e nenhum dos modos novos. Hindi, bengali e nepali veem o
-vídeo em inglês.
+Substituem os de julho/2026 (Aurora como padrão, sem os modos novos). Cada idioma tem o seu vídeo.
 
 ### O que os vídeos novos precisam mostrar (v1.14)
 - **Super Jogo da Velha** com peças **Neon** (o padrão desde a v1.14) e a jogada mandando o rival
