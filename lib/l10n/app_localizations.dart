@@ -1299,6 +1299,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} coins to go. Play to earn them, or get everything with the Full collection.'**
   String needMoreCoinsPremium(int amount);
+
+  /// No description provided for @onlineButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge a friend online'**
+  String get onlineButton;
+
+  /// No description provided for @onlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Online with friends'**
+  String get onlineTitle;
+
+  /// No description provided for @onlineIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultimate Tic Tac Toe against a friend, each on your own phone. Play at the same time or whenever you can.'**
+  String get onlineIntro;
+
+  /// No description provided for @onlineCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create invite'**
+  String get onlineCreate;
+
+  /// No description provided for @onlineJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I got a code'**
+  String get onlineJoinTitle;
+
+  /// No description provided for @onlineCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'6 letters, e.g. K7P2QX'**
+  String get onlineCodeHint;
+
+  /// No description provided for @onlineJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get onlineJoin;
+
+  /// No description provided for @onlineCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid code. Check the 6 letters.'**
+  String get onlineCodeInvalid;
+
+  /// No description provided for @onlineYourMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Your matches'**
+  String get onlineYourMatches;
+
+  /// No description provided for @onlineNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches yet. Create an invite and send it to a friend.'**
+  String get onlineNoMatches;
+
+  /// No description provided for @onlineStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{wins} W · {losses} L · {draws} D'**
+  String onlineStats(int wins, int losses, int draws);
+
+  /// No description provided for @onlineYouAre.
+  ///
+  /// In en, this message translates to:
+  /// **'You are {handle}'**
+  String onlineYouAre(String handle);
+
+  /// No description provided for @onlineStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your friend'**
+  String get onlineStatusWaiting;
+
+  /// No description provided for @onlineStatusYourTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your turn!'**
+  String get onlineStatusYourTurn;
+
+  /// No description provided for @onlineStatusTheirTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend\'s turn'**
+  String get onlineStatusTheirTurn;
+
+  /// No description provided for @onlineStatusWon.
+  ///
+  /// In en, this message translates to:
+  /// **'You won'**
+  String get onlineStatusWon;
+
+  /// No description provided for @onlineStatusLost.
+  ///
+  /// In en, this message translates to:
+  /// **'You lost'**
+  String get onlineStatusLost;
+
+  /// No description provided for @onlineStatusDraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get onlineStatusDraw;
+
+  /// No description provided for @onlineStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get onlineStatusExpired;
+
+  /// No description provided for @onlineShareInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invite'**
+  String get onlineShareInvite;
+
+  /// No description provided for @onlineShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'I challenge you to Ultimate Tic Tac Toe! Tap the link to play with me: {link} (code {code})'**
+  String onlineShareMessage(String link, String code);
+
+  /// No description provided for @onlineWaitingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the link to a friend. The match starts as soon as they join.'**
+  String get onlineWaitingBody;
+
+  /// No description provided for @onlineCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Code: {code}'**
+  String onlineCodeLabel(String code);
+
+  /// No description provided for @onlineCancelInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel invite'**
+  String get onlineCancelInvite;
+
+  /// No description provided for @onlineResign.
+  ///
+  /// In en, this message translates to:
+  /// **'Resign'**
+  String get onlineResign;
+
+  /// No description provided for @onlineResignConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Resign this match? It counts as a loss.'**
+  String get onlineResignConfirm;
+
+  /// No description provided for @onlineYouPlayAs.
+  ///
+  /// In en, this message translates to:
+  /// **'You play as {symbol}'**
+  String onlineYouPlayAs(String symbol);
+
+  /// No description provided for @onlineReconnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Trying again...'**
+  String get onlineReconnecting;
+
+  /// No description provided for @onlineError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the server. Check your internet and try again.'**
+  String get onlineError;
+
+  /// No description provided for @onlineTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This match already has two players.'**
+  String get onlineTaken;
+
+  /// No description provided for @onlineExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This invite has expired. Ask your friend for a new one.'**
+  String get onlineExpired;
+
+  /// No description provided for @onlineNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that invite. Check the code.'**
+  String get onlineNotFound;
+
+  /// No description provided for @onlineOwnMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your own invite. Send it to a friend.'**
+  String get onlineOwnMatch;
+
+  /// No description provided for @onlineTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'You have too many open matches. Finish or cancel one.'**
+  String get onlineTooMany;
+
+  /// No description provided for @onlineRematch.
+  ///
+  /// In en, this message translates to:
+  /// **'Rematch'**
+  String get onlineRematch;
+
+  /// No description provided for @onlineRematchOffered.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend wants a rematch!'**
+  String get onlineRematchOffered;
+
+  /// No description provided for @onlineWinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You won!'**
+  String get onlineWinTitle;
+
+  /// No description provided for @onlineLossTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend won'**
+  String get onlineLossTitle;
+
+  /// No description provided for @onlineDrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw!'**
+  String get onlineDrawTitle;
+
+  /// No description provided for @onlineEndResignWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend resigned.'**
+  String get onlineEndResignWin;
+
+  /// No description provided for @onlineEndResignLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'You resigned.'**
+  String get onlineEndResignLoss;
+
+  /// No description provided for @onlineEndTimeoutWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend didn\'t play in time.'**
+  String get onlineEndTimeoutWin;
+
+  /// No description provided for @onlineEndTimeoutLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'You didn\'t play in time.'**
+  String get onlineEndTimeoutLoss;
+
+  /// No description provided for @onlineEndAbandon.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend left online play.'**
+  String get onlineEndAbandon;
+
+  /// No description provided for @onlineTurnRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Each player has up to 3 days to make a move.'**
+  String get onlineTurnRule;
+
+  /// No description provided for @onlineDeleteData.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my online data'**
+  String get onlineDeleteData;
+
+  /// No description provided for @onlineDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This deletes your online matches and stats from the server. Matches in progress count as losses.'**
+  String get onlineDeleteConfirm;
+
+  /// No description provided for @onlineDeleteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Online data deleted.'**
+  String get onlineDeleteDone;
+
+  /// No description provided for @onlinePrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Online play uses an anonymous number. No name, email or login.'**
+  String get onlinePrivacyNote;
+
+  /// No description provided for @onlineBackToLobby.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches'**
+  String get onlineBackToLobby;
+
+  /// No description provided for @cancelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelLabel;
+
+  /// No description provided for @confirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmLabel;
+
+  /// No description provided for @onlineVsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'vs'**
+  String get onlineVsShort;
+
+  /// No description provided for @retryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retryLabel;
 }
 
 class _AppLocalizationsDelegate

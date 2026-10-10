@@ -1,5 +1,5 @@
 name: tictacverse
-version: 1.14.1+32
+version: 1.15.0+33
 publish_to: 'none'
 
 environment:
@@ -15,6 +15,7 @@ dependencies:
   audioplayers: ^6.0.0
   shared_preferences: ^2.3.2
   in_app_review: ^2.0.9
+  http: ^1.2.2
   in_app_update: ^4.2.3
   url_launcher: ^6.3.0
   games_services: ^5.1.0

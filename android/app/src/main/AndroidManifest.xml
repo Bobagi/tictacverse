@@ -34,6 +34,21 @@
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+      <!-- Convite do modo online: o link https abre direto no jogo (App Links,
+           verificado pelo assetlinks.json do servidor); o esquema próprio é o
+           que a página do convite usa quando a verificação não pegou. -->
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="https" android:host="tictacverse.bobagi.space" android:pathPrefix="/m/" />
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="tictacverse" android:host="m" />
+      </intent-filter>
     </activity>
 
     <meta-data android:name="flutterEmbedding" android:value="2" />

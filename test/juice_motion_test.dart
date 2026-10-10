@@ -33,6 +33,7 @@ void main() {
         <String, Widget Function(Widget)>{
       'Wobble': (Widget c) => Wobble(child: c),
       'Bob': (Widget c) => Bob(child: c),
+      'Breathe': (Widget c) => Breathe(child: c),
       'Shine': (Widget c) => Shine(child: c),
       'BumpOnChange': (Widget c) => BumpOnChange(value: 1, child: c),
     };

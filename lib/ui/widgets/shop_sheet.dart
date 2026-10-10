@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart' show ProductDetails;
 import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../controllers/rewarded_ad_controller.dart';
@@ -20,7 +19,6 @@ import 'game_board.dart' show NeonGridPainter;
 import 'juice/motion.dart';
 import 'juice/particles.dart';
 import 'juice/press_scale.dart';
-import 'juice/pulse.dart';
 import 'modern_background.dart';
 import 'piece_glyph.dart';
 
@@ -313,14 +311,16 @@ class _ShopSheetState extends State<ShopSheet> {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          Icon(
-                              switch (_tab) {
-                                ShopTab.skins => Icons.palette_rounded,
-                                ShopTab.boards => Icons.grid_on_rounded,
-                                ShopTab.premium =>
-                                  Icons.workspace_premium_rounded,
-                              },
-                              color: VerseColors.coin),
+                          Breathe(
+                            child: Icon(
+                                switch (_tab) {
+                                  ShopTab.skins => Icons.palette_rounded,
+                                  ShopTab.boards => Icons.grid_on_rounded,
+                                  ShopTab.premium =>
+                                    Icons.workspace_premium_rounded,
+                                },
+                                color: VerseColors.coin),
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(

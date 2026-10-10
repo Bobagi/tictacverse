@@ -18,6 +18,16 @@ formulário está errado.
 > servidor (nunca chegou à produção); ela foi abandonada e as mudanças de formulário que ela pedia
 > NÃO devem ser feitas.
 
+> **v1.15.0 (2026-10-10): o formulário MUDA em UMA resposta.** O app ganhou o **modo online**
+> (desafio por link no Super Jogo da Velha) e passou a falar com um servidor nosso,
+> `https://tictacverse.bobagi.space`, **só quando o jogador abre o online**. O que vai: um
+> identificador anônimo sorteado pelo servidor (token aleatório; o servidor guarda só o hash), as
+> jogadas e o resultado das partidas online, e as estatísticas de vitória/derrota/empate. O IP chega ao
+> servidor, mas só vive em memória para o limite de requisições (nunca é gravado nem logado). Sem nome,
+> e-mail, login ou texto digitado. Esses dados já cabem nos tipos declarados (**Other actions** e
+> **Device or other IDs**, ambos com *App functionality*). O que muda: o app agora tem **"Apagar meus
+> dados online"** nas configurações, então a pergunta de exclusão passa a **Yes** (ver tabela abaixo).
+
 ## Por que esta declaração existe
 
 Aviso do Google Play em **24/09/2026**, prazo **08/10/2026**:
@@ -47,6 +57,7 @@ foi para o AAB.
 | `in_app_review` (Play In-App Review) | 2.0.12 | Fluxo da própria Play Store | Avaliação, **iniciada pelo usuário** |
 | `in_app_purchase` (Google Play Billing, desde a v1.14.0) | plugin 3.3.1, `billing:8.0.0` | Fluxo da própria Play Store | Compras únicas (sem anúncios, boas-vindas, coleção), **iniciadas pelo usuário**. Pagamento com o Google Play; o app só consulta à Play o que o jogador possui e guarda a lista no aparelho |
 | `share_plus` (compartilhar vitória, desde a v1.14.0) | 13.3.1 | Fluxo do Android, **iniciado pelo usuário** | A imagem do tabuleiro vai direto do aparelho para o app que o jogador escolhe; nada passa por nós |
+| `http` → servidor nosso `tictacverse.bobagi.space` (modo online, desde a v1.15.0) | `http` 1.x | **Sim, só se o jogador abrir o online** | Token anônimo sorteado pelo servidor (guardado como hash), jogadas e resultados das partidas online, estatísticas V/D/E. IP só em memória (limite de requisições). Sem nome, e-mail, login nem texto livre. Apagável pelo próprio jogador (Configurações → Apagar meus dados online); partida terminada some do servidor em 120 dias e jogador parado some em 400 dias |
 | `package_info_plus` | 10.2.2 | **Não** | Dependência sem uso de rede |
 | `url_launcher` | 6.3.2 | Abre a ficha da Play no navegador | Nada do app |
 | `shared_preferences` / `StorageService` | 2.5.5 | **Não** | Progressão, XP, conquistas, idioma, áudio: só no aparelho |
@@ -55,7 +66,9 @@ foi para o AAB.
 
 Confirmações que sustentam a declaração:
 
-- O app **não tem nenhum cliente HTTP próprio** nem servidor nosso.
+- Até a v1.14 o app não tinha cliente HTTP próprio. **Desde a v1.15.0** o único é o do modo online
+  (`lib/services/online/online_api.dart`), que só fala com `tictacverse.bobagi.space` e só depois
+  que o jogador abre o online; quem nunca abre não manda nada.
 - **Sem Firebase, Crashlytics ou Sentry.** Nenhum analytics próprio.
 - **Sem permissão de localização** no manifest mesclado (zero `*_LOCATION`). A
   localização aproximada declarada é a **derivada do IP** pelo SDK de anúncios,
@@ -83,13 +96,15 @@ Fontes oficiais do que cada SDK coleta:
 | --- | --- |
 | Does your app collect or share any of the required user data types? | **Yes** |
 | Is all of the user data collected by your app encrypted in transit? | **Yes** (os SDKs do Google usam TLS/HTTPS) |
-| Do you provide a way for users to request that their data be deleted? | **No** |
+| Do you provide a way for users to request that their data be deleted? | **Yes** (desde a v1.15.0) |
 
-Sobre o "No" da exclusão: o app não cria conta nem guarda dado nosso em
-servidor algum, então não há o que pedir para excluir. Os caminhos que existem
-são do próprio Google e estão escritos na política de privacidade (resetar ou
-apagar o Advertising ID nas configurações do Android, apagar os dados do Play
-Games no perfil do Play Games).
+Sobre o "Yes" da exclusão: o único dado nosso em servidor é o do modo online, e o
+próprio jogador apaga em **Configurações → Apagar meus dados online** (apaga o
+jogador e desliga ele de todas as partidas; as abertas viram derrota por abandono).
+Não há conta criada (o identificador é anônimo e sorteado), então a exigência de
+página web de exclusão de conta não se aplica; o pedido também pode ser feito pelo
+e-mail da política. Os dados do Google seguem com os caminhos do próprio Google
+(Advertising ID nas configurações do Android, Play Games no perfil).
 
 ### Tipos de dados a marcar
 
@@ -131,7 +146,9 @@ Por quê: o SDK de anúncios coleta abertura do app, toques e vídeo assistido.
 | Purposes | **App functionality** |
 
 Por quê: conquista desbloqueada, nível e placar sobem para o Play Games
-(`GameServicesBridge.mirrorUnlocked` e `submitLevel`). É **opcional** porque o
+(`GameServicesBridge.mirrorUnlocked` e `submitLevel`), e, desde a v1.15.0, as
+jogadas e resultados das partidas do **modo online** vão para o nosso servidor
+(só de quem abre o online, por isso continua **opcional**). É **opcional** porque o
 jogo funciona igual sem Play Games: o estado local é a fonte da verdade e todo
 o espelho é fire-and-forget, então quem recusa o login joga normalmente.
 `Shared` é **No** porque isso fica no Play Games do próprio jogador, não vai
@@ -180,7 +197,8 @@ de travamento e consumo de energia. Não marcar `Other app performance data`.
 
 **É esta a linha que o aviso citou.** Cobre o Advertising ID (GAID), o app set
 ID e os identificadores de conta logada do SDK de anúncios, mais o player ID do
-Play Games (esse é o `App functionality`).
+Play Games e, desde a v1.15.0, o identificador anônimo do modo online (esses dois
+são o `App functionality`).
 
 ### O que NÃO declarar, e por quê
 
@@ -213,7 +231,7 @@ receita do app, então fica.
    - *Is all of the user data collected by your app encrypted in transit?* →
      **Yes**
    - *Do you provide a way for users to request that their data be deleted?* →
-     **No**
+     **Yes** (desde a v1.15.0: "Apagar meus dados online" nas configurações)
    - **Next**.
 6. Tela **Data types**: marcar somente estes seis e clicar em **Next**:
    - Location → **Approximate location**

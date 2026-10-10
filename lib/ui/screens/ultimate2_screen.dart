@@ -16,7 +16,6 @@ import '../../services/ad_service.dart';
 import '../../services/ads_configuration.dart';
 import '../../services/audio_service.dart';
 import '../../services/daily_challenge.dart';
-import '../../services/economy_service.dart';
 import '../../services/double_xp_offer.dart';
 import '../../services/haptics_service.dart';
 import '../../services/match_feedback.dart';
@@ -30,12 +29,10 @@ import '../../services/visual_assets.dart';
 import '../widgets/board_shake.dart';
 import '../widgets/game_over_modal.dart';
 import '../widgets/juice/particles.dart';
-import '../widgets/juice/press_scale.dart';
 import '../widgets/juice/pulse.dart';
 import '../widgets/modern_background.dart';
 import '../widgets/neon_win_line.dart';
-import '../widgets/piece_glyph.dart';
-import '../widgets/pop_in.dart';
+import '../widgets/ultimate_macro_board.dart';
 import '../widgets/ultimate_tutorial.dart';
 
 class Ultimate2Screen extends StatefulWidget {
@@ -82,6 +79,9 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   bool _cpuThinking = false;
   int _shakeTick = 0;
 
+  /// A próxima tremida é a do impacto da linha da vitória (forte).
+  bool _strongShake = false;
+
   /// Jogadas do humano na partida (o desafio diário conta isso).
   int _humanMoves = 0;
 
@@ -92,7 +92,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
   ProgressionResult? _progressionResult;
 
   static const Duration _cpuThinkDelay = Duration(milliseconds: 550);
-  static const Duration _winCelebration = Duration(milliseconds: 1650);
+  static const Duration _winCelebration = Duration(milliseconds: 1900);
   static const Duration _drawPause = Duration(milliseconds: 650);
 
   @override
@@ -206,6 +206,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
       haptics.play(HapticCue.capture);
       if (!state.result.isFinal) {
         setState(() {
+          _strongShake = false;
           _shakeTick++;
         });
       }
@@ -243,9 +244,19 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
     final MatchEndKind kind = classifyMatchEnd(finalResult, vsCpu: vsCpu);
     if (hasWinLine) {
       setState(() {
+        _strongShake = false;
         _shakeTick++;
       });
       audioService.play(Sfx.winLine);
+      // Quando o risco fecha: tremida forte junto com o clarão da linha.
+      Timer(NeonWinLine.impactDelay, () {
+        if (mounted) {
+          setState(() {
+            _strongShake = true;
+            _shakeTick++;
+          });
+        }
+      });
     }
     final bool reduceMotion = MediaQuery.of(context).disableAnimations;
     final Duration delay = reduceMotion
@@ -254,7 +265,7 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
     Timer(
       reduceMotion || !hasWinLine
           ? Duration.zero
-          : const Duration(milliseconds: 650),
+          : NeonWinLine.impactDelay,
       () {
         if (mounted) {
           playMatchEndFeedback(kind, screenParticles: _screenParticles);
@@ -458,11 +469,12 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
                               height: size,
                               child: BoardShake(
                                 trigger: _shakeTick,
+                                amplitude: _strongShake ? 18 : 7,
                                 // Vira a foto do "compartilhar vitória" (o
                                 // fundo é pintado só na imagem).
                                 child: RepaintBoundary(
                                   key: _boardShotKey,
-                                  child: _MacroBoard(
+                                  child: UltimateMacroBoard(
                                     state: state,
                                     visualAssets: visualAssets,
                                     onCellTap: _handleTap,
@@ -633,268 +645,6 @@ class _Ultimate2ScreenState extends State<Ultimate2Screen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MacroBoard extends StatefulWidget {
-  const _MacroBoard({
-    required this.state,
-    required this.visualAssets,
-    required this.onCellTap,
-    required this.particles,
-    required this.interactive,
-  });
-
-  final Ultimate2State state;
-  final VisualAssetConfig visualAssets;
-  final void Function(int board, int cell) onCellTap;
-  final ParticleController particles;
-  final bool interactive;
-
-  @override
-  State<_MacroBoard> createState() => _MacroBoardState();
-}
-
-class _MacroBoardState extends State<_MacroBoard> {
-  /// Moldura e destaque do mini-tabuleiro jogável: cor do tema em uso.
-  Color get _frame => EconomyService.instance.equippedTheme.frame;
-
-  static const double _outerPadding = 6;
-  static const double _miniPadding = 4;
-  static const double _miniInnerPadding = 3;
-
-  double _lastSize = 0;
-
-  @override
-  void didUpdateWidget(_MacroBoard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _emitParticles(oldWidget.state, widget.state);
-  }
-
-  /// Centro de uma célula (board, cell) nas coordenadas do Stack interno.
-  Offset _cellCenter(int board, int cell) {
-    final double inner = _lastSize - 2 * _outerPadding;
-    final double mini = inner / 3;
-    final double miniOrigin = mini * (board % 3);
-    final double miniOriginY = mini * (board ~/ 3);
-    final double cellArea = mini - 2 * (_miniPadding + _miniInnerPadding);
-    final double cellSize = cellArea / 3;
-    final double offset = _miniPadding + _miniInnerPadding;
-    return Offset(
-      miniOrigin + offset + (cell % 3 + 0.5) * cellSize,
-      miniOriginY + offset + (cell ~/ 3 + 0.5) * cellSize,
-    );
-  }
-
-  Offset _miniCenter(int board) {
-    final double inner = _lastSize - 2 * _outerPadding;
-    final double mini = inner / 3;
-    return Offset((board % 3 + 0.5) * mini, (board ~/ 3 + 0.5) * mini);
-  }
-
-  void _emitParticles(Ultimate2State before, Ultimate2State after) {
-    if (_lastSize <= 0 || identical(before, after)) {
-      return;
-    }
-    final double mini = (_lastSize - 2 * _outerPadding) / 3;
-    // Peça nova: explosão pequena na célula.
-    if (after.lastBoard != null &&
-        after.lastCell != null &&
-        before.boards[after.lastBoard!][after.lastCell!] == null &&
-        after.boards[after.lastBoard!][after.lastCell!] != null) {
-      final PlayerMarker marker =
-          after.boards[after.lastBoard!][after.lastCell!]!;
-      widget.particles.burst(
-        center: _cellCenter(after.lastBoard!, after.lastCell!),
-        color: marker == PlayerMarker.cross
-            ? const Color(0xFF6BE0FF)
-            : const Color(0xFFFF6BD9),
-        accent: Colors.white,
-        count: 10,
-        size: mini * 0.05,
-        speed: mini / 110,
-      );
-    }
-    // Mini-tabuleiro conquistado: explosão grande, colorida pelo dono.
-    for (int board = 0; board < 9; board++) {
-      if (before.macro[board] == null && after.macro[board] != null) {
-        final PlayerMarker owner = after.macro[board]!;
-        widget.particles.burst(
-          center: _miniCenter(board),
-          color: owner == PlayerMarker.cross
-              ? const Color(0xFF6BE0FF)
-              : const Color(0xFFFF6BD9),
-          accent: VerseColors.energy,
-          count: 30,
-          size: mini * 0.09,
-          speed: mini / 55,
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final Ultimate2State state = widget.state;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: _frame.withOpacity(0.5), width: 2),
-        color: Colors.white.withOpacity(0.03),
-      ),
-      padding: const EdgeInsets.all(_outerPadding),
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          _lastSize = constraints.biggest.shortestSide + 2 * _outerPadding;
-          return Stack(
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  for (int row = 0; row < 3; row++)
-                    Expanded(
-                      child: Row(
-                        children: <Widget>[
-                          for (int col = 0; col < 3; col++)
-                            Expanded(child: _buildMini(context, row * 3 + col)),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-              Positioned.fill(
-                  child: ParticleField(controller: widget.particles)),
-              if (state.result.resolution == GameResolution.victory &&
-                  state.result.winningLine != null)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: NeonWinLine(
-                      key: ValueKey<String>(
-                          'macro-${state.result.winningLine!.join('-')}'),
-                      winningLine: state.result.winningLine!,
-                      color: state.result.winner == PlayerMarker.cross
-                          ? const Color(0xFF6BE0FF)
-                          : const Color(0xFFFF6BD9),
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildMini(BuildContext context, int board) {
-    final Ultimate2State state = widget.state;
-    final bool playable = state.isBoardPlayable(board);
-    final PlayerMarker? owner = state.macro[board];
-    final bool closed = state.isBoardClosed(board);
-    final bool isWinningBoard =
-        state.result.winningLine?.contains(board) ?? false;
-    final Color ownerColor = owner == PlayerMarker.cross
-        ? const Color(0xFF6BE0FF)
-        : const Color(0xFFFF6BD9);
-
-    return Padding(
-      padding: const EdgeInsets.all(_miniPadding),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: playable
-              ? _frame.withOpacity(0.10)
-              : (owner != null
-                  ? ownerColor.withOpacity(0.08)
-                  : Colors.white.withOpacity(0.03)),
-          border: Border.all(
-            color: playable
-                ? _frame
-                : (owner != null
-                    ? ownerColor.withOpacity(0.45)
-                    : Colors.white.withOpacity(closed ? 0.10 : 0.22)),
-            width: playable ? 1.8 : 1,
-          ),
-          boxShadow: playable
-              ? <BoxShadow>[
-                  BoxShadow(color: _frame.withOpacity(0.35), blurRadius: 12),
-                ]
-              : const <BoxShadow>[],
-        ),
-        child: Stack(
-          children: <Widget>[
-            Opacity(
-              opacity: owner != null ? 0.25 : (closed ? 0.45 : 1),
-              child: Padding(
-                padding: const EdgeInsets.all(_miniInnerPadding),
-                child: Column(
-                  children: <Widget>[
-                    for (int r = 0; r < 3; r++)
-                      Expanded(
-                        child: Row(
-                          children: <Widget>[
-                            for (int c = 0; c < 3; c++)
-                              Expanded(child: _buildCell(board, r * 3 + c)),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            if (owner != null)
-              Positioned.fill(
-                child: Center(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.72,
-                    heightFactor: 0.72,
-                    child: PopIn(
-                      beginScale: 1.7,
-                      duration: const Duration(milliseconds: 380),
-                      child: Pulse(
-                        active: isWinningBoard,
-                        maxScale: 1.12,
-                        period: const Duration(milliseconds: 520),
-                        child: PieceGlyph(marker: owner),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCell(int board, int cell) {
-    final Ultimate2State state = widget.state;
-    final PlayerMarker? marker = state.boards[board][cell];
-    final bool isLast = state.lastBoard == board && state.lastCell == cell;
-    return PressScale(
-      enabled: widget.interactive && state.isCellPlayable(board, cell),
-      pressedScale: 0.85,
-      child: GestureDetector(
-        onTap: () => widget.onCellTap(board, cell),
-        child: Container(
-          margin: const EdgeInsets.all(1.5),
-          decoration: BoxDecoration(
-            color: isLast
-                ? Colors.amberAccent.withOpacity(0.18)
-                : Colors.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: marker == null
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: PopIn(
-                    duration: const Duration(milliseconds: 200),
-                    child: PieceGlyph(marker: marker),
-                  ),
-                ),
         ),
       ),
     );

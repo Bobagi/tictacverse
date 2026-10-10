@@ -678,4 +678,187 @@ class AppLocalizationsEs extends AppLocalizations {
   String needMoreCoinsPremium(int amount) {
     return 'Te faltan $amount monedas. Juega para ganarlas o llévate todo con la Colección completa.';
   }
+
+  @override
+  String get onlineButton => 'Desafiar a un amigo en línea';
+
+  @override
+  String get onlineTitle => 'En línea con amigos';
+
+  @override
+  String get onlineIntro =>
+      'Súper Tres en Raya contra un amigo, cada uno en su celular. Jueguen al mismo tiempo o cuando cada uno pueda.';
+
+  @override
+  String get onlineCreate => 'Crear invitación';
+
+  @override
+  String get onlineJoinTitle => 'Recibí un código';
+
+  @override
+  String get onlineCodeHint => '6 letras, ej.: K7P2QX';
+
+  @override
+  String get onlineJoin => 'Entrar';
+
+  @override
+  String get onlineCodeInvalid => 'Código inválido. Revisa las 6 letras.';
+
+  @override
+  String get onlineYourMatches => 'Tus partidas';
+
+  @override
+  String get onlineNoMatches =>
+      'Aún no hay partidas. Crea una invitación y envíala a un amigo.';
+
+  @override
+  String onlineStats(int wins, int losses, int draws) {
+    return '$wins G · $losses P · $draws E';
+  }
+
+  @override
+  String onlineYouAre(String handle) {
+    return 'Eres $handle';
+  }
+
+  @override
+  String get onlineStatusWaiting => 'Esperando a tu amigo';
+
+  @override
+  String get onlineStatusYourTurn => '¡Tu turno!';
+
+  @override
+  String get onlineStatusTheirTurn => 'Turno del amigo';
+
+  @override
+  String get onlineStatusWon => 'Ganaste';
+
+  @override
+  String get onlineStatusLost => 'Perdiste';
+
+  @override
+  String get onlineStatusDraw => 'Empate';
+
+  @override
+  String get onlineStatusExpired => 'Cerrada';
+
+  @override
+  String get onlineShareInvite => 'Enviar invitación';
+
+  @override
+  String onlineShareMessage(String link, String code) {
+    return '¡Te desafío al Súper Tres en Raya! Toca el enlace para jugar conmigo: $link (código $code)';
+  }
+
+  @override
+  String get onlineWaitingBody =>
+      'Envía el enlace a un amigo. La partida empieza en cuanto entre.';
+
+  @override
+  String onlineCodeLabel(String code) {
+    return 'Código: $code';
+  }
+
+  @override
+  String get onlineCancelInvite => 'Cancelar invitación';
+
+  @override
+  String get onlineResign => 'Rendirse';
+
+  @override
+  String get onlineResignConfirm =>
+      '¿Rendirte en esta partida? Cuenta como derrota.';
+
+  @override
+  String onlineYouPlayAs(String symbol) {
+    return 'Juegas con $symbol';
+  }
+
+  @override
+  String get onlineReconnecting => 'Sin conexión. Intentando de nuevo...';
+
+  @override
+  String get onlineError =>
+      'No se pudo conectar con el servidor. Revisa tu internet e inténtalo de nuevo.';
+
+  @override
+  String get onlineTaken => 'Esta partida ya tiene dos jugadores.';
+
+  @override
+  String get onlineExpired =>
+      'Esta invitación expiró. Pide una nueva a tu amigo.';
+
+  @override
+  String get onlineNotFound =>
+      'No encontramos esa invitación. Revisa el código.';
+
+  @override
+  String get onlineOwnMatch => 'Esta invitación es tuya. Envíala a un amigo.';
+
+  @override
+  String get onlineTooMany =>
+      'Tienes demasiadas partidas abiertas. Termina o cancela alguna.';
+
+  @override
+  String get onlineRematch => 'Revancha';
+
+  @override
+  String get onlineRematchOffered => '¡Tu amigo quiere la revancha!';
+
+  @override
+  String get onlineWinTitle => '¡Ganaste!';
+
+  @override
+  String get onlineLossTitle => 'Ganó tu amigo';
+
+  @override
+  String get onlineDrawTitle => '¡Empate!';
+
+  @override
+  String get onlineEndResignWin => 'Tu amigo se rindió.';
+
+  @override
+  String get onlineEndResignLoss => 'Te rendiste.';
+
+  @override
+  String get onlineEndTimeoutWin => 'Tu amigo no jugó a tiempo.';
+
+  @override
+  String get onlineEndTimeoutLoss => 'No jugaste a tiempo.';
+
+  @override
+  String get onlineEndAbandon => 'Tu amigo dejó el modo en línea.';
+
+  @override
+  String get onlineTurnRule =>
+      'Cada uno tiene hasta 3 días para jugar su turno.';
+
+  @override
+  String get onlineDeleteData => 'Borrar mis datos en línea';
+
+  @override
+  String get onlineDeleteConfirm =>
+      'Esto borra del servidor tus partidas y estadísticas en línea. Las partidas en curso cuentan como derrota.';
+
+  @override
+  String get onlineDeleteDone => 'Datos en línea borrados.';
+
+  @override
+  String get onlinePrivacyNote =>
+      'El modo en línea usa un número anónimo. Sin nombre, correo ni inicio de sesión.';
+
+  @override
+  String get onlineBackToLobby => 'Partidas';
+
+  @override
+  String get cancelLabel => 'Cancelar';
+
+  @override
+  String get confirmLabel => 'Confirmar';
+
+  @override
+  String get onlineVsShort => 'vs';
+
+  @override
+  String get retryLabel => 'Reintentar';
 }

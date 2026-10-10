@@ -10,6 +10,7 @@ import '../../services/economy_service.dart';
 import '../../services/haptics_service.dart';
 import 'juice/particles.dart';
 import 'modern_background.dart';
+import 'juice/motion.dart';
 
 Future<void> showDailyBonusSheet(
   BuildContext context,
@@ -154,8 +155,10 @@ class _DailyBonusSheetState extends State<DailyBonusSheet> {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      const Icon(Icons.card_giftcard_rounded,
-                          color: VerseColors.coin),
+                      const Breathe(
+                        child: Icon(Icons.card_giftcard_rounded,
+                            color: VerseColors.coin),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(l.dailyTitle,

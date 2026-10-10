@@ -12,6 +12,7 @@ import 'services/game_services_bridge.dart';
 import 'services/haptics_service.dart';
 import 'services/metrics_service.dart';
 import 'services/mobile_ads_initialization_service.dart';
+import 'services/online/deep_links.dart';
 import 'services/progression_service.dart';
 import 'services/purchase_service.dart';
 import 'services/storage_service.dart';
@@ -50,6 +51,8 @@ Future<void> main() async {
   unawaited(PurchaseService.instance.initialize());
   // Fire-and-forget: marca o badge de "nova versão" se a Play tiver update.
   UpdateService.instance.silentCheck();
+  // Convite do online por link: o código fica esperando a home abrir.
+  unawaited(DeepLinks.initialize());
   runApp(const TicTacVerseApp());
 }
 

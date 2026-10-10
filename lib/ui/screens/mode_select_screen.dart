@@ -116,6 +116,7 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
                           accent: accent,
                           glyph:
                               ModeGlyph(type: definition.type, accent: accent),
+                          breathPhase: (index * 0.17) % 1,
                           onStart: () => _openGame(definition),
                         );
                         if (definition.type == GameModeType.ultimate2) {

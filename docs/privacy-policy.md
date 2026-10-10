@@ -12,9 +12,9 @@ Ele tem de bater linha a linha com `docs/data-safety.md`, porque o Google exige
 que a política e a declaração de Segurança de dados digam a mesma coisa. Mexeu
 em um, mexa no outro.
 
-Atualizado em 05/10/2026 (v1.14.0): compras únicas pela Play conferidas no próprio
-aparelho (seção 2.3), compartilhar vitória (2.4). A versão de 04/10 com servidor
-próprio foi descartada antes de ir para a produção.
+Atualizado em 10/10/2026 (v1.15.0): modo online (seção 2.5), servidor do
+desenvolvedor só para quem abre o online, exclusão pelo próprio app (seções 4 e 6).
+Antes: 05/10/2026 (v1.14.0), compras únicas e compartilhar vitória.
 
 ---
 
@@ -23,22 +23,25 @@ próprio foi descartada antes de ir para a produção.
 **App:** Tic Tac Verse (`com.bobagi.tictacverse`)
 **Developer:** Bobagi (Gustavo Perin)
 **Contact:** bobagi.contact@gmail.com
-**Effective date:** October 5, 2026
-**Last updated:** October 5, 2026
+**Effective date:** October 10, 2026
+**Last updated:** October 10, 2026
 
 ## 1. Summary
 
 Tic Tac Verse is a game intended for the general public. It does not require you
-to create an account, and the developer does not operate any server that stores
-your data. The app does, however, show advertising and offers optional Google
-Play Games features and optional purchases through Google Play, and those
-services transmit some data off your device. This policy explains exactly what
+to create an account. The developer operates one server, used only by the
+optional online mode (playing against a friend over the internet); if you never
+open the online mode, nothing is sent to it. The app also shows advertising and
+offers optional Google Play Games features and optional purchases through Google
+Play, and those services transmit some data off your device. This policy explains exactly what
 is transmitted, by whom, and for what.
 
 ## 2. Data collected and shared
 
-The app itself collects no personal information. The following data is collected
-by Google services embedded in the app, and it matches, category by category,
+The app collects no personal information such as your name, email or contacts.
+The optional online mode sends the limited game data described in section 2.5 to
+the developer's server. The rest of the data below is collected by Google
+services embedded in the app, and it matches, category by category,
 what is declared in the app's Data safety section on Google Play.
 
 ### 2.1 Advertising (Google Mobile Ads SDK / AdMob)
@@ -92,7 +95,25 @@ When you tap "Share" after a win, the app creates a picture of the board and
 opens your phone's share menu. The picture goes directly from your device to the
 app you choose; the developer does not receive it.
 
-### 2.5 Data that never leaves your device
+### 2.5 Online mode (optional, developer's server)
+
+Only if you open "Challenge a friend online", the app talks to the developer's
+server at `tictacverse.bobagi.space` over HTTPS. It sends and stores:
+
+- **Device or other IDs:** a random anonymous identifier created by the server
+  the first time you use the online mode (the server keeps only a one-way hash
+  of it). It is not linked to your name, email, Google account or Advertising ID.
+  Other players see you only as a randomly assigned animal emoji and number.
+- **Other actions (gameplay):** the moves and results of your online matches,
+  and your online win/loss/draw counts.
+
+Your IP address reaches the server as part of any internet connection; it is
+used only in memory to limit abusive request rates and is never stored or
+logged. There is no chat and no free text. Purpose: app functionality (running
+the match between you and your friend). This data is not shared with anyone
+and is not used for advertising.
+
+### 2.6 Data that never leaves your device
 
 Your game progress, experience points, coins, purchased items, unlocked
 achievements, chosen language, and sound settings are stored only on your
@@ -111,7 +132,8 @@ by their own policies:
 - How Google uses information from sites or apps that use its services:
   https://policies.google.com/technologies/partner-sites
 
-The developer does not receive, sell or transfer your data.
+The developer receives only the online-mode data described in section 2.5, and
+does not sell, share or transfer it.
 
 ## 4. Consent and your choices
 
@@ -127,6 +149,10 @@ The developer does not receive, sell or transfer your data.
 - **Play Games data:** you can review or delete the data associated with this
   game at https://play.google.com/games/profile, or delete your Play Games
   account at https://myaccount.google.com.
+- **Online mode data:** open Settings in the app and tap "Delete my online
+  data". This deletes your anonymous identifier, your statistics and your link
+  to every match from the server immediately (open matches count as a loss).
+  You can also request deletion by email at the address below.
 - **Everything else:** uninstalling the app removes all locally stored data.
 
 ## 5. Security
@@ -136,11 +162,13 @@ using TLS/HTTPS.
 
 ## 6. Data retention and deletion
 
-The developer retains no personal data, because the developer collects none and
-operates no server. Retention of the advertising, Play Games and purchase data
-described above is controlled by Google, and the controls listed in section 4
-and your Google Play account are the way to review or delete it. Because the app
-has no accounts, there is no account for the developer to delete.
+Online-mode data (section 2.5) is kept only while useful: finished matches are
+deleted from the server after 120 days, and an anonymous identifier that has
+not been used for 400 days is deleted together with its statistics. You can
+delete it at any time from the app (section 4). Retention of the advertising,
+Play Games and purchase data described above is controlled by Google, and the
+controls listed in section 4 and your Google Play account are the way to review
+or delete it.
 
 ## 7. Children
 

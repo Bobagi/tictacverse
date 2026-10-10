@@ -4,6 +4,7 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 import '../../models/game_mode.dart';
 import '../../services/storage_service.dart';
 import 'modern_background.dart';
+import 'juice/motion.dart';
 
 class StatsSheet extends StatelessWidget {
   const StatsSheet({super.key, required this.localization});
@@ -36,8 +37,10 @@ class StatsSheet extends StatelessWidget {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      const Icon(Icons.bar_chart_rounded,
-                          color: Colors.lightBlueAccent),
+                      const Breathe(
+                        child: Icon(Icons.bar_chart_rounded,
+                            color: Colors.lightBlueAccent),
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         localization.statsTitle,

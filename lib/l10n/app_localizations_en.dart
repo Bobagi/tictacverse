@@ -670,4 +670,184 @@ class AppLocalizationsEn extends AppLocalizations {
   String needMoreCoinsPremium(int amount) {
     return '$amount coins to go. Play to earn them, or get everything with the Full collection.';
   }
+
+  @override
+  String get onlineButton => 'Challenge a friend online';
+
+  @override
+  String get onlineTitle => 'Online with friends';
+
+  @override
+  String get onlineIntro =>
+      'Ultimate Tic Tac Toe against a friend, each on your own phone. Play at the same time or whenever you can.';
+
+  @override
+  String get onlineCreate => 'Create invite';
+
+  @override
+  String get onlineJoinTitle => 'I got a code';
+
+  @override
+  String get onlineCodeHint => '6 letters, e.g. K7P2QX';
+
+  @override
+  String get onlineJoin => 'Join';
+
+  @override
+  String get onlineCodeInvalid => 'Invalid code. Check the 6 letters.';
+
+  @override
+  String get onlineYourMatches => 'Your matches';
+
+  @override
+  String get onlineNoMatches =>
+      'No matches yet. Create an invite and send it to a friend.';
+
+  @override
+  String onlineStats(int wins, int losses, int draws) {
+    return '$wins W · $losses L · $draws D';
+  }
+
+  @override
+  String onlineYouAre(String handle) {
+    return 'You are $handle';
+  }
+
+  @override
+  String get onlineStatusWaiting => 'Waiting for your friend';
+
+  @override
+  String get onlineStatusYourTurn => 'Your turn!';
+
+  @override
+  String get onlineStatusTheirTurn => 'Friend\'s turn';
+
+  @override
+  String get onlineStatusWon => 'You won';
+
+  @override
+  String get onlineStatusLost => 'You lost';
+
+  @override
+  String get onlineStatusDraw => 'Draw';
+
+  @override
+  String get onlineStatusExpired => 'Closed';
+
+  @override
+  String get onlineShareInvite => 'Send invite';
+
+  @override
+  String onlineShareMessage(String link, String code) {
+    return 'I challenge you to Ultimate Tic Tac Toe! Tap the link to play with me: $link (code $code)';
+  }
+
+  @override
+  String get onlineWaitingBody =>
+      'Send the link to a friend. The match starts as soon as they join.';
+
+  @override
+  String onlineCodeLabel(String code) {
+    return 'Code: $code';
+  }
+
+  @override
+  String get onlineCancelInvite => 'Cancel invite';
+
+  @override
+  String get onlineResign => 'Resign';
+
+  @override
+  String get onlineResignConfirm => 'Resign this match? It counts as a loss.';
+
+  @override
+  String onlineYouPlayAs(String symbol) {
+    return 'You play as $symbol';
+  }
+
+  @override
+  String get onlineReconnecting => 'No connection. Trying again...';
+
+  @override
+  String get onlineError =>
+      'Couldn\'t reach the server. Check your internet and try again.';
+
+  @override
+  String get onlineTaken => 'This match already has two players.';
+
+  @override
+  String get onlineExpired =>
+      'This invite has expired. Ask your friend for a new one.';
+
+  @override
+  String get onlineNotFound => 'We couldn\'t find that invite. Check the code.';
+
+  @override
+  String get onlineOwnMatch => 'This is your own invite. Send it to a friend.';
+
+  @override
+  String get onlineTooMany =>
+      'You have too many open matches. Finish or cancel one.';
+
+  @override
+  String get onlineRematch => 'Rematch';
+
+  @override
+  String get onlineRematchOffered => 'Your friend wants a rematch!';
+
+  @override
+  String get onlineWinTitle => 'You won!';
+
+  @override
+  String get onlineLossTitle => 'Your friend won';
+
+  @override
+  String get onlineDrawTitle => 'Draw!';
+
+  @override
+  String get onlineEndResignWin => 'Your friend resigned.';
+
+  @override
+  String get onlineEndResignLoss => 'You resigned.';
+
+  @override
+  String get onlineEndTimeoutWin => 'Your friend didn\'t play in time.';
+
+  @override
+  String get onlineEndTimeoutLoss => 'You didn\'t play in time.';
+
+  @override
+  String get onlineEndAbandon => 'Your friend left online play.';
+
+  @override
+  String get onlineTurnRule => 'Each player has up to 3 days to make a move.';
+
+  @override
+  String get onlineDeleteData => 'Delete my online data';
+
+  @override
+  String get onlineDeleteConfirm =>
+      'This deletes your online matches and stats from the server. Matches in progress count as losses.';
+
+  @override
+  String get onlineDeleteDone => 'Online data deleted.';
+
+  @override
+  String get onlinePrivacyNote =>
+      'Online play uses an anonymous number. No name, email or login.';
+
+  @override
+  String get onlineBackToLobby => 'Matches';
+
+  @override
+  String get cancelLabel => 'Cancel';
+
+  @override
+  String get confirmLabel => 'Confirm';
+
+  @override
+  String get onlineVsShort => 'vs';
+
+  @override
+  String get retryLabel => 'Try again';
 }

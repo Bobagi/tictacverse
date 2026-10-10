@@ -54,8 +54,27 @@ Os dois últimos rodam no mesmo fluxo do Clássico (`GameController` + `GameScre
 `LineRulesEngine` e o formato do tabuleiro em `GameModeType.boardSize`/`winLength`; o
 `GameBoard` desenha NxN a partir do número de casas.
 
-**Oponentes:** contra a CPU ou 2 jogadores no mesmo aparelho. No modo contra a CPU o humano é
-sempre o X.
+**Oponentes:** contra a CPU, 2 jogadores no mesmo aparelho, ou **online contra um amigo** (só o
+Super Jogo da Velha, desde a v1.15.0; seção 3.1). No modo contra a CPU o humano é sempre o X.
+
+### 3.1 Online: desafio por link (v1.15.0)
+
+- **Só o carro-chefe** (Super Jogo da Velha), por diretriz do dono.
+- Quem cria o convite joga de X e começa; o link (`https://tictacverse.bobagi.space/m/CODIGO`) vai
+  pelo menu de compartilhar (WhatsApp é o canal real em IN/BD/NP). Com o app instalado o link abre o
+  jogo direto (App Links); sem ele, a página leva à Play e mostra o código de 6 letras para digitar.
+- **Tempo real quando os dois estão com o jogo aberto** (long poll), e por turnos quando não estão:
+  cada um tem até **3 dias** para jogar a vez (passou, perde). Convite não aceito expira em 7 dias.
+- O **servidor é o juiz** (cópia das regras conferida contra o motor do app). Sem nome, sem chat:
+  cada jogador aparece como emoji de bicho + número sorteado pelo servidor.
+- Fim: modal com **Revanche** (lados trocados; quem foi O começa) e Partidas. Desistir conta derrota.
+- **Recompensa:** XP e moedas como "vitória contra gente" no Super (vitória (10+25)x1,5 = 53 XP,
+  derrota 15, empate 23), **uma vez por partida**, só com **6 jogadas ou mais** e até **15 partidas por
+  dia** (`OnlineRewardRules`): sem isso dois aparelhos combinados virariam fábrica de moedas. Não entra
+  em sequência de vitórias nem conquistas "contra a máquina".
+- Estatísticas V/D/E ficam no servidor (aparecem no lobby). Ranking com desconhecidos é a fase B
+  (`docs/online-multiplayer.md`).
+- "Apagar meus dados online" nas configurações (exclusão pelo próprio app).
 
 **CPU, três níveis:**
 - **Fácil:** casa aleatória.
@@ -230,8 +249,12 @@ Detalhes técnicos no `CLAUDE.md`, seção "Game feel".
   ou própria (o dono não quer texto de crédito na tela).
 - Vibração por evento (ligável nas configurações).
 - Partículas na peça e na captura, confete na vitória e no bônus, brilho na subida de nível.
-- Fim de partida: risco neon da linha, depois som, vibração e confete; título que fala com o
+- Fim de partida: risco da linha em **dourado e laranja** (desde a v1.15.0; a cor do vencedor se
+  misturava com o neon da grade), grosso, com faíscas na ponta; quando fecha, clarão, chuva de faíscas
+  ao longo da linha, anéis nas pontas, **tremida forte** do tabuleiro e confete; título que fala com o
   jogador; XP e moedas contando; barra de nível animando.
+- Ícones das telas (home, cards de modo, cabeçalhos das janelas, online) **respiram** devagar
+  (`Breathe`, desencontrados por `phase`), desde a v1.15.0.
 - Tudo respeita "reduzir animações" do sistema.
 
 ## 9. Loja (Play Store) e ASO
@@ -292,8 +315,9 @@ Em ordem de impacto, da pesquisa de 2026-10-03:
    campanha paga.
 8. **App open ad** só a partir da 2ª sessão, com limite de frequência, medindo D1 antes e
    depois.
-9. **Multiplayer online** (Fase 3, servidor próprio no VPS) quando houver base ativa que o
-   justifique.
+9. ~~Multiplayer online, fase A (desafio por link no Super)~~ feito na v1.15.0. Próximo: fase B
+   (partidas com desconhecidos + ranking) quando houver algumas centenas de jogadores por dia; fase C
+   (fila ao vivo) perto de 1.000/dia. Ver `docs/online-multiplayer.md`.
 
 ## 13. Histórico de versões relevantes
 
@@ -306,3 +330,4 @@ Em ordem de impacto, da pesquisa de 2026-10-03:
 | **1.12.0+26** | **2026-10-03/04** | **Moedas, loja de 5 visuais, bônus diário de 7 dias, premiado dobra XP e moedas, home compacta, ícone novo, ficha nova. Produção a 100%.** |
 | **1.13.0+27** | **2026-10-04** | **Compras na Play (sem anúncios + 3 pacotes de moedas), Neon vira o visual inicial e Aurora custa 50, música 10 dB abaixo dos efeitos** |
 | **1.14.0+31** | **2026-10-05** | **Compras únicas sem servidor (boas-vindas = sem anúncios + Aurora, sem anúncios, coleção completa; moedas não se vendem), pacote de boas-vindas com juice, desafio do dia, tutorial jogável do Super, compartilhar vitória, modos 4x4 e Cinco em linha, temas de tabuleiro, Aurora vira o visual mais caro (1000) e sai de uso de todos** |
+| **1.15.0+33** | **2026-10-10** | **Online: desafio por link no Super Jogo da Velha (tempo real ou por turnos, revanche, estatísticas no servidor, exclusão no app); linha da vitória dourada com clarão, faíscas e tremida forte; ícones respirando** |

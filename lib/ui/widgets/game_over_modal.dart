@@ -37,6 +37,8 @@ class GameOverModal extends StatefulWidget {
     this.banner,
     this.bannerSuccess = true,
     this.onShare,
+    this.playAgainLabel,
+    this.backLabel,
   });
 
   final String title;
@@ -78,6 +80,11 @@ class GameOverModal extends StatefulWidget {
   /// Compartilhar a vitória (imagem do tabuleiro + link da loja). Nulo =
   /// sem botão (empate, derrota).
   final Future<void> Function()? onShare;
+
+  /// Textos dos dois botões quando o padrão não serve (no online: "Revanche"
+  /// e "Partidas").
+  final String? playAgainLabel;
+  final String? backLabel;
 
   @override
   State<GameOverModal> createState() => _GameOverModalState();
@@ -273,7 +280,8 @@ class _GameOverModalState extends State<GameOverModal> {
                               HapticsService.instance.play(HapticCue.tap);
                               widget.onPlayAgain();
                             },
-                            child: Text(localization.playAgain),
+                            child: Text(widget.playAgainLabel ??
+                                localization.playAgain),
                           ),
                         ),
                         TextButton(
@@ -282,7 +290,8 @@ class _GameOverModalState extends State<GameOverModal> {
                             HapticsService.instance.play(HapticCue.tap);
                             widget.onBackToMenu();
                           },
-                          child: Text(localization.backToMenu),
+                          child:
+                              Text(widget.backLabel ?? localization.backToMenu),
                         ),
                         if (widget.onShare != null)
                           TextButton.icon(

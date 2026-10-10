@@ -12,6 +12,7 @@ import '../../services/progression_service.dart';
 import 'fading_edge.dart';
 import 'juice/pulse.dart';
 import 'modern_background.dart';
+import 'juice/motion.dart';
 
 /// Cor do selo por faixa.
 Color achievementTierColor(AchievementTier tier) {
@@ -71,8 +72,10 @@ class AchievementsSheet extends StatelessWidget {
           children: <Widget>[
             Row(
               children: <Widget>[
-                const Icon(Icons.emoji_events_rounded,
-                    color: VerseColors.energy),
+                const Breathe(
+                  child: Icon(Icons.emoji_events_rounded,
+                      color: VerseColors.energy),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   localization.achievementsTitle,

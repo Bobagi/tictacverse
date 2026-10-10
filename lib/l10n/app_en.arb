@@ -367,5 +367,103 @@
         "type": "int"
       }
     }
-  }
+  },
+  "onlineButton": "Challenge a friend online",
+  "onlineTitle": "Online with friends",
+  "onlineIntro": "Ultimate Tic Tac Toe against a friend, each on your own phone. Play at the same time or whenever you can.",
+  "onlineCreate": "Create invite",
+  "onlineJoinTitle": "I got a code",
+  "onlineCodeHint": "6 letters, e.g. K7P2QX",
+  "onlineJoin": "Join",
+  "onlineCodeInvalid": "Invalid code. Check the 6 letters.",
+  "onlineYourMatches": "Your matches",
+  "onlineNoMatches": "No matches yet. Create an invite and send it to a friend.",
+  "onlineStats": "{wins} W · {losses} L · {draws} D",
+  "@onlineStats": {
+    "placeholders": {
+      "wins": {
+        "type": "int"
+      },
+      "losses": {
+        "type": "int"
+      },
+      "draws": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineYouAre": "You are {handle}",
+  "@onlineYouAre": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineStatusWaiting": "Waiting for your friend",
+  "onlineStatusYourTurn": "Your turn!",
+  "onlineStatusTheirTurn": "Friend's turn",
+  "onlineStatusWon": "You won",
+  "onlineStatusLost": "You lost",
+  "onlineStatusDraw": "Draw",
+  "onlineStatusExpired": "Closed",
+  "onlineShareInvite": "Send invite",
+  "onlineShareMessage": "I challenge you to Ultimate Tic Tac Toe! Tap the link to play with me: {link} (code {code})",
+  "@onlineShareMessage": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineWaitingBody": "Send the link to a friend. The match starts as soon as they join.",
+  "onlineCodeLabel": "Code: {code}",
+  "@onlineCodeLabel": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineCancelInvite": "Cancel invite",
+  "onlineResign": "Resign",
+  "onlineResignConfirm": "Resign this match? It counts as a loss.",
+  "onlineYouPlayAs": "You play as {symbol}",
+  "@onlineYouPlayAs": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineReconnecting": "No connection. Trying again...",
+  "onlineError": "Couldn't reach the server. Check your internet and try again.",
+  "onlineTaken": "This match already has two players.",
+  "onlineExpired": "This invite has expired. Ask your friend for a new one.",
+  "onlineNotFound": "We couldn't find that invite. Check the code.",
+  "onlineOwnMatch": "This is your own invite. Send it to a friend.",
+  "onlineTooMany": "You have too many open matches. Finish or cancel one.",
+  "onlineRematch": "Rematch",
+  "onlineRematchOffered": "Your friend wants a rematch!",
+  "onlineWinTitle": "You won!",
+  "onlineLossTitle": "Your friend won",
+  "onlineDrawTitle": "Draw!",
+  "onlineEndResignWin": "Your friend resigned.",
+  "onlineEndResignLoss": "You resigned.",
+  "onlineEndTimeoutWin": "Your friend didn't play in time.",
+  "onlineEndTimeoutLoss": "You didn't play in time.",
+  "onlineEndAbandon": "Your friend left online play.",
+  "onlineTurnRule": "Each player has up to 3 days to make a move.",
+  "onlineDeleteData": "Delete my online data",
+  "onlineDeleteConfirm": "This deletes your online matches and stats from the server. Matches in progress count as losses.",
+  "onlineDeleteDone": "Online data deleted.",
+  "onlinePrivacyNote": "Online play uses an anonymous number. No name, email or login.",
+  "onlineBackToLobby": "Matches",
+  "cancelLabel": "Cancel",
+  "confirmLabel": "Confirm",
+  "onlineVsShort": "vs",
+  "retryLabel": "Try again"
 }

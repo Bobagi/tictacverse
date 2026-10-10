@@ -1,7 +1,15 @@
 # Jogo online contra pessoas reais: investigação (2026-10-04)
 
 Pedido do dono: investigar o que seria necessário para jogar online contra pessoas reais, se faz
-sentido, e o que entra junto (perfil, placar, etc.). **Nada foi implementado.**
+sentido, e o que entra junto (perfil, placar, etc.).
+
+> **Fase A FEITA na v1.15.0 (2026-10-10)**, com uma diferença do plano abaixo: a identidade **não**
+> usa o Play Games (`getAuthCode` exigiria um client OAuth Web criado pelo dono). Em vez disso o
+> servidor sorteia um **token anônimo** por aparelho (guardado como hash) e um rosto (emoji + número).
+> Trocar para Play Games na fase B, quando houver ranking, deixa as estatísticas sobreviverem à troca
+> de aparelho. Estado atual: servidor `tictacverse.bobagi.space` (repo `tictacverse-api`, README
+> seção "Modo online"), app em `lib/services/online/` e `lib/ui/screens/online_*.dart`. Tempo real por
+> long poll (não WebSocket), e as regras do servidor são cópia do motor Dart conferida por gabarito.
 
 ## Resposta curta
 

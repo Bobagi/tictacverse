@@ -3,6 +3,7 @@ import 'package:tictacverse/l10n/app_localizations.dart';
 
 import '../../services/audio_service.dart';
 import '../../services/haptics_service.dart';
+import '../../services/online/online_service.dart';
 import '../../services/update_service.dart';
 import 'modern_background.dart';
 
@@ -159,6 +160,9 @@ class SettingsSheet extends StatelessWidget {
                           );
                         },
                       ),
+                      // Pedido de exclusão do online, dentro do app (exigência
+                      // da Play para quem guarda dados no servidor).
+                      _OnlineDataTile(localization: localization),
                     ],
                   ),
                 ),
@@ -278,6 +282,95 @@ class _UpdateCheckButtonState extends State<_UpdateCheckButton> {
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(46),
       ),
+    );
+  }
+}
+
+class _OnlineDataTile extends StatefulWidget {
+  const _OnlineDataTile({required this.localization});
+
+  final AppLocalizations localization;
+
+  @override
+  State<_OnlineDataTile> createState() => _OnlineDataTileState();
+}
+
+class _OnlineDataTileState extends State<_OnlineDataTile> {
+  bool _busy = false;
+
+  /// Resultado mostrado no próprio sheet (SnackBar ficaria atrás dele).
+  String? _message;
+
+  Future<void> _delete() async {
+    final AppLocalizations l = widget.localization;
+    AudioService.instance.playUiClick();
+    final bool? ok = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: VerseColors.surface,
+        content: Text(l.onlineDeleteConfirm),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l.cancelLabel),
+          ),
+          FilledButton(
+            key: const ValueKey<String>('online-delete-confirm'),
+            style: FilledButton.styleFrom(backgroundColor: VerseColors.danger),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l.confirmLabel),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) {
+      return;
+    }
+    setState(() => _busy = true);
+    String message;
+    try {
+      await OnlineService.instance.deleteMyData();
+      message = l.onlineDeleteDone;
+    } catch (_) {
+      message = l.onlineError;
+    }
+    if (mounted) {
+      setState(() {
+        _busy = false;
+        _message = message;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        ListTile(
+          key: const ValueKey<String>('settings-online-delete'),
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.delete_outline_rounded,
+              color: Colors.white70),
+          title: Text(widget.localization.onlineDeleteData),
+          trailing: _busy
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : null,
+          onTap: _busy ? null : _delete,
+        ),
+        if (_message != null)
+          Text(
+            _message!,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Colors.white70),
+          ),
+      ],
     );
   }
 }

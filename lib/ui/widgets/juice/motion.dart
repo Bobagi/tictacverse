@@ -107,6 +107,56 @@ class _WobbleState extends State<Wobble>
   }
 }
 
+/// Respiração: o filho cresce e volta bem devagar, como quem respira. É o
+/// movimento de fundo dos ícones das telas (home, modos, cabeçalhos): a tela
+/// nunca fica parada, mas nada pisca nem pede toque. [phase] (0 a 1)
+/// desencontra ícones vizinhos para não respirarem em coro.
+class Breathe extends StatefulWidget {
+  const Breathe({
+    super.key,
+    required this.child,
+    this.amount = 0.07,
+    this.period = const Duration(milliseconds: 2800),
+    this.phase = 0,
+  });
+
+  final Widget child;
+
+  /// Quanto cresce no pico (0,07 = 7%).
+  final double amount;
+  final Duration period;
+  final double phase;
+
+  @override
+  State<Breathe> createState() => _BreatheState();
+}
+
+class _BreatheState extends State<Breathe>
+    with SingleTickerProviderStateMixin, _LoopController<Breathe> {
+  @override
+  Duration get period => widget.period;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_reduceMotion(context)) {
+      return widget.child;
+    }
+    return AnimatedBuilder(
+      animation: loop,
+      builder: (BuildContext context, Widget? child) {
+        final double t = (loop.value + widget.phase) % 1;
+        // Cosseno: entra e sai devagar nos extremos, sem tranco.
+        final double inhale = 0.5 - 0.5 * cos(t * 2 * pi);
+        return Transform.scale(
+          scale: 1 + widget.amount * inhale,
+          child: child,
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
+
 /// Flutua para cima e para baixo. [phase] (0 a 1) desencontra vários juntos.
 class Bob extends StatefulWidget {
   const Bob({

@@ -670,4 +670,185 @@ class AppLocalizationsBn extends AppLocalizations {
   String needMoreCoinsPremium(int amount) {
     return 'আরও $amount কয়েন লাগবে। খেলে জিতুন বা পুরো কালেকশন নিন।';
   }
+
+  @override
+  String get onlineButton => 'বন্ধুকে অনলাইনে চ্যালেঞ্জ করুন';
+
+  @override
+  String get onlineTitle => 'বন্ধুদের সাথে অনলাইন';
+
+  @override
+  String get onlineIntro =>
+      'বন্ধুর সাথে আলটিমেট টিক ট্যাক টো, দুজনেই নিজের ফোনে। একসাথে খেলুন বা যখন সময় পান।';
+
+  @override
+  String get onlineCreate => 'আমন্ত্রণ তৈরি করুন';
+
+  @override
+  String get onlineJoinTitle => 'আমি একটি কোড পেয়েছি';
+
+  @override
+  String get onlineCodeHint => '৬টি অক্ষর, যেমন K7P2QX';
+
+  @override
+  String get onlineJoin => 'যোগ দিন';
+
+  @override
+  String get onlineCodeInvalid => 'ভুল কোড। ৬টি অক্ষর মিলিয়ে দেখুন।';
+
+  @override
+  String get onlineYourMatches => 'আপনার ম্যাচ';
+
+  @override
+  String get onlineNoMatches =>
+      'এখনও কোনো ম্যাচ নেই। আমন্ত্রণ তৈরি করে বন্ধুকে পাঠান।';
+
+  @override
+  String onlineStats(int wins, int losses, int draws) {
+    return '$wins জয় · $losses হার · $draws ড্র';
+  }
+
+  @override
+  String onlineYouAre(String handle) {
+    return 'আপনি $handle';
+  }
+
+  @override
+  String get onlineStatusWaiting => 'বন্ধুর অপেক্ষায়';
+
+  @override
+  String get onlineStatusYourTurn => 'আপনার পালা!';
+
+  @override
+  String get onlineStatusTheirTurn => 'বন্ধুর পালা';
+
+  @override
+  String get onlineStatusWon => 'আপনি জিতেছেন';
+
+  @override
+  String get onlineStatusLost => 'আপনি হেরেছেন';
+
+  @override
+  String get onlineStatusDraw => 'ড্র';
+
+  @override
+  String get onlineStatusExpired => 'বন্ধ';
+
+  @override
+  String get onlineShareInvite => 'আমন্ত্রণ পাঠান';
+
+  @override
+  String onlineShareMessage(String link, String code) {
+    return 'তোমাকে আলটিমেট টিক ট্যাক টো-তে চ্যালেঞ্জ করছি! আমার সাথে খেলতে লিংকে ট্যাপ করো: $link (কোড $code)';
+  }
+
+  @override
+  String get onlineWaitingBody =>
+      'লিংকটি বন্ধুকে পাঠান। বন্ধু যোগ দিলেই ম্যাচ শুরু হবে।';
+
+  @override
+  String onlineCodeLabel(String code) {
+    return 'কোড: $code';
+  }
+
+  @override
+  String get onlineCancelInvite => 'আমন্ত্রণ বাতিল করুন';
+
+  @override
+  String get onlineResign => 'হার মানুন';
+
+  @override
+  String get onlineResignConfirm =>
+      'এই ম্যাচ ছেড়ে দেবেন? এটি হার হিসেবে গণ্য হবে।';
+
+  @override
+  String onlineYouPlayAs(String symbol) {
+    return 'আপনি $symbol দিয়ে খেলছেন';
+  }
+
+  @override
+  String get onlineReconnecting => 'সংযোগ নেই। আবার চেষ্টা করা হচ্ছে...';
+
+  @override
+  String get onlineError =>
+      'সার্ভারে পৌঁছানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get onlineTaken => 'এই ম্যাচে ইতিমধ্যে দুজন খেলোয়াড় আছে।';
+
+  @override
+  String get onlineExpired => 'এই আমন্ত্রণের মেয়াদ শেষ। বন্ধুর কাছে নতুন চান।';
+
+  @override
+  String get onlineNotFound => 'এই আমন্ত্রণ পাওয়া যায়নি। কোডটি দেখুন।';
+
+  @override
+  String get onlineOwnMatch => 'এটি আপনার নিজের আমন্ত্রণ। বন্ধুকে পাঠান।';
+
+  @override
+  String get onlineTooMany =>
+      'আপনার অনেক ম্যাচ খোলা আছে। কোনোটি শেষ বা বাতিল করুন।';
+
+  @override
+  String get onlineRematch => 'আবার খেলুন';
+
+  @override
+  String get onlineRematchOffered => 'আপনার বন্ধু আবার খেলতে চায়!';
+
+  @override
+  String get onlineWinTitle => 'আপনি জিতেছেন!';
+
+  @override
+  String get onlineLossTitle => 'আপনার বন্ধু জিতেছে';
+
+  @override
+  String get onlineDrawTitle => 'ড্র!';
+
+  @override
+  String get onlineEndResignWin => 'আপনার বন্ধু হার মেনেছে।';
+
+  @override
+  String get onlineEndResignLoss => 'আপনি হার মেনেছেন।';
+
+  @override
+  String get onlineEndTimeoutWin => 'আপনার বন্ধু সময়মতো চাল দেয়নি।';
+
+  @override
+  String get onlineEndTimeoutLoss => 'আপনি সময়মতো চাল দেননি।';
+
+  @override
+  String get onlineEndAbandon => 'আপনার বন্ধু অনলাইন খেলা ছেড়ে দিয়েছে।';
+
+  @override
+  String get onlineTurnRule =>
+      'প্রত্যেকের নিজের চালের জন্য ৩ দিন পর্যন্ত সময় আছে।';
+
+  @override
+  String get onlineDeleteData => 'আমার অনলাইন ডেটা মুছুন';
+
+  @override
+  String get onlineDeleteConfirm =>
+      'এতে সার্ভার থেকে আপনার অনলাইন ম্যাচ ও পরিসংখ্যান মুছে যাবে। চলমান ম্যাচ হার হিসেবে গণ্য হবে।';
+
+  @override
+  String get onlineDeleteDone => 'অনলাইন ডেটা মুছে ফেলা হয়েছে।';
+
+  @override
+  String get onlinePrivacyNote =>
+      'অনলাইন খেলায় একটি বেনামি নম্বর ব্যবহার হয়। নাম, ইমেল বা লগইন লাগে না।';
+
+  @override
+  String get onlineBackToLobby => 'ম্যাচ';
+
+  @override
+  String get cancelLabel => 'বাতিল';
+
+  @override
+  String get confirmLabel => 'নিশ্চিত করুন';
+
+  @override
+  String get onlineVsShort => 'বনাম';
+
+  @override
+  String get retryLabel => 'আবার চেষ্টা করুন';
 }

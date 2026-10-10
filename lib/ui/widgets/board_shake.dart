@@ -10,11 +10,16 @@ class BoardShake extends StatefulWidget {
     super.key,
     required this.trigger,
     required this.child,
+    this.amplitude = 7,
   });
 
   /// Contador de disparos - incremente para tremer de novo.
   final int trigger;
   final Widget child;
+
+  /// Deslocamento máximo em pixels. A linha da vitória fechando usa uma
+  /// tremida bem mais forte (e um pouco mais longa) que a captura.
+  final double amplitude;
 
   @override
   State<BoardShake> createState() => _BoardShakeState();
@@ -22,7 +27,6 @@ class BoardShake extends StatefulWidget {
 
 class _BoardShakeState extends State<BoardShake>
     with SingleTickerProviderStateMixin {
-  static const double _amplitude = 7;
   static const double _oscillations = 5;
 
   late final AnimationController _controller = AnimationController(
@@ -34,8 +38,11 @@ class _BoardShakeState extends State<BoardShake>
   void didUpdateWidget(BoardShake oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.trigger != oldWidget.trigger && widget.trigger > 0) {
-      final bool reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      final bool reduceMotion =
+          MediaQuery.maybeOf(context)?.disableAnimations ?? false;
       if (!reduceMotion) {
+        _controller.duration =
+            Duration(milliseconds: (480 + (widget.amplitude - 7) * 18).round());
         _controller.forward(from: 0);
       }
     }
@@ -61,13 +68,15 @@ class _BoardShakeState extends State<BoardShake>
         // pelo operador em 2026-09-25).
         final double decay = (t == 0 || t == 1) ? 0 : (1 - t) * (1 - t);
         final double wave = sin(t * _oscillations * 2 * pi);
-        final double dx = wave * _amplitude * decay;
-        final double dy =
-            sin(t * _oscillations * 2 * pi + pi / 3) * _amplitude * 0.35 * decay;
+        final double dx = wave * widget.amplitude * decay;
+        final double dy = sin(t * _oscillations * 2 * pi + pi / 3) *
+            widget.amplitude *
+            0.35 *
+            decay;
         return Transform.translate(
           offset: Offset(dx, dy),
           child: Transform.rotate(
-            angle: wave * 0.006 * decay,
+            angle: wave * 0.0009 * widget.amplitude * decay,
             child: child,
           ),
         );

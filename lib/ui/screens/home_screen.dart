@@ -14,6 +14,7 @@ import '../../services/economy_service.dart';
 import '../../services/haptics_service.dart';
 import '../../services/language_suggestion.dart';
 import '../../services/metrics_service.dart';
+import '../../services/online/online_service.dart';
 import '../../services/progression_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/update_prompt.dart';
@@ -32,6 +33,7 @@ import '../widgets/starter_offer_dialog.dart';
 import '../widgets/stats_sheet.dart';
 import '../widgets/update_available_dialog.dart';
 import 'mode_select_screen.dart';
+import 'online_lobby_screen.dart';
 import 'ultimate2_screen.dart';
 
 /// Tela inicial enxuta: escolha do oponente (máquina ou amigo). Os modos de
@@ -63,7 +65,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    OnlineService.instance.pendingCode.addListener(_onPendingCode);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Convite que abriu o app (link no WhatsApp): vai direto para a partida.
+      _onPendingCode();
+      OnlineService.instance.refreshBadge();
       if (AdsConfiguration.passiveAdsEnabled) {
         bannerAdController.loadBannerAd(
           context: context,
@@ -174,8 +180,31 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onPendingCode() {
+    final String? code = OnlineService.instance.pendingCode.value;
+    if (code == null || !mounted) {
+      return;
+    }
+    OnlineService.instance.pendingCode.value = null;
+    _openOnline(joinCode: code);
+  }
+
+  void _openOnline({String? joinCode}) {
+    audioService.playUiClick();
+    HapticsService.instance.play(HapticCue.tap);
+    Navigator.of(context)
+        .push(MaterialPageRoute<void>(
+          builder: (BuildContext context) => OnlineLobbyScreen(
+            metricsService: widget.metricsService,
+            joinCode: joinCode,
+          ),
+        ))
+        .then((_) => OnlineService.instance.refreshBadge());
+  }
+
   @override
   void dispose() {
+    OnlineService.instance.pendingCode.removeListener(_onPendingCode);
     bannerAdController.dispose();
     _rewarded?.dispose();
     super.dispose();
@@ -322,7 +351,26 @@ class _HomeScreenState extends State<HomeScreen> {
                               icon: Icons.group_rounded,
                               label: localization.playWithFriend,
                               accent: const Color(0xFFFF6BD9),
+                              breathPhase: 0.33,
                               onTap: () => _openModes(playAgainstCpu: false),
+                            ),
+                            const SizedBox(height: 14),
+                            // Online contra um amigo, cada um no seu celular.
+                            // O selo conta as partidas esperando a jogada dele.
+                            ValueListenableBuilder<int>(
+                              valueListenable:
+                                  OnlineService.instance.myTurnCount,
+                              builder: (BuildContext context, int turns,
+                                      Widget? _) =>
+                                  _OpponentButton(
+                                key: const ValueKey<String>('home-online'),
+                                icon: Icons.public_rounded,
+                                label: localization.onlineButton,
+                                accent: VerseColors.coin,
+                                breathPhase: 0.66,
+                                badge: turns,
+                                onTap: _openOnline,
+                              ),
                             ),
                             const SizedBox(height: 14),
                             ValueListenableBuilder<int>(
@@ -344,6 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ? localization.dailyReady
                                             : localization.dailyComeBack,
                                         highlight: economy.canClaimDaily,
+                                        breathPhase: 0.15,
                                         onTap: () => _openDaily(localization),
                                       ),
                                     ),
@@ -357,6 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         subtitle: skinName(
                                             localization, economy.equippedSkin),
                                         highlight: false,
+                                        breathPhase: 0.45,
                                         onTap: () => _openShop(localization),
                                       ),
                                     ),
@@ -510,6 +560,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   '${localization.dailyStreakChip(streak)}'
               : localization.challengeDoneHome,
       highlight: open,
+      breathPhase: 0.75,
       onTap: () {
         audioService.playUiClick();
         HapticsService.instance.play(HapticCue.tap);
@@ -548,16 +599,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _OpponentButton extends StatelessWidget {
   const _OpponentButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.accent,
     required this.onTap,
+    this.breathPhase = 0,
+    this.badge = 0,
   });
 
   final IconData icon;
   final String label;
   final Color accent;
   final VoidCallback onTap;
+
+  /// Desencontra a respiração dos ícones vizinhos.
+  final double breathPhase;
+
+  /// Partidas esperando o jogador (só o botão do online usa).
+  final int badge;
 
   @override
   Widget build(BuildContext context) {
@@ -569,7 +629,9 @@ class _OpponentButton extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            // Três botões grandes desde o online: 12 em vez de 16 de respiro
+            // segura o desafio do dia acima da dobra em 320x568.
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: <Color>[
                 accent.withOpacity(0.16),
@@ -583,14 +645,22 @@ class _OpponentButton extends StatelessWidget {
             ),
             child: Row(
               children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: accent.withOpacity(0.18),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: accent.withOpacity(0.5)),
+                Badge(
+                  isLabelVisible: badge > 0,
+                  backgroundColor: Colors.redAccent,
+                  label: Text('$badge'),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: accent.withOpacity(0.18),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: accent.withOpacity(0.5)),
+                    ),
+                    child: Breathe(
+                      phase: breathPhase,
+                      child: Icon(icon, color: accent, size: 30),
+                    ),
                   ),
-                  child: Icon(icon, color: accent, size: 30),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -624,8 +694,10 @@ class _HomeTile extends StatelessWidget {
     this.subtitleLines = 1,
     required this.highlight,
     required this.onTap,
+    this.breathPhase = 0,
   });
 
+  final double breathPhase;
   final IconData icon;
   final String title;
   final String subtitle;
@@ -653,11 +725,15 @@ class _HomeTile extends StatelessWidget {
             smallSize: 9,
             backgroundColor: Colors.redAccent,
             // Card "pronto para resgatar" balança o ícone: o olho vai nele.
-            child: Wobble(
-              active: highlight,
-              angle: 0.16,
-              child: Icon(icon,
-                  color: highlight ? VerseColors.coin : Colors.white, size: 26),
+            child: Breathe(
+              phase: breathPhase,
+              child: Wobble(
+                active: highlight,
+                angle: 0.16,
+                child: Icon(icon,
+                    color: highlight ? VerseColors.coin : Colors.white,
+                    size: 26),
+              ),
             ),
           ),
           const SizedBox(width: 10),

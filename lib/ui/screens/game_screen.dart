@@ -31,6 +31,7 @@ import '../widgets/game_over_modal.dart';
 import '../widgets/juice/particles.dart';
 import '../widgets/juice/pulse.dart';
 import '../widgets/modern_background.dart';
+import '../widgets/neon_win_line.dart';
 import '../widgets/piece_glyph.dart';
 import '../widgets/pop_in.dart';
 
@@ -70,6 +71,9 @@ class _GameScreenState extends State<GameScreen> {
   bool _cpuThinking = false;
   int _shakeTick = 0;
 
+  /// A próxima tremida é a do impacto da linha da vitória (forte).
+  bool _strongShake = false;
+
   /// Recompensa da última partida, exibida dentro do modal de fim.
   ProgressionResult? _progressionResult;
 
@@ -78,7 +82,7 @@ class _GameScreenState extends State<GameScreen> {
   static const Duration _cpuThinkDelay = Duration(milliseconds: 550);
 
   /// Tempo pra linha neon desenhar + pulsar antes do modal de fim subir.
-  static const Duration _winCelebration = Duration(milliseconds: 1650);
+  static const Duration _winCelebration = Duration(milliseconds: 1900);
   static const Duration _drawPause = Duration(milliseconds: 650);
 
   @override
@@ -166,6 +170,7 @@ class _GameScreenState extends State<GameScreen> {
                                     height: boardSize,
                                     child: BoardShake(
                                       trigger: _shakeTick,
+                                amplitude: _strongShake ? 18 : 7,
                                       // Vira a foto do "compartilhar vitória"
                                       // (o fundo é pintado só na imagem).
                                       child: RepaintBoundary(
@@ -467,6 +472,7 @@ class _GameScreenState extends State<GameScreen> {
     haptics.play(HapticCue.capture);
     if (!widget.controller.state.result.isFinal) {
       setState(() {
+        _strongShake = false;
         _shakeTick++;
       });
     }
@@ -518,9 +524,19 @@ class _GameScreenState extends State<GameScreen> {
     final MatchEndKind kind = classifyMatchEnd(finalResult, vsCpu: vsCpu);
     if (hasWinLine) {
       setState(() {
+        _strongShake = false;
         _shakeTick++;
       });
       audioService.play(Sfx.winLine);
+      // Quando o risco fecha: tremida forte junto com o clarão da linha.
+      Timer(NeonWinLine.impactDelay, () {
+        if (mounted) {
+          setState(() {
+            _strongShake = true;
+            _shakeTick++;
+          });
+        }
+      });
     }
     final bool reduceMotion = MediaQuery.of(context).disableAnimations;
     final Duration delay = reduceMotion
@@ -531,7 +547,7 @@ class _GameScreenState extends State<GameScreen> {
     Timer(
       reduceMotion || !hasWinLine
           ? Duration.zero
-          : const Duration(milliseconds: 650),
+          : NeonWinLine.impactDelay,
       () {
         if (mounted) {
           playMatchEndFeedback(kind, screenParticles: _screenParticles);

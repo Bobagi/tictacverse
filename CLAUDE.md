@@ -94,12 +94,18 @@ partícula viva).
 - **Vibração:** `HapticsService.play(HapticCue.x)`; só `HapticFeedback` do
   Flutter (sem permissão VIBRATE, nada sai do aparelho, Data safety não muda).
   Ligável nas configurações (`settings.haptics`, padrão ligado).
+- **Linha da vitória** (`neon_win_line.dart`, v1.15.0): dourada/laranja (contrasta com a grade neon),
+  grossa, clarão + faíscas na linha toda + anéis quando fecha. As telas usam
+  `NeonWinLine.impactDelay` para a tremida forte (`BoardShake(amplitude: 18)`) e o confete caírem no
+  impacto. Mudou a duração da linha, o impacto acompanha sozinho.
+- **Respiração** (`Breathe` em `motion.dart`): movimento de fundo dos ícones das telas; passe `phase`
+  diferente em ícones vizinhos. Não usar em diálogo que tenha teste com `pumpAndSettle`.
 - **Partículas:** um `ParticleController` por camada + `ParticleField` em
   `Positioned.fill` no Stack. `burst` (peça/captura), `confetti` (vitória, tela
-  inteira), `sparkle` (nível). O `GameBoard` e o `_MacroBoard` detectam a peça
+  inteira), `sparkle` (nível). O `GameBoard` e o `UltimateMacroBoard` detectam a peça
   nova no `didUpdateWidget` e explodem sozinhos.
-- **Fim de partida:** `_onMatchEnded` toca `winLine` no risco da linha, e 650ms
-  depois `playMatchEndFeedback` (som + vibração + confete). O modal tem título
+- **Fim de partida:** `_onMatchEnded` toca `winLine` no risco da linha, e no impacto (`NeonWinLine.impactDelay`)
+  toca `playMatchEndFeedback` (som + vibração + confete). O modal tem título
   que fala com o jogador, chips de sequência (vitórias a partir de 2, dias a
   partir de 2), XP contando, barra de nível animando (atravessa a virada) e
   chips de nível/conquista entrando escalonados. **O miolo rola e a linha de
@@ -197,6 +203,26 @@ servidor).
 - **Modos 4x4 e Cinco em linha** (Gomoku 10x10): `LineRulesEngine` + `LineCpu`;
   `GameBoard` desenha NxN a partir do tamanho do tabuleiro.
 
+## Online: desafio por link no Super (v1.15.0)
+
+Servidor `https://tictacverse.bobagi.space` = repo `tictacverse-api` (Docker, :3066; contrato no
+README dele). Regra de jogo, prazos e recompensa: GDD seção 3.1.
+
+- `lib/services/online/`: `OnlineApi` (HTTP; o único cliente HTTP do app), `FakeOnlineApi` (servidor
+  de mentira com amigo robô: testes e `--dart-define=FAKE_ONLINE=true` na web), `OnlineService`
+  (token anônimo em `online.token`, recompensa uma vez por partida via `OnlineRewardRules`, código que
+  chegou por link), `deep_links.dart` + `MainActivity.kt` (canal `tictacverse/links`, sem plugin).
+- Telas: `online_lobby_screen.dart`, `online_match_screen.dart`. O tabuleiro do Super é o widget
+  `UltimateMacroBoard` (`lib/ui/widgets/ultimate_macro_board.dart`), usado pela partida local e online.
+- **Mudou a regra do Super?** Regere o gabarito do servidor: `dart run tool/online_golden.dart >
+  ../tictacverse-api/test/fixtures/ultimate-golden.json` e rode os testes de lá.
+- App Links: `assetlinks.json` do servidor leva o SHA-256 da chave da Play e da de upload. Trocou de
+  chave, atualize `src/online/landing.js` lá.
+- Data safety: o online já está declarado (`docs/data-safety.md`, v1.15.0). Não mande nada novo para o
+  servidor sem refazer o pacote (data safety + política + formulário).
+- Testes: `test/online_rules_test.dart` (recompensa, link) e `test/online_flow_test.dart` (fluxo e
+  matriz idioma x tela das telas novas).
+
 ## Ficha da loja, prints e vídeos
 
 Tudo em **`docs/store-listing/README.md`**: estado de cada peça (textos, ícone, prints, vídeo,
@@ -251,8 +277,8 @@ O app estava certo; a declaração estava errada.
 O que sai do aparelho, resumido: Advertising ID, app set ID e id de conta
 logada, IP (vira localização aproximada), interações, diagnóstico e crash, tudo
 pelo Google Mobile Ads SDK; mais player ID, conquistas e nível pelo Play Games.
-Compras ficam com o Google Play. Nada mais: o app **não tem cliente HTTP próprio,
-backend, Firebase, Crashlytics nem analytics**, e `shared_preferences` e
+Compras ficam com o Google Play. Nada mais: o app **não tem Firebase, Crashlytics nem analytics**, e o único cliente HTTP próprio é o do modo
+online (só depois que o jogador abre o online; ver `docs/data-safety.md`), e `shared_preferences` e
 `MetricsService` não saem do aparelho.
 
 Declaração completa, campo por campo, com o passo a passo da Play Console:

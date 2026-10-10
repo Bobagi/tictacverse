@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/audio_service.dart';
 import '../../services/haptics_service.dart';
+import 'juice/motion.dart';
 import 'modern_background.dart';
 
 class ModeCard extends StatelessWidget {
@@ -13,7 +14,11 @@ class ModeCard extends StatelessWidget {
     required this.buttonLabel,
     required this.glyph,
     this.accent = VerseColors.cross,
+    this.breathPhase = 0,
   });
+
+  /// Desencontra a respiração do ícone entre os cards da lista.
+  final double breathPhase;
 
   final String title;
   final String subtitle;
@@ -58,7 +63,7 @@ class ModeCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(13),
                   border: Border.all(color: accent.withOpacity(0.5)),
                 ),
-                child: Center(child: glyph),
+                child: Center(child: Breathe(phase: breathPhase, child: glyph)),
               ),
               const SizedBox(width: 12),
               Expanded(
