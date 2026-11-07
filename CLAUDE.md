@@ -21,12 +21,14 @@ flutter gen-l10n              # regenera lib/l10n/app_localizations*.dart após 
 flutter build appbundle --release
 ```
 
-Na VPS de build, o Gradle precisa de ajuda: o box tem 0 swap, então crie um
-swapfile temporário antes e remova depois, e use
-`ANDROID_HOME=/opt/android-sdk GRADLE_USER_HOME=/opt/.gradle` com JDK 21. O
+No servidor (VM "servidor" do Mac mini, desde 2026-11-07) não há Flutter na VM:
+tudo roda no macOS pelo `appbuild`, que espelha o repo no Mac e traz
+`build/app/outputs` de volta (detalhes em `/opt/CLAUDE.md`). Ex.:
+`appbuild tictacverse flutter test` e
+`appbuild tictacverse flutter build appbundle --release`. O
 `android/gradle.properties` costuma ter um teto de heap **editado localmente que
-NÃO deve ser commitado**. O keystore de release fica fora do repo, na máquina de
-build.
+NÃO deve ser commitado**. O keystore de release fica fora do repo
+(`/Users/gustavo/.config/bobagi-keys/tictacverse/`, apontado em `android/key.properties`).
 
 ## Como o código está organizado
 
