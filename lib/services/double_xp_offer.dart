@@ -14,6 +14,7 @@ import 'progression_service.dart';
 /// - Nunca logo depois de um intersticial que foi mesmo exibido (encadear
 ///   anúncios queima o jogador e chama atenção da política do AdMob).
 /// - Só quando a cadência do [AdService] libera, contada UMA vez por partida.
+///   Se outra regra barrar o convite, a vez fica para a próxima partida.
 /// - Só com XP ganho na partida (o bônus dobra exatamente esse número).
 /// - O crédito acontece somente depois de o SDK confirmar a recompensa.
 class DoubleXpOffer {
@@ -68,6 +69,8 @@ class DoubleXpOffer {
     if (earned == null || earned.xpGained <= 0) {
       return null;
     }
+    // Só agora a vez da cadência é gasta: o convite vai mesmo para a tela.
+    adService.markRewardedOffered();
     return _watchAdForDoubleXp;
   }
 

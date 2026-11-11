@@ -75,7 +75,7 @@ class UpdateService {
           updateAvailable.value = false;
           return UpdateCheckOutcome.updateStarted;
         }
-        return _openStore();
+        return await _openStore();
       }
       updateAvailable.value = false;
       return UpdateCheckOutcome.upToDate;

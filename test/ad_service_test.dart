@@ -18,14 +18,59 @@ void main() {
   group('convite de anúncio premiado', () {
     test('sai a cada 4 partidas, não em todo fim de partida', () {
       final AdService service = AdService.forTest();
-      expect(
-        <bool>[for (int i = 0; i < 12; i++) service.shouldOfferRewardedOnMatchEnd()],
-        <bool>[
-          false, false, false, true, // 4
-          false, false, false, true, // 8
-          false, false, false, true, // 12
-        ],
+      final List<bool> got = <bool>[];
+      for (int i = 0; i < 12; i++) {
+        final bool due = service.shouldOfferRewardedOnMatchEnd();
+        got.add(due);
+        if (due) {
+          service.markRewardedOffered();
+        }
+      }
+      expect(got, <bool>[
+        false, false, false, true, // 4
+        false, false, false, true, // 8
+        false, false, false, true, // 12
+      ]);
+    });
+
+    test('vez que não virou convite fica para a próxima partida', () {
+      final AdService service = AdService.forTest();
+      for (int i = 0; i < 3; i++) {
+        service.shouldOfferRewardedOnMatchEnd();
+      }
+      expect(service.shouldOfferRewardedOnMatchEnd(), isTrue); // 4ª, barrada
+      expect(service.shouldOfferRewardedOnMatchEnd(), isTrue); // 5ª, ainda vale
+      service.markRewardedOffered();
+      expect(service.shouldOfferRewardedOnMatchEnd(), isFalse);
+    });
+
+    test('a contagem sobrevive a fechar e abrir o app', () {
+      int stored = 0;
+      AdService open() => AdService.forTest(
+            loadCounter: () => stored,
+            saveCounter: (int v) => stored = v,
+          );
+      final AdService first = open();
+      first.shouldOfferRewardedOnMatchEnd();
+      first.shouldOfferRewardedOnMatchEnd();
+      // Fechou o app depois de 2 partidas; abriu de novo.
+      final AdService second = open();
+      expect(second.shouldOfferRewardedOnMatchEnd(), isFalse); // 3ª
+      expect(second.shouldOfferRewardedOnMatchEnd(), isTrue); // 4ª
+      second.markRewardedOffered();
+      expect(stored, 0);
+    });
+
+    test('contagem pendente não cresce sem limite', () {
+      int stored = 0;
+      final AdService service = AdService.forTest(
+        loadCounter: () => stored,
+        saveCounter: (int v) => stored = v,
       );
+      for (int i = 0; i < 50; i++) {
+        service.shouldOfferRewardedOnMatchEnd();
+      }
+      expect(stored, AdService.rewardedOfferInterval);
     });
 
     test('conta separado do intersticial', () {

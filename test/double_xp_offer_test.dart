@@ -85,6 +85,44 @@ void main() {
       expect(o.build(), isNull);
     });
 
+    test('convite barrado pelo intersticial cai na partida seguinte', () {
+      advanceToDue(ads);
+      final DoubleXpOffer first = offer();
+      first.onMatchEnded(earned(35));
+      first.onCelebrationDone(interstitialShown: true);
+      expect(first.build(), isNull);
+      final DoubleXpOffer next = offer();
+      next.onMatchEnded(earned(20));
+      next.onCelebrationDone(interstitialShown: false);
+      expect(next.build(), isNotNull);
+    });
+
+    test('convite barrado por anúncio ainda carregando cai na partida seguinte', () {
+      rewarded.ready = false;
+      advanceToDue(ads);
+      final DoubleXpOffer first = offer();
+      first.onMatchEnded(earned(35));
+      first.onCelebrationDone(interstitialShown: false);
+      expect(first.build(), isNull);
+      rewarded.ready = true;
+      final DoubleXpOffer next = offer();
+      next.onMatchEnded(earned(20));
+      next.onCelebrationDone(interstitialShown: false);
+      expect(next.build(), isNotNull);
+    });
+
+    test('convite exibido gasta a vez: a partida seguinte não convida', () {
+      advanceToDue(ads);
+      final DoubleXpOffer first = offer();
+      first.onMatchEnded(earned(35));
+      first.onCelebrationDone(interstitialShown: false);
+      expect(first.build(), isNotNull);
+      final DoubleXpOffer next = offer();
+      next.onMatchEnded(earned(20));
+      next.onCelebrationDone(interstitialShown: false);
+      expect(next.build(), isNull);
+    });
+
     test('sem anúncio carregado não promete o que não tem', () {
       rewarded.ready = false;
       final DoubleXpOffer o = offer();

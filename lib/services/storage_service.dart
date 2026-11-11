@@ -52,6 +52,7 @@ class StorageService {
   static const String _starterShowsKey = 'offer.starter.shows';
   static const String _starterLastDayKey = 'offer.starter.lastDay';
   static const String _tutorialUltimateKey = 'tutorial.ultimate2.done';
+  static const String _rewardedCounterKey = 'ads.rewardedOfferCounter';
 
   SharedPreferences? _prefs;
 
@@ -199,6 +200,13 @@ class StorageService {
     await _prefs?.setInt(_starterShowsKey, starterOfferShows + 1);
     await _prefs?.setString(_starterLastDayKey, day);
   }
+
+  /// Partidas desde o último convite de anúncio premiado. Guardado para a
+  /// contagem sobreviver ao fechar o app: só em memória, a oferta exigia 4
+  /// partidas na mesma abertura e quase ninguém chegava lá.
+  int get rewardedOfferCounter => _prefs?.getInt(_rewardedCounterKey) ?? 0;
+  Future<void> saveRewardedOfferCounter(int value) async =>
+      _prefs?.setInt(_rewardedCounterKey, value);
 
   bool get ultimateTutorialDone =>
       _prefs?.getBool(_tutorialUltimateKey) ?? false;

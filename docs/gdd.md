@@ -207,7 +207,7 @@ Regras que não se quebram:
 |---|---|---|
 | Banner / retângulo médio | Base da home e das telas de jogo | 300x250 só com tela >= 380x760; abaixo, banner 320x50. Some com "sem anúncios" |
 | Intersticial | Fim de partida | A cada 3 partidas (contador global, sobrevive à troca de tela). Some com "sem anúncios" |
-| Premiado "dobrar XP e moedas" | Modal de fim de partida | A cada 4 partidas, só se houver XP ganho, só com anúncio carregado, nunca na partida em que o intersticial apareceu |
+| Premiado "dobrar XP e moedas" | Modal de fim de partida | A cada 4 partidas, só se houver XP ganho, só com anúncio carregado, nunca na partida em que o intersticial apareceu. Desde a 1.15.1 a contagem fica gravada no aparelho (antes zerava ao fechar o app) e a vez barrada por outra regra passa para a partida seguinte em vez de se perder |
 | Premiado "dobrar o bônus" | Bônus diário, depois do resgate | Uma vez por resgate |
 | Premiado "+25 moedas" | Loja | Teto de 5 por dia |
 
@@ -289,8 +289,9 @@ avisa o jogador ao abrir quando há versão nova.
 
 ## 11. Métricas e estado atual (2026-10-03)
 
-- ~1.850 instalações na vida, quase todas compradas pela campanha do Google Ads (pausada pelo
-  dono em 27/08/2026, ~R$300 gastos).
+- Campanha do Google Ads na vida inteira (medido em 2026-11-01 pela API): R$550,36 e 2.861
+  instalações, CPI R$0,19 (pausada pelo dono em 27/08/2026). O "~R$300 e ~1.850" que constava
+  aqui era a janela de 30 dias, não o total.
 - AdMob, últimos 30 dias: US$0,08, 198 impressões (~10 por dia), eCPM US$0,41. Premiado com
   0 impressões até a v1.12.0.
 - Ficha sem nota visível (avaliações insuficientes); pedido de avaliação nativo depois de
@@ -331,3 +332,4 @@ Em ordem de impacto, da pesquisa de 2026-10-03:
 | **1.13.0+27** | **2026-10-04** | **Compras na Play (sem anúncios + 3 pacotes de moedas), Neon vira o visual inicial e Aurora custa 50, música 10 dB abaixo dos efeitos** |
 | **1.14.0+31** | **2026-10-05** | **Compras únicas sem servidor (boas-vindas = sem anúncios + Aurora, sem anúncios, coleção completa; moedas não se vendem), pacote de boas-vindas com juice, desafio do dia, tutorial jogável do Super, compartilhar vitória, modos 4x4 e Cinco em linha, temas de tabuleiro, Aurora vira o visual mais caro (1000) e sai de uso de todos** |
 | **1.15.0+33** | **2026-10-10** | **Online: desafio por link no Super Jogo da Velha (tempo real ou por turnos, revanche, estatísticas no servidor, exclusão no app); linha da vitória dourada com clarão, faíscas e tremida forte; ícones respirando** |
+| 1.15.1+34 | 2026-11-11 | Convite do premiado deixa de se perder: contagem gravada no aparelho e vez barrada passa para a partida seguinte (premiado tinha 1.108 anúncios atendidos e 0 exibidos na vida) |
